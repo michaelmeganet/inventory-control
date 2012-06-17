@@ -1,8 +1,10 @@
 var express = require('express')
   , routes = require('./routes')
+  , httpProxy = require('http-proxy')
   , fs = require('fs')
-  , roles_provider = require('./middleware/roles_provider.js')
-  , unauthenticated_user_handler = require('./middleware/unauthenticated_user_handler.js')
+  , unauthorized_user_handler = require('./middleware/unauthorized_user_handler.js')
+  , authentication_bridge = require('./middleware/authentication_bridge.js')
+  
 
 var opts = {
 	key: fs.readFileSync('ssl/server/keys/inventory@bericotechnologies.com.key'),
@@ -13,17 +15,26 @@ var opts = {
 	passphrase: "apple123"
 };
 
+var couchdb_proxy = new httpProxy.HttpProxy(
+	{ 
+		target: {
+			host: "192.168.192.143",
+			port: 5984
+		}
+	});
+
 var app = module.exports = express.createServer(opts);
 
 // Configuration
-
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
-  app.use(unauthenticated_user_handler());
-  app.use(roles_provider());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: "too many secrets 12345" }));
+  app.use(unauthorized_user_handler());  
+  app.use(authentication_bridge());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -38,6 +49,12 @@ app.configure('production', function(){
 
 // Routes
 app.get('/', routes.index);
+
+app.all('/inventory/*', function(req, res){
+	console.log("Request for CouchDB");
+	// Forward the Request to CouchDB
+	couchdb_proxy.proxyRequest(req, res);
+});
 
 app.listen(8443);
 console.log("Express server listening on port %d in %s mode", 
