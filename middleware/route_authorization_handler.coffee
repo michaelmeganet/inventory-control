@@ -41,8 +41,36 @@ class AccessControl
 		else
 			not @allow
 			
-			
 
 
+is_context_match = (access_controls, req) ->
+	_.find(access_controls, (ac) -> ac.is_context_match(req.url, req.method))
 
-module.exports.AccessControl = AccessControl		
+
+route_authorization_handler = (options)->
+	options = options ?  {}
+	restrictions = options.restrictions ? []
+	unless restrictions.push?
+		restrictions = [ restrictions ]
+	
+	access_controls = []
+	access_controls.push(new AccessControl(restriction)) for restriction in restrictions
+
+	
+	# Returning the Middleware Function
+	(req, res, next) ->
+		# Determine if the URL/Method matches an Access Control
+		context_matches = is_context_match access_controls, req
+		# If the route and method match (determine by whether
+		# context_match (an AccessControl) is not null)
+		if context_matches?
+			unless context_matches.is_allowed req.user
+				next("401")
+			else
+				next()
+		else
+			next()
+		
+module.exports = route_authorization_handler
+module.exports.AccessControl = AccessControl	
+	

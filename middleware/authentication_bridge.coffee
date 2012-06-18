@@ -1,4 +1,5 @@
 User = (require "../model/user.js").User
+moment = (require "moment")
 
 # Default, and not very good way to create users
 # or manage roles in a system, but useable for testing
@@ -33,6 +34,8 @@ authentication_bridge = (options) ->
 				req.user = req.session.user = 
 					options.user_info_provider(
 						req.connection.getPeerCertificate().subject)
+			console.log("AUTH:    #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +
+						"#{req.method} url:#{req.url} user:#{req.user.logon_name}")
 		# Next middleware
 		next()
 	

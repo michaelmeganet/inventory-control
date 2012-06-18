@@ -1,7 +1,9 @@
 (function() {
-  var User, authentication_bridge, create_user_from_cert;
+  var User, authentication_bridge, create_user_from_cert, moment;
 
   User = (require("../model/user.js")).User;
+
+  moment = require("moment");
 
   create_user_from_cert = function(subject) {
     var client;
@@ -32,6 +34,7 @@
         } else {
           req.user = req.session.user = options.user_info_provider(req.connection.getPeerCertificate().subject);
         }
+        console.log(("AUTH:    " + (moment().format('YY-MM-DDTHH:mm:ss.SSS')) + " ") + ("" + req.method + " url:" + req.url + " user:" + req.user.logon_name));
       }
       return next();
     };

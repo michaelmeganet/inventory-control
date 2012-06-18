@@ -1,5 +1,7 @@
 (function() {
-  var unauthorized_user_handler;
+  var moment, unauthorized_user_handler;
+
+  moment = require("moment");
 
   unauthorized_user_handler = function(options) {
     var unauth_template, _ref;
@@ -7,9 +9,7 @@
     unauth_template = (_ref = options.unauth_template) != null ? _ref : "unauthorized";
     return function(req, res, next) {
       if (!req.client.authorized) {
-        res.render(unauth_template, {
-          title: "Unauthorized"
-        });
+        console.log(("UNAUTH:  " + (moment().format('YY-MM-DDTHH:mm:ss.SSS')) + " ") + ("" + req.method + " url:" + req.url));
         next("401");
       }
       return next();

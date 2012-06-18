@@ -1,5 +1,5 @@
 (function() {
-  var AccessControl, _;
+  var AccessControl, is_context_match, route_authorization_handler, _;
 
   _ = (require("underscore"))._;
 
@@ -54,6 +54,39 @@
     return AccessControl;
 
   })();
+
+  is_context_match = function(access_controls, req) {
+    return _.find(access_controls, function(ac) {
+      return ac.is_context_match(req.url, req.method);
+    });
+  };
+
+  route_authorization_handler = function(options) {
+    var access_controls, restriction, restrictions, _i, _len, _ref;
+    options = options != null ? options : {};
+    restrictions = (_ref = options.restrictions) != null ? _ref : [];
+    if (restrictions.push == null) restrictions = [restrictions];
+    access_controls = [];
+    for (_i = 0, _len = restrictions.length; _i < _len; _i++) {
+      restriction = restrictions[_i];
+      access_controls.push(new AccessControl(restriction));
+    }
+    return function(req, res, next) {
+      var context_matches;
+      context_matches = is_context_match(access_controls, req);
+      if (context_matches != null) {
+        if (!context_matches.is_allowed(req.user)) {
+          return next("401");
+        } else {
+          return next();
+        }
+      } else {
+        return next();
+      }
+    };
+  };
+
+  module.exports = route_authorization_handler;
 
   module.exports.AccessControl = AccessControl;
 
