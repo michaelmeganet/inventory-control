@@ -12,21 +12,27 @@ class CouchDbUserRepository
 		@usersdb.insert(user, user.email, (err, body)->
 				unless err then console.log body)
 	
+	update: (user) ->
+		user._id = user.email
+		console.dir user
+		@usersdb.insert(user, user.email, (err, body)->
+				unless err then console.log body)
+	
 	get: (email, callback) ->
 		@usersdb.get email, (error, body) ->
-			throw "Problem retrieving user" if error
+			console.log "Problem retrieving user: #{error}" if error
 			user = CouchDbUserRepository.adapt_to_user(body)
 			callback.apply(@, [user])
 	
 	get_by_role: (role, callback) ->
 		@usersdb.view "users", "by_roles", { key: role }, (error, body) ->
-			throw "Problem retrieving users by role '#{role}'" if error
+			console.log "Problem retrieving users by role '#{error}'" if error
 			users = CouchDbUserRepository.adapt_to_user_array(body)
 			callback(users)
 	
 	get_by_last_name: (last_name, callback) ->
 		@usersdb.view "users", "by_lastname", { key: last_name }, (error, body) ->
-			throw "Problem retrieving users by last name '#{last_name}'" if error
+			console.log "Problem retrieving users by last name '#{error}'" if error
 			users = CouchDbUserRepository.adapt_to_user_array(body)
 			callback(users)
 	

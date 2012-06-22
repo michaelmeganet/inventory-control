@@ -6,3 +6,17 @@ body {
 a {
   color: #00B7FF;
 }
+
+.left_menu {
+	
+}
+
+.footer {
+	text-align: center;
+	font-size: 10px;
+	color: #ccc;
+}
+
+.mr10 {
+	margin-right: 10px;
+}

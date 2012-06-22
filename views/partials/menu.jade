@@ -1,5 +1,32 @@
-ul
-	li Menu Item 1
-	li Menu Item 2
-	li Menu Item 3
-	li Menu Item 4
+ul.nav.nav-tabs.nav-stacked
+	li
+		a(href="#") 
+			i.icon-flag.mr10
+			| #{user.first_name}'s Dashboard
+	- if (user.is_in_role("admin"))
+		li.nav-header Administration
+		li 
+			a(href="#") 
+				i.icon-user.mr10
+				| Manage Users
+		li 
+			a(href="#") 
+				i.icon-cog.mr10
+				| Site Settings
+	li.nav-header Inventory
+	li
+		a(href="#") 
+			i.icon-list-alt.mr10
+			| View Inventory	
+	li
+		a(href="#") 
+			i.icon-plus-sign.mr10
+			| Add Inventory
+	li
+		a(href="#") 
+			i.icon-share.mr10
+			| Assign Inventory
+	li
+		a(href="#") 
+			i.icon-check.mr10
+			| Check-In Inventory

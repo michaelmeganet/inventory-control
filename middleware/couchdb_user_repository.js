@@ -21,10 +21,18 @@
       });
     };
 
+    CouchDbUserRepository.prototype.update = function(user) {
+      user._id = user.email;
+      console.dir(user);
+      return this.usersdb.insert(user, user.email, function(err, body) {
+        if (!err) return console.log(body);
+      });
+    };
+
     CouchDbUserRepository.prototype.get = function(email, callback) {
       return this.usersdb.get(email, function(error, body) {
         var user;
-        if (error) throw "Problem retrieving user";
+        if (error) console.log("Problem retrieving user: " + error);
         user = CouchDbUserRepository.adapt_to_user(body);
         return callback.apply(this, [user]);
       });
@@ -35,7 +43,7 @@
         key: role
       }, function(error, body) {
         var users;
-        if (error) throw "Problem retrieving users by role '" + role + "'";
+        if (error) console.log("Problem retrieving users by role '" + error + "'");
         users = CouchDbUserRepository.adapt_to_user_array(body);
         return callback(users);
       });
@@ -47,7 +55,7 @@
       }, function(error, body) {
         var users;
         if (error) {
-          throw "Problem retrieving users by last name '" + last_name + "'";
+          console.log("Problem retrieving users by last name '" + error + "'");
         }
         users = CouchDbUserRepository.adapt_to_user_array(body);
         return callback(users);

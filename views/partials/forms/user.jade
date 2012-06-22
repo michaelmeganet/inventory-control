@@ -1,0 +1,94 @@
+action = "/user/new"
+
+- if (is_edit)
+  action = "/user/" + user.email
+  
+form.form-horizontal(action="#{action}", method="POST")
+    legend Information
+    div.control-group
+      label.control-label First Name:   
+      div.controls
+        input(type="text", name="user[first_name]", value="#{user.first_name}")
+      br
+      label.control-label Last Name:   
+      div.controls
+        input(type="text", name="user[last_name]", value="#{user.last_name}")
+      br
+      label.control-label Email:
+      div.controls
+        div.input-append
+          input(type="text", name="user[logon_name]", style="width: 87px", value="#{user.logon_name}")
+          span.add-on(style="font-size: 9px") @bericotechnologies.com
+    - if (typeof(user._rev) != "undefined")
+      input(type="hidden", name="user[_rev]", value="#{user._rev}")
+    legend Roles
+    div.control-group
+      label.control-label User:
+      div.controls
+        label.checkbox
+          input(type="checkbox", name="roles[user]", checked="checked", disabled="disabled") 
+          | Can view items they have issued to them. 
+      label.control-label Admin:
+      div.controls
+        label.checkbox
+          - if (roles.admin)
+            input(type="checkbox", name="roles[admin]", checked="checked") 
+          - else
+            input(type="checkbox", name="roles[admin]")
+          | Can add/remove users and modify the inventory system.
+      label.control-label View Inventory:
+      div.controls
+        label.checkbox
+          - if (roles.view_inventory)
+            input(type="checkbox", name="roles[view_inventory]", checked="checked") 
+          - else
+            input(type="checkbox", name="roles[view_inventory]")
+          | Can view inventory items that are not assigned to them.          
+      label.control-label View Reports:
+      div.controls
+        label.checkbox
+          - if (roles.view_reports)
+            input(type="checkbox", name="roles[view_reports]", checked="#{roles.view_reports}") 
+          - else
+            input(type="checkbox", name="roles[view_reports]")
+          | Can view reports about the inventory.   
+      label.control-label Add Inventory:
+      div.controls
+        label.checkbox
+          - if (roles.add_inventory)
+            input(type="checkbox", name="roles[add_inventory]", checked="#{roles.add_inventory}") 
+          - else
+            input(type="checkbox", name="roles[add_inventory]")
+          | Can add new items to the inventory.
+      label.control-label Remove Inventory:
+      div.controls
+        label.checkbox
+          - if (roles.remove_inventory)
+            input(type="checkbox", name="roles[remove_inventory]", checked="#{roles.remove_inventory}") 
+          - else
+            input(type="checkbox", name="roles[remove_inventory]")
+          | Can remove items from the inventory.
+      label.control-label Assign Inventory:
+      div.controls
+        label.checkbox
+          - if (roles.assign_inventory)
+            input(type="checkbox", name="roles[assign_inventory]", checked="#{roles.assign_inventory}") 
+          - else
+            input(type="checkbox", name="roles[assign_inventory]")
+          | Can assign items in the inventory to employees.   
+      label.control-label Check-in Inventory:
+      div.controls
+        label.checkbox
+          - if (roles.check_in_inventory)
+            input(type="checkbox", name="roles[check_in_inventory]", checked="#{roles.check_in_inventory}") 
+          - else
+            input(type="checkbox", name="roles[check_in_inventory]")
+          | Can check-in inventory items from employees.
+    div.form-actions
+      case is_edit
+        when true
+          button.btn.btn-primary(type="submit") Update User
+          | &nbsp;
+          button.btn.btn-danger(type="button", onclick="window.location='/user/#{user.email}/remove';") Remove User
+        default
+          button.btn.btn-primary(type="submit") Create User
