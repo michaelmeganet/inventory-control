@@ -1,6 +1,9 @@
 div.page-header
-  img(src="/images/berico_logo.jpg", style="float: right; height: 36px;")
-  h1=title
-    br
-    small Description of what you are doing
-  
+	img(src="/images/berico_logo.jpg", style="float: right; height: 36px;")
+	- if (typeof(title) == "undefined")
+		title = "Welcome"
+	h1=title
+		br
+		- if (typeof(description) == "undefined")
+			description = user.first_name + " " + user.last_name
+		small #{description}

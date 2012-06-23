@@ -50,6 +50,7 @@ app.post('/user/:id', routes.users_update);
 app.get('/user/:id', routes.users_get);
 app.get('/user/:id/update', routes.users_update_form);
 app.get('/user/:id/remove', routes.users_remove_form);
+app.get('/users/', routes.users_list);
 app.get('/users/by_role/:role', routes.users_by_role);
 app.get('/users/by_last_name/:last_name', routes.users_by_last_name);
 

@@ -8,19 +8,19 @@ form.form-horizontal(action="#{action}", method="POST")
     div.control-group
       label.control-label First Name:   
       div.controls
-        input(type="text", name="user[first_name]", value="#{user.first_name}")
+        input(type="text", name="user[first_name]", value="#{target_user.first_name}")
       br
       label.control-label Last Name:   
       div.controls
-        input(type="text", name="user[last_name]", value="#{user.last_name}")
+        input(type="text", name="user[last_name]", value="#{target_user.last_name}")
       br
       label.control-label Email:
       div.controls
         div.input-append
-          input(type="text", name="user[logon_name]", style="width: 87px", value="#{user.logon_name}")
+          input(type="text", name="user[logon_name]", style="width: 87px", value="#{target_user.logon_name}")
           span.add-on(style="font-size: 9px") @bericotechnologies.com
     - if (typeof(user._rev) != "undefined")
-      input(type="hidden", name="user[_rev]", value="#{user._rev}")
+      input(type="hidden", name="user[_rev]", value="#{target_user._rev}")
     legend Roles
     div.control-group
       label.control-label User:
@@ -89,6 +89,6 @@ form.form-horizontal(action="#{action}", method="POST")
         when true
           button.btn.btn-primary(type="submit") Update User
           | &nbsp;
-          button.btn.btn-danger(type="button", onclick="window.location='/user/#{user.email}/remove';") Remove User
+          button.btn.btn-danger(type="button", onclick="window.location='/user/#{target_user.email}/remove';") Remove User
         default
           button.btn.btn-primary(type="submit") Create User

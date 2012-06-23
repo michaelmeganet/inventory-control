@@ -2,9 +2,8 @@
   var users_module;
 
   module.exports.index = function(req, res) {
-    console.log(req.user);
     return res.render('index', {
-      title: 'BT Inventory Control',
+      title: 'Welcome',
       user: req.user
     });
   };
@@ -31,6 +30,8 @@
   module.exports.users_update = users_module.update;
 
   module.exports.users_update_form = users_module.update_form;
+
+  module.exports.users_list = users_module.list;
 
   module.exports.users_by_role = users_module.by_role;
 

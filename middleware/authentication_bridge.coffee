@@ -37,7 +37,7 @@ authentication_bridge = (options) ->
 			# Go to the session cache instead of making a call
 			# to the user_info_provider (if in cache)
 			if req.session.user?
-				req.user = req.session.user
+				req.user = new User(req.session.user)
 				console.log("AUTH:    #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +
 							"#{req.method} url:#{req.url} user:#{req.user.logon_name}")
 							# Next middleware

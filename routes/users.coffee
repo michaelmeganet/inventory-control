@@ -62,20 +62,24 @@ module.exports.remove = (req, res) ->
 
 module.exports.remove_form = (req, res) ->
 	user_repo.get req.params.id, (user) ->	
-		res.render("users_remove", { title: "Remove User?", user: req.user })
+		res.render("users_remove", { title: "Remove User?", user: req.user, target_user: user })
 	
 module.exports.update = (req, res) ->
 	user = normalize_post_values req.body.user, req.body.roles
 	unless user is null
-		console.log("Updating User")
 		user_repo.update user
+		req.session.user = user if user.id is req.session.user.id	
 	res.json({ success: "ok" })
 	
 module.exports.update_form = (req, res) ->
 	user_repo.get req.params.id, (user) ->
 		roles = role_membership(user.roles)
-		res.render("users_update", { title: "Update User", user: user, roles: roles })
-	
+		res.render("users_update", { title: "Update User", user: req.user, target_user: user, roles: roles })
+
+module.exports.list = (req, res) ->
+	user_repo.list (results) ->
+		res.render("users_list", { title: "Inventory Users", user: req.user, users: results.users })
+
 module.exports.by_role = (req, res) ->	
 	user_repo.get_by_role req.params.role, (users) ->
 		res.json users

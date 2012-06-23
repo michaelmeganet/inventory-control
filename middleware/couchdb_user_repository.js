@@ -1,5 +1,7 @@
 (function() {
-  var CouchDbUserRepository, User, UserInfoProvider, nano;
+  var CouchDbUserRepository, User, UserInfoProvider, nano, _;
+
+  _ = (require("underscore"))._;
 
   User = (require("../model/user.js")).User;
 
@@ -35,6 +37,24 @@
         if (error) console.log("Problem retrieving user: " + error);
         user = CouchDbUserRepository.adapt_to_user(body);
         return callback.apply(this, [user]);
+      });
+    };
+
+    CouchDbUserRepository.prototype.list = function(callback, startkey, total) {
+      var params;
+      if (startkey == null) startkey = null;
+      if (total == null) total = 10;
+      params = {};
+      if (startkey !== null) params["skip"] = total + 1;
+      if (startkey != null) params["startkey"] = startkey;
+      return this.usersdb.view("users", "by_lastname", params, function(error, body) {
+        var results, users;
+        if (error) console.log("Problem retrieving user list: " + error);
+        users = CouchDbUserRepository.adapt_to_user_array(body);
+        results = {};
+        if (users.length === (total + 1)) results.next_startkey = _.last(users).id;
+        results.users = _.first(users, total);
+        return callback.apply(this, [results]);
       });
     };
 

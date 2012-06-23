@@ -98,7 +98,8 @@
     return user_repo.get(req.params.id, function(user) {
       return res.render("users_remove", {
         title: "Remove User?",
-        user: req.user
+        user: req.user,
+        target_user: user
       });
     });
   };
@@ -107,8 +108,8 @@
     var user;
     user = normalize_post_values(req.body.user, req.body.roles);
     if (user !== null) {
-      console.log("Updating User");
       user_repo.update(user);
+      if (user.id === req.session.user.id) req.session.user = user;
     }
     return res.json({
       success: "ok"
@@ -121,8 +122,19 @@
       roles = role_membership(user.roles);
       return res.render("users_update", {
         title: "Update User",
-        user: user,
+        user: req.user,
+        target_user: user,
         roles: roles
+      });
+    });
+  };
+
+  module.exports.list = function(req, res) {
+    return user_repo.list(function(results) {
+      return res.render("users_list", {
+        title: "Inventory Users",
+        user: req.user,
+        users: results.users
       });
     });
   };

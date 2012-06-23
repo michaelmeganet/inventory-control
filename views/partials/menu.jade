@@ -1,32 +1,20 @@
 ul.nav.nav-tabs.nav-stacked
-	li
-		a(href="#") 
-			i.icon-flag.mr10
-			| #{user.first_name}'s Dashboard
+	!=partial("menu_item", { link: "/", title: "Home", icon: "icon-home"})
+	!=partial("menu_item", { link: "/home/" + user.email, title: user.first_name + "'s Dashboard", icon: "icon-flag"})
 	- if (user.is_in_role("admin"))
 		li.nav-header Administration
-		li 
-			a(href="#") 
-				i.icon-user.mr10
-				| Manage Users
-		li 
-			a(href="#") 
-				i.icon-cog.mr10
-				| Site Settings
+		!=partial("menu_item", { link: "/users/", title: "Manage Users", icon: "icon-user"})
+		!=partial("menu_item", { link: "/settings/", title: "Site Settings", icon: "icon-cog"})
+	- if (user.is_in_role("view_reports"))
+		li.nav-header Reports
+		!=partial("menu_item", { link: "#", title: "Report 1", icon: "icon-align-left"})
 	li.nav-header Inventory
-	li
-		a(href="#") 
-			i.icon-list-alt.mr10
-			| View Inventory	
-	li
-		a(href="#") 
-			i.icon-plus-sign.mr10
-			| Add Inventory
-	li
-		a(href="#") 
-			i.icon-share.mr10
-			| Assign Inventory
-	li
-		a(href="#") 
-			i.icon-check.mr10
-			| Check-In Inventory
+	!=partial("menu_item", { link: "/i/by_user/" + user.email, title: "Issued to " + user.first_name, icon: "icon-list-alt"})
+	- if (user.is_in_role("view_inventory"))
+		!=partial("menu_item", { link: "/i/", title: "View Inventory", icon: "icon-eye-open"})
+	- if (user.is_in_role("add_inventory"))	
+		!=partial("menu_item", { link: "/i/new", title: "Add Inventory", icon: "icon-plus-sign"})
+	- if (user.is_in_role("assign_inventory"))
+		!=partial("menu_item", { link: "/i/assign", title: "Assign Inventory", icon: "icon-share"})
+	- if (user.is_in_role("check_in_inventory"))	
+		!=partial("menu_item", { link: "/i/checkin", title: "Check-In Inventory", icon: "icon-check"})

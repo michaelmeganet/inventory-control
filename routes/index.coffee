@@ -1,7 +1,6 @@
 
 module.exports.index = (req, res) ->
-	console.log(req.user)
-	res.render('index', { title: 'BT Inventory Control', user: req.user })
+	res.render('index', { title: 'Welcome', description:  user: req.user })
 	
 module.exports.new_laptop = (req, res) ->
 	res.render('', { title: 'BT Inventory Control', user: req.user })
@@ -15,5 +14,6 @@ module.exports.users_remove       = users_module.remove
 module.exports.users_remove_form  = users_module.remove_form
 module.exports.users_update       = users_module.update
 module.exports.users_update_form  = users_module.update_form
+module.exports.users_list         = users_module.list
 module.exports.users_by_role      = users_module.by_role
 module.exports.users_by_last_name = users_module.by_last_name

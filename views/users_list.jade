@@ -1,0 +1,49 @@
+table.table.table-striped
+	thead
+		tr
+			th Employee
+			th Email Address
+			th 
+				i.icon-lock
+			th
+				i.icon-align-left
+			th
+				i.icon-eye-open
+			th
+				i.icon-plus-sign
+			th
+				i.icon-share
+			th
+				i.icon-check
+			th &nbsp;
+			th &nbsp;
+	tbody
+		each luser in users
+			tr
+				td #{luser.last_name}, #{luser.first_name}
+				td #{luser.email}
+				td 
+					- if (luser.is_in_role('admin')) 
+						| x
+				td 
+					- if (luser.is_in_role('view_reports')) 
+						| x
+				td 
+					- if (luser.is_in_role('view_inventory')) 
+						| x
+				td 
+					- if (luser.is_in_role('add_inventory')) 
+						| x
+				td 
+					- if (luser.is_in_role('assign_inventory')) 
+						| x
+				td 
+					- if (luser.is_in_role('check_in_inventory')) 
+						| x
+				td 
+					button.btn.btn-mini(type="button", onclick="window.location='/user/#{luser.email}/update';") 
+						i.icon-edit
+				td 
+					button.btn.btn-mini(type="button", onclick="window.location='/user/#{luser.email}/remove';")
+						i.icon-remove
+				
