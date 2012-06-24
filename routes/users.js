@@ -68,13 +68,8 @@
   module.exports.create = function(req, res) {
     var user;
     user = normalize_post_values(req.body.user, req.body.roles);
-    if (user !== null) {
-      console.log("Adding User");
-      user_repo.add(user);
-    }
-    return res.json({
-      status: "ok"
-    });
+    if (user !== null) user_repo.add(user);
+    return res.redirect("/users/");
   };
 
   module.exports.create_form = function(req, res) {
@@ -91,7 +86,11 @@
   };
 
   module.exports.remove = function(req, res) {
-    return console.log(req.params.id);
+    console.log("Deleting: " + req.params.id);
+    return user_repo.get(req.params.id, function(user) {
+      user_repo.remove(user);
+      return res.redirect("/users/");
+    });
   };
 
   module.exports.remove_form = function(req, res) {
@@ -111,9 +110,7 @@
       user_repo.update(user);
       if (user.id === req.session.user.id) req.session.user = user;
     }
-    return res.json({
-      success: "ok"
-    });
+    return res.redirect("/users/");
   };
 
   module.exports.update_form = function(req, res) {
@@ -131,7 +128,7 @@
 
   module.exports.list = function(req, res) {
     return user_repo.list(function(results) {
-      return res.render("users_list", {
+      return res.render("users_by_last_name", {
         title: "Inventory Users",
         user: req.user,
         users: results.users
@@ -140,15 +137,20 @@
   };
 
   module.exports.by_role = function(req, res) {
-    return user_repo.get_by_role(req.params.role, function(users) {
-      return res.json(users);
+    var role, _ref, _ref2;
+    role = (_ref = (_ref2 = req.params.role) != null ? _ref2 : req.body.role) != null ? _ref : "admin";
+    return user_repo.get_by_role(role, function(users) {
+      return res.render("users_by_role", {
+        title: "Users by Role",
+        description: role,
+        user: req.user,
+        users: users
+      });
     });
   };
 
   module.exports.by_last_name = function(req, res) {
-    return user_repo.get_by_last_name(req.params.last_name, function(users) {
-      return res.json(users);
-    });
+    return res.redirect("/users/");
   };
 
 }).call(this);

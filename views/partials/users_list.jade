@@ -1,0 +1,101 @@
+by_role = ""
+by_last_name = "active"
+- if (typeof(is_by_role) != "undefined")
+	by_role = "active"
+	by_last_name = ""
+div
+	span.btn-group
+		button.btn(type="button", class="#{by_last_name}", onclick="window.location='/users/';") 
+			i.icon-list.mr10
+			| View by Last Name
+		button.btn(type="button", class="#{by_role}", onclick="window.location='/users/by_role/';") 
+			i.icon-list.mr10
+			| View by Role
+	span(style="float: right")
+		button.btn.btn-info(type="button", onclick="window.location='/user/new';") 
+			i.icon-plus.icon-white
+			i.icon-user.icon-white.mr10
+			| Add New User
+br
+hr
+div.center(style="font-size: 11px")
+	i.icon-lock
+	span.mr10 : Admins
+	i.icon-align-left
+	span.mr10 : View Reports
+	i.icon-eye-open
+	span.mr10 : View Inventory
+	i.icon-plus-sign
+	span.mr10 : Add Inventory
+	i.icon-minus-sign
+	span.mr10 : Remove Inventory
+	i.icon-share
+	span.mr10 : Assign Inventory
+	i.icon-check
+	span.mr10 : Check-in Inventory
+hr
+table.table.table-striped
+	thead
+		tr
+			th Employee
+			th Email Address
+			th 
+				i.icon-lock
+			th
+				i.icon-align-left
+			th
+				i.icon-eye-open
+			th
+				i.icon-plus-sign
+			th
+				i.icon-minus-sign
+			th
+				i.icon-share
+			th
+				i.icon-check
+			th &nbsp;
+			th &nbsp;
+	tbody
+		each luser in users
+			tr
+				td #{luser.last_name}, #{luser.first_name}
+				td #{luser.email}
+				td 
+					- if (luser.is_in_role('admin')) 
+						| x
+				td 
+					- if (luser.is_in_role('view_reports')) 
+						| x
+				td 
+					- if (luser.is_in_role('view_inventory')) 
+						| x
+				td 
+					- if (luser.is_in_role('add_inventory')) 
+						| x
+				td
+					- if (luser.is_in_role('remove_inventory'))
+						| x
+				td 
+					- if (luser.is_in_role('assign_inventory')) 
+						| x
+				td 
+					- if (luser.is_in_role('check_in_inventory')) 
+						| x
+				td 
+					a(onclick="window.location='/user/#{luser.email}/update';") 
+						i.over.icon-pencil
+				td 
+					a(onclick="window.location='/user/#{luser.email}/remove';")
+						i.over.icon-trash
+script(type="text/javascript")
+	$(".over").hover(
+		function(){	$(this).addClass("icon-white"); },
+		function(){	$(this).removeClass("icon-white"); });
+div.pagination(style="float: right")
+	ul
+		li.active
+			a(href="#") 1
+		li
+			a(href="#") 2
+		li
+			a(href="#") »

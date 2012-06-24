@@ -10,14 +10,19 @@ class CouchDbUserRepository
 		@usersdb = @connection.db.use("inventory_users")
 		
 	add: (user) ->
+		delete user._rev
 		@usersdb.insert(user, user.email, (err, body)->
+				if err then console.log err
 				unless err then console.log body)
 	
 	update: (user) ->
 		user._id = user.email
-		console.dir user
 		@usersdb.insert(user, user.email, (err, body)->
 				unless err then console.log body)
+	
+	remove: (user) ->
+		@usersdb.destroy(user.email, user._rev, (err, body) ->
+				if err then console.log err)
 	
 	get: (email, callback) ->
 		@usersdb.get email, (error, body) ->
@@ -38,15 +43,19 @@ class CouchDbUserRepository
 			results.users = _.first(users, total)
 			callback.apply(@, [results])
 			
-	
 	get_by_role: (role, callback) ->
-		@usersdb.view "users", "by_roles", { key: role }, (error, body) ->
+		params = {}
+		params["key"] = role
+		@usersdb.view "users", "by_roles", params, (error, body) ->
 			console.log "Problem retrieving users by role '#{error}'" if error
 			users = CouchDbUserRepository.adapt_to_user_array(body)
 			callback(users)
 	
 	get_by_last_name: (last_name, callback) ->
-		@usersdb.view "users", "by_lastname", { key: last_name }, (error, body) ->
+		params = {}
+		unless last_name is "all"
+			params["key"] = last_name
+		@usersdb.view "users", "by_lastname", params, (error, body) ->
 			console.log "Problem retrieving users by last name '#{error}'" if error
 			users = CouchDbUserRepository.adapt_to_user_array(body)
 			callback(users)

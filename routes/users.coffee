@@ -46,9 +46,8 @@ role_membership = (roles) ->
 module.exports.create = (req, res) ->
 	user = normalize_post_values req.body.user, req.body.roles
 	unless user is null
-		console.log("Adding User")
 		user_repo.add user
-	res.json({ status: "ok" })
+	res.redirect("/users/")
 
 module.exports.create_form = (req, res) ->
 	res.render("users_create", { title: "Add New User", user: req.user })
@@ -58,7 +57,10 @@ module.exports.get = (req, res) ->
 		res.json user
 
 module.exports.remove = (req, res) ->	
-	console.log(req.params.id)
+	console.log("Deleting: #{req.params.id}")
+	user_repo.get req.params.id, (user) ->
+		user_repo.remove user
+		res.redirect("/users/")
 
 module.exports.remove_form = (req, res) ->
 	user_repo.get req.params.id, (user) ->	
@@ -69,7 +71,7 @@ module.exports.update = (req, res) ->
 	unless user is null
 		user_repo.update user
 		req.session.user = user if user.id is req.session.user.id	
-	res.json({ success: "ok" })
+	res.redirect("/users/")
 	
 module.exports.update_form = (req, res) ->
 	user_repo.get req.params.id, (user) ->
@@ -78,12 +80,12 @@ module.exports.update_form = (req, res) ->
 
 module.exports.list = (req, res) ->
 	user_repo.list (results) ->
-		res.render("users_list", { title: "Inventory Users", user: req.user, users: results.users })
+		res.render("users_by_last_name", { title: "Inventory Users", user: req.user, users: results.users })
 
-module.exports.by_role = (req, res) ->	
-	user_repo.get_by_role req.params.role, (users) ->
-		res.json users
+module.exports.by_role = (req, res) ->
+	role = req.params.role ? req.body.role ? "admin"
+	user_repo.get_by_role role, (users) ->
+		res.render("users_by_role", { title: "Users by Role", description: role, user: req.user, users: users })
 
 module.exports.by_last_name = (req, res) ->
-	user_repo.get_by_last_name req.params.last_name, (users) ->
-		res.json users
+	res.redirect("/users/")

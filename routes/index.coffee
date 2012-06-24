@@ -1,6 +1,6 @@
 
 module.exports.index = (req, res) ->
-	res.render('index', { title: 'Welcome', description:  user: req.user })
+	res.render('index', { title: 'Welcome', description:  '', user: req.user })
 	
 module.exports.new_laptop = (req, res) ->
 	res.render('', { title: 'BT Inventory Control', user: req.user })

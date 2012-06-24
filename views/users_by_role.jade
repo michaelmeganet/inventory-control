@@ -1,0 +1,8 @@
+form.well.form-search(method="POST", action="/users/by_role/")
+	span.mr10 Provide Role to Filter By:
+	input#role_filter.input-medium.search-query.mr10(type="text", name="role")
+	button.btn(type="submit") Filter
+script(type='text/javascript')
+	$('#role_filter').typeahead({source: 
+		[ "admin", "view_inventory", "view_reports", "add_inventory", "remove_inventory", "assign_inventory", "check_in_inventory" ]});
+!=partial("./partials/users_list", { is_by_role: true })

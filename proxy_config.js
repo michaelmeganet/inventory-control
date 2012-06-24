@@ -11,6 +11,8 @@ module.exports = {
 		/\/inventory_.*/
 	],
 	restrictions: [
-		{ route: /\/_utils$|\/_utils\/.*/, roles: [ "admin" ], allow: true }
+		{ route: /\/_utils$|\/_utils\/.*/, roles: [ "admin" ], allow: true },
+		{ route: /\/user\/new$/, roles: ["admin"], allow: true },
+		{ route: /\/user\/\w+@bericotechnologies.com\/update.*/, roles: ["admin"], allow: true}
 	]
 };

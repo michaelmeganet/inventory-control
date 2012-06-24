@@ -18,16 +18,23 @@
     }
 
     CouchDbUserRepository.prototype.add = function(user) {
+      delete user._rev;
       return this.usersdb.insert(user, user.email, function(err, body) {
+        if (err) console.log(err);
         if (!err) return console.log(body);
       });
     };
 
     CouchDbUserRepository.prototype.update = function(user) {
       user._id = user.email;
-      console.dir(user);
       return this.usersdb.insert(user, user.email, function(err, body) {
         if (!err) return console.log(body);
+      });
+    };
+
+    CouchDbUserRepository.prototype.remove = function(user) {
+      return this.usersdb.destroy(user.email, user._rev, function(err, body) {
+        if (err) return console.log(err);
       });
     };
 
@@ -59,9 +66,10 @@
     };
 
     CouchDbUserRepository.prototype.get_by_role = function(role, callback) {
-      return this.usersdb.view("users", "by_roles", {
-        key: role
-      }, function(error, body) {
+      var params;
+      params = {};
+      params["key"] = role;
+      return this.usersdb.view("users", "by_roles", params, function(error, body) {
         var users;
         if (error) console.log("Problem retrieving users by role '" + error + "'");
         users = CouchDbUserRepository.adapt_to_user_array(body);
@@ -70,9 +78,10 @@
     };
 
     CouchDbUserRepository.prototype.get_by_last_name = function(last_name, callback) {
-      return this.usersdb.view("users", "by_lastname", {
-        key: last_name
-      }, function(error, body) {
+      var params;
+      params = {};
+      if (last_name !== "all") params["key"] = last_name;
+      return this.usersdb.view("users", "by_lastname", params, function(error, body) {
         var users;
         if (error) {
           console.log("Problem retrieving users by last name '" + error + "'");

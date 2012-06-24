@@ -24,7 +24,6 @@ authentication_bridge = (options) ->
 	options = options ? {}
 	options.user_info_provider = options.user_info_provider ? new CertificateUserInfoProvider()
 	(req, res, next)->
-		
 		handle_user = (user) ->
 				# This is a double variable set (pretty cool, huh?)
 				req.user = req.session.user = user

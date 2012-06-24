@@ -49,8 +49,11 @@ app.get('/user/new', routes.users_create_form);
 app.post('/user/:id', routes.users_update);
 app.get('/user/:id', routes.users_get);
 app.get('/user/:id/update', routes.users_update_form);
+app.post('/user/:id/remove', routes.users_remove);
 app.get('/user/:id/remove', routes.users_remove_form);
 app.get('/users/', routes.users_list);
+app.get('/users/by_role/', routes.users_by_role);
+app.post('/users/by_role/', routes.users_by_role);
 app.get('/users/by_role/:role', routes.users_by_role);
 app.get('/users/by_last_name/:last_name', routes.users_by_last_name);
 

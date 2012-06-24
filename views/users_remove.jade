@@ -1,1 +1,13 @@
-div != user.email
+div.well
+	img(src="/images/danger.png", style="float: right; height: 200px;")
+	h1(style="color: #d00;") Danger Will Robinson!
+	br
+	br
+	p.lead Do you really want to remove 
+		b #{target_user.first_name} #{target_user.last_name}'s 
+		| account (
+		b #{target_user.email}
+		| ) from the system?
+	form(action="/user/#{target_user.email}/remove", method="POST")
+		button.btn.btn-danger.mr10(type="submit") Stop being such a pansy and do it.
+		button.btn.btn-info(type="button", onclick="window.history.back();") Nevermind, this was a big mistake...
