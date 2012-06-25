@@ -58,7 +58,8 @@ table.table.table-striped
 	tbody
 		each luser in users
 			tr
-				td #{luser.last_name}, #{luser.first_name}
+				td 
+					a(href="/user/#{luser.email}") #{luser.last_name}, #{luser.first_name}
 				td #{luser.email}
 				td 
 					- if (luser.is_in_role('admin')) 
@@ -93,9 +94,15 @@ script(type="text/javascript")
 		function(){	$(this).removeClass("icon-white"); });
 div.pagination(style="float: right")
 	ul
-		li.active
-			a(href="#") 1
-		li
-			a(href="#") 2
-		li
-			a(href="#") »
+		- if (typeof(prev_key) == "undefined")
+			li.active
+				a(href="#") &laquo;
+		- else
+			li
+				a(href="#{base_url}s/#{prev_key}") &laquo;
+		- if (typeof(next_key) == "undefined")
+			li.active
+				a(href="#") &raquo;
+		- else
+			li
+				a(href="#{base_url}s/#{next_key}/p/#{cur_key}") &raquo;

@@ -47,20 +47,31 @@
       });
     };
 
-    CouchDbUserRepository.prototype.list = function(callback, startkey, total) {
+    CouchDbUserRepository.l_comma_f_name_key_factory = function(user) {
+      return "" + user.last_name + "," + user.first_name;
+    };
+
+    CouchDbUserRepository.prototype.list = function(callback, startkey, limit, view, key_factory) {
       var params;
-      if (startkey == null) startkey = null;
-      if (total == null) total = 10;
+      if (limit == null) limit = 10;
+      if (view == null) view = "by_lastname";
+      if (key_factory == null) {
+        key_factory = CouchDbUserRepository.l_comma_f_name_key_factory;
+      }
       params = {};
-      if (startkey !== null) params["skip"] = total + 1;
       if (startkey != null) params["startkey"] = startkey;
-      return this.usersdb.view("users", "by_lastname", params, function(error, body) {
-        var results, users;
+      params["limit"] = limit + 1;
+      return this.usersdb.view("users", view, params, function(error, body) {
+        var last_user, results, users;
         if (error) console.log("Problem retrieving user list: " + error);
         users = CouchDbUserRepository.adapt_to_user_array(body);
         results = {};
-        if (users.length === (total + 1)) results.next_startkey = _.last(users).id;
-        results.users = _.first(users, total);
+        if (users.length === (limit + 1)) {
+          last_user = _.last(users);
+          results.next_startkey = key_factory(last_user);
+        }
+        results.users = _.first(users, limit);
+        results.startkey = key_factory(users[0]);
         return callback.apply(this, [results]);
       });
     };

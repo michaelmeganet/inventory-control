@@ -87,8 +87,8 @@ form.form-horizontal(action="#{action}", method="POST")
     div.form-actions
       case is_edit
         when true
-          button.btn.btn-primary(type="submit") Update User
-          | &nbsp;
-          button.btn.btn-danger(type="button", onclick="window.location='/user/#{target_user.email}/remove';") Remove User
+          button.btn.btn-primary.mr10(type="submit") Update User
+          button.btn.btn-danger.mr10(type="button", onclick="window.location='/user/#{target_user.email}/remove';") Remove User
         default
-          button.btn.btn-primary(type="submit") Create User
+          button.btn.btn-primary.mr10(type="submit") Create User
+      button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back

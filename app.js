@@ -43,7 +43,6 @@ app.configure('production', function(){
 
 // Routes
 app.get('/', routes.index);
-app.get('/laptop/new', routes.new_laptop);
 app.post('/user/new', routes.users_create);
 app.get('/user/new', routes.users_create_form);
 app.post('/user/:id', routes.users_update);
@@ -52,10 +51,16 @@ app.get('/user/:id/update', routes.users_update_form);
 app.post('/user/:id/remove', routes.users_remove);
 app.get('/user/:id/remove', routes.users_remove_form);
 app.get('/users/', routes.users_list);
+app.get('/users/s/:startkey', routes.users_list);
+app.get('/users/s/:startkey/p/:prev_key', routes.users_list);
 app.get('/users/by_role/', routes.users_by_role);
+app.get('/users/by_role/s/:startkey', routes.users_by_role);
+app.get('/users/by_role/s/:startkey/p/:prev_key', routes.users_by_role);
 app.post('/users/by_role/', routes.users_by_role);
 app.get('/users/by_role/:role', routes.users_by_role);
 app.get('/users/by_last_name/:last_name', routes.users_by_last_name);
+app.post('/inv/new', routes.inventory_create);
+app.get('/inv/new', routes.inventory_create_form);
 
 app.listen(8443);
 console.log("Express server listening on port %d in %s mode", 

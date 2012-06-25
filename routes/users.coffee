@@ -54,7 +54,7 @@ module.exports.create_form = (req, res) ->
 
 module.exports.get = (req, res) ->
 	user_repo.get req.params.id, (user) ->
-		res.json user
+		res.render("users_view", { title: "User Information", description: "#{user.last_name}, #{user.first_name}", target_user: user, user: req.user })
 
 module.exports.remove = (req, res) ->	
 	console.log("Deleting: #{req.params.id}")
@@ -78,14 +78,39 @@ module.exports.update_form = (req, res) ->
 		roles = role_membership(user.roles)
 		res.render("users_update", { title: "Update User", user: req.user, target_user: user, roles: roles })
 
+class ListHandler 
+	constructor: (@req, @res, @title, @desc, @template) ->
+		@state = {}
+		@state.prev_key = @req.params.prev_key if @req.params.prev_key?
+		@state.startkey = @req.params.startkey if @req.params.startkey?
+		@state.title = @title
+		@state.description = @desc
+		@state.user = @req.user
+		
+	handle_results: (results) =>
+		@state.users = results.users
+		@state.next_key = results.next_startkey if results.next_startkey?
+		@state.cur_key = results.startkey
+		@res.render(@template, @state)
+
 module.exports.list = (req, res) ->
-	user_repo.list (results) ->
-		res.render("users_by_last_name", { title: "Inventory Users", user: req.user, users: results.users })
+	handler = new ListHandler(req, res, "Inventory Users", "", "users_by_last_name")
+	if req.params.startkey?
+		user_repo.list(handler.handle_results, req.params.startkey)
+	else
+		user_repo.list handler.handle_results
 
 module.exports.by_role = (req, res) ->
-	role = req.params.role ? req.body.role ? "admin"
+	state = {}
+	state.role = role = req.params.role ? req.body.role ? "admin"
+	state.prev_key = req.params.prev_key if req.params.prev_key?
+	state.startkey = req.params.startkey if req.params.startkey?
+	state.title = "Users by Role"
+	state.description = role
+	state.user = req.user
 	user_repo.get_by_role role, (users) ->
-		res.render("users_by_role", { title: "Users by Role", description: role, user: req.user, users: users })
+		state.users = users
+		res.render("users_by_role", state)
 
 module.exports.by_last_name = (req, res) ->
 	res.redirect("/users/")

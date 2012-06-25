@@ -8,6 +8,7 @@ div.well
 		| account (
 		b #{target_user.email}
 		| ) from the system?
+	br
 	form(action="/user/#{target_user.email}/remove", method="POST")
 		button.btn.btn-danger.mr10(type="submit") Stop being such a pansy and do it.
-		button.btn.btn-info(type="button", onclick="window.history.back();") Nevermind, this was a big mistake...
+		button.btn.btn-inverse(type="button", onclick="window.history.back();") Nevermind, this was a big mistake...

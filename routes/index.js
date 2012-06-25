@@ -1,17 +1,10 @@
 (function() {
-  var users_module;
+  var inventory_module, users_module;
 
   module.exports.index = function(req, res) {
     return res.render('index', {
       title: 'Welcome',
-      description: '',
-      user: req.user
-    });
-  };
-
-  module.exports.new_laptop = function(req, res) {
-    return res.render('', {
-      title: 'BT Inventory Control',
+      description: "" + req.user.first_name + " " + req.user.last_name,
       user: req.user
     });
   };
@@ -37,5 +30,11 @@
   module.exports.users_by_role = users_module.by_role;
 
   module.exports.users_by_last_name = users_module.by_last_name;
+
+  inventory_module = require("./inventory.js");
+
+  module.exports.inventory_create = inventory_module.create;
+
+  module.exports.inventory_create_form = inventory_module.create_form;
 
 }).call(this);

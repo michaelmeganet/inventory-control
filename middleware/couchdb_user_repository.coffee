@@ -30,17 +30,23 @@ class CouchDbUserRepository
 			user = CouchDbUserRepository.adapt_to_user(body)
 			callback.apply(@, [user])
 	
-	list: (callback, startkey = null, total = 10) ->
+	@l_comma_f_name_key_factory = (user) ->
+		"#{user.last_name},#{user.first_name}"
+	
+	list: (callback, startkey, limit = 10, view = "by_lastname", key_factory = CouchDbUserRepository.l_comma_f_name_key_factory) ->
 		params = {}
-		params["skip"] = total + 1 unless startkey is null
-		params["startkey"] = startkey if startkey?
-		@usersdb.view "users", "by_lastname", params, (error, body) ->
+		if startkey?
+			params["startkey"] = startkey
+		params["limit"] = limit + 1	
+		@usersdb.view "users", view, params, (error, body) ->
 			console.log "Problem retrieving user list: #{error}" if error
 			users = CouchDbUserRepository.adapt_to_user_array(body)
 			results = {}
-			if users.length is (total + 1)
-				results.next_startkey = _.last(users).id
-			results.users = _.first(users, total)
+			if users.length is (limit + 1)
+				last_user = _.last(users)
+				results.next_startkey = key_factory last_user
+			results.users = _.first(users, limit)
+			results.startkey = key_factory users[0]
 			callback.apply(@, [results])
 			
 	get_by_role: (role, callback) ->
@@ -88,7 +94,8 @@ module.exports.CouchDbUserRepository = CouchDbUserRepository
 module.exports.UserInfoProvider = UserInfoProvider
 
 #repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" })
-#repo.list((list) -> console.dir list)
+#print = (list) -> console.dir(list)
+#repo.list(print, "swoolwine@bericotechnologies.com")
 #repo.get_by_role("admin", (users) -> console.dir(users))
 #repo.get_by_last_name("Clayton", (users) -> console.dir(users))
 #repo.get("rclayton@bericotechnologies.com", (user) -> console.log(user))

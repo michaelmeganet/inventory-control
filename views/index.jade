@@ -1,15 +1,17 @@
 div.hero-unit
 	p.center
-		img(src="/images/iphone.png")
-		img(src="/images/macbook.png")
-		img(src="/images/tv.png")
-		img(src="/images/software.png")
-		img(src="/images/camera.png")
+		img(src="/images/iphone.png", height="100em")
+		img(src="/images/macbook.png", height="100em")
+		img(src="/images/tv.png", height="100em")
+		img(src="/images/software.png", height="100em")
+		img(src="/images/camera.png", height="100em")
 	br
 	br
 	h1.center Inventory Control
+	br
 	p It's pretty important, so we're going to try to do a better job managing it.
 		| If you have any recommendations, we would love to hear them.
+	br
 	p.center
 		button.btn.btn-primary.mr10(type="button", onclick="window.location='/home/#{user.email}';") Go to my dashboard
 		button.btn.btn-success.mr10(type="button", onclick="window.location='/i/by_user/#{user.email}';") Show me my stuff

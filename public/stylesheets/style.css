@@ -24,3 +24,12 @@ a {
 .center {
 	text-align: center;
 }
+
+.w420px {
+	width: 420px;
+}
+
+.form-comment {
+	font-size: 11px;
+	color: #aaa;
+}

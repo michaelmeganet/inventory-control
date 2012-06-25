@@ -1,0 +1,102 @@
+action = "/inv/new"
+
+- if (is_edit)
+	action = "/inv/"
+
+form.form-horizontal(action="#{action}", method="POST")
+	legend General Information
+	div.control-group
+		label.control-label Serial No.:
+		div.controls
+			input(type="text", name="inv[serial_no]", value="")
+			p.help-block.form-comment.w420px This can also be a 'Service Tag', which is common on most Dell products.
+		br
+		label.control-label Categories:
+		div.controls
+			input(type="text", name="inv[categories]", value="")
+			p.help-block.form-comment.w420px Comma-separated list of tags to apply to this item.
+		br
+		label.control-label Item or Device Type:
+		div.controls
+			select(name="inv[type]")
+				option(value="laptop") Laptop
+				option(value="monitor") Monitor
+				option(value="server") Server
+				option(value="desktop-pc") Desktop Computer
+				option(value="tv") Television
+				option(value="cell-phone") Cell Phone
+				option(value="tablet") Tablet
+		br
+		label.control-label Make:
+		div.controls
+			input(type="text", name="inv[make]", value="")
+		br
+		label.control-label Model:
+		div.controls
+			input(type="text", name="inv[model]", value="")
+		br
+		label.control-label Asset Tag:
+		div.controls
+			input(type="text", name="inv[asset_tag]", value="")
+			p.help-block.form-comment.w420px Legacy Asset Tag number Berico uses on devices.
+	legend Disposition
+	div.control-group
+		current_date = new Date()
+		label.control-label Date Received:
+		div.controls
+			input(type="text", name="inv[date_received]", value="#{current_date.toISOString()}")
+		br
+		label.control-label Date Added:
+		div.controls
+			input(type="text", name="inv[date_added]", value="#{current_date.toISOString()}", disabled="true")
+			p.help-block.form-comment.w420px Date Added to the Berico Inventory application.
+		br
+		label.control-label Owner:
+		div.controls
+			input(type="text", name="inv[owner]", value="Berico Technologies")
+			p.help-block.form-comment.w420px The entity or person that legally owns the item.
+		br
+		label.control-label Disposition:
+		div.controls
+			input(type="text", name="inv[disposition]", value="Available", disabled="true")
+			p.help-block.form-comment.w420px Current status of the inventory item.  If you are assigning
+				| the inventory item immediately after adding it to the system,
+				| user the Assign inventory workflow on the bottom of the Inventory item's page.
+		br
+		legend Actions
+		div.control-group
+			label.control-label Issuability:
+			div.controls
+				select(name="inv[issuability]")
+					option(value="no-issue") None
+					option(value="issue") Issue to Employee
+					option(value="monitor") Allow Borrowing
+				p.help-block.form-comment.w420px Can the inventory item be issued to an employee?  
+					| "Borrowing" indicates a temporary issuing for a length of time indicated by
+					| the "Default Borrow Time".
+			br
+			label.control-label Self-Issue?:
+			div.controls
+				label.radio Not a chance.
+					input.radio.inline(type="radio", name="inv[allow_self_issue]", value="false", checked="checked")
+				label.radio Yes, allow Self-Issue.
+					input.radio.inline(type="radio", name="inv[allow_self_issue]", value="true")
+				p.help-block.form-comment.w420px Can an employee issue or borrow this item without explicit
+					| authorization?
+			br
+			label.control-label Borrow Time:
+			div.controls
+				input(type="text", name="inv[borrow_time]", value="1w")
+				p.help-block.form-comment.w420px The amount of time a person can borrow this item without
+					| needing to check it back in, or having it reissued.  Use a number plus the time increment
+					| to indicate how long the item can be borrowed: 1m 2w 3d 4h.
+			br
+	div.form-actions
+		case is_edit
+			when true
+				button.btn.btn-primary.mr10(type="submit") Update Item
+				button.btn.btn-danger.mr10(type="button", onclick="window.location='/inv/_item_id_/remove';") Remove User
+			default
+				button.btn.btn-primary.mr10(type="submit") Add Item
+		button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back
+		

@@ -9,12 +9,12 @@ ul.nav.nav-tabs.nav-stacked
 		li.nav-header Reports
 		!=partial("menu_item", { link: "#", title: "Report 1", icon: "icon-align-left"})
 	li.nav-header Inventory
-	!=partial("menu_item", { link: "/i/by_user/" + user.email, title: "Issued to " + user.first_name, icon: "icon-list-alt"})
+	!=partial("menu_item", { link: "/inv/by_user/" + user.email, title: "Issued to " + user.first_name, icon: "icon-list-alt"})
 	- if (user.is_in_role("view_inventory"))
-		!=partial("menu_item", { link: "/i/", title: "View Inventory", icon: "icon-eye-open"})
+		!=partial("menu_item", { link: "/inv/", title: "View Inventory", icon: "icon-eye-open"})
 	- if (user.is_in_role("add_inventory"))	
-		!=partial("menu_item", { link: "/i/new", title: "Add Inventory", icon: "icon-plus-sign"})
+		!=partial("menu_item", { link: "/inv/new", title: "Add Inventory", icon: "icon-plus-sign"})
 	- if (user.is_in_role("assign_inventory"))
-		!=partial("menu_item", { link: "/i/assign", title: "Assign Inventory", icon: "icon-share"})
+		!=partial("menu_item", { link: "/inv/assign", title: "Assign Inventory", icon: "icon-share"})
 	- if (user.is_in_role("check_in_inventory"))	
-		!=partial("menu_item", { link: "/i/checkin", title: "Check-In Inventory", icon: "icon-check"})
+		!=partial("menu_item", { link: "/inv/checkin", title: "Check-In Inventory", icon: "icon-check"})

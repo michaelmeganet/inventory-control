@@ -1,0 +1,13 @@
+div.hero-unit
+	img(style="float: right", src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=https://localhost:8443/user/#{target_user.email}")
+	h1 #{target_user.last_name}, #{target_user.first_name}
+	br
+	br
+	p  Contact me at this email address: 
+		a(href="mailto:#{target_user.email}") #{target_user.email}
+	- if (user.is_in_role('admin'))
+		br
+		br
+		button.btn.btn-large.btn-info.mr10(type="button", onclick="window.location = '/user/#{target_user.email}/update';") Update Information
+		button.btn.btn-large.btn-danger.mr10(type="button", onclick="window.location = '/user/#{target_user.email}/remove';") Remove User
+		button.btn.btn-large.btn-inverse(type="button", onclick="window.history.back();") Go Back

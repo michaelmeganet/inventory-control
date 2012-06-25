@@ -1,5 +1,6 @@
 (function() {
-  var CouchDbUserRepository, flatten_roles, normalize_post_values, role_membership, user_repo, user_repo_module, validate_user_state, _;
+  var CouchDbUserRepository, ListHandler, flatten_roles, normalize_post_values, role_membership, user_repo, user_repo_module, validate_user_state, _,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   _ = (require("underscore"))._;
 
@@ -81,7 +82,12 @@
 
   module.exports.get = function(req, res) {
     return user_repo.get(req.params.id, function(user) {
-      return res.json(user);
+      return res.render("users_view", {
+        title: "User Information",
+        description: "" + user.last_name + ", " + user.first_name,
+        target_user: user,
+        user: req.user
+      });
     });
   };
 
@@ -126,26 +132,62 @@
     });
   };
 
+  ListHandler = (function() {
+
+    function ListHandler(req, res, title, desc, template) {
+      this.req = req;
+      this.res = res;
+      this.title = title;
+      this.desc = desc;
+      this.template = template;
+      this.handle_results = __bind(this.handle_results, this);
+      this.state = {};
+      if (this.req.params.prev_key != null) {
+        this.state.prev_key = this.req.params.prev_key;
+      }
+      if (this.req.params.startkey != null) {
+        this.state.startkey = this.req.params.startkey;
+      }
+      this.state.title = this.title;
+      this.state.description = this.desc;
+      this.state.user = this.req.user;
+    }
+
+    ListHandler.prototype.handle_results = function(results) {
+      this.state.users = results.users;
+      if (results.next_startkey != null) {
+        this.state.next_key = results.next_startkey;
+      }
+      this.state.cur_key = results.startkey;
+      return this.res.render(this.template, this.state);
+    };
+
+    return ListHandler;
+
+  })();
+
   module.exports.list = function(req, res) {
-    return user_repo.list(function(results) {
-      return res.render("users_by_last_name", {
-        title: "Inventory Users",
-        user: req.user,
-        users: results.users
-      });
-    });
+    var handler;
+    handler = new ListHandler(req, res, "Inventory Users", "", "users_by_last_name");
+    if (req.params.startkey != null) {
+      return user_repo.list(handler.handle_results, req.params.startkey);
+    } else {
+      return user_repo.list(handler.handle_results);
+    }
   };
 
   module.exports.by_role = function(req, res) {
-    var role, _ref, _ref2;
-    role = (_ref = (_ref2 = req.params.role) != null ? _ref2 : req.body.role) != null ? _ref : "admin";
+    var role, state, _ref, _ref2;
+    state = {};
+    state.role = role = (_ref = (_ref2 = req.params.role) != null ? _ref2 : req.body.role) != null ? _ref : "admin";
+    if (req.params.prev_key != null) state.prev_key = req.params.prev_key;
+    if (req.params.startkey != null) state.startkey = req.params.startkey;
+    state.title = "Users by Role";
+    state.description = role;
+    state.user = req.user;
     return user_repo.get_by_role(role, function(users) {
-      return res.render("users_by_role", {
-        title: "Users by Role",
-        description: role,
-        user: req.user,
-        users: users
-      });
+      state.users = users;
+      return res.render("users_by_role", state);
     });
   };
 
