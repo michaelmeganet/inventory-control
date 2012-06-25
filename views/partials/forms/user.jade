@@ -4,6 +4,8 @@ action = "/user/new"
   action = "/user/" + user.email
   
 form.form-horizontal(action="#{action}", method="POST")
+    - if (typeof(target_user._rev) != "undefined")
+      input(type="hidden", name="user[_rev]", value="#{target_user._rev}")
     legend Information
     div.control-group
       label.control-label First Name:   
@@ -19,8 +21,6 @@ form.form-horizontal(action="#{action}", method="POST")
         div.input-append
           input(type="text", name="user[logon_name]", style="width: 87px", value="#{target_user.logon_name}")
           span.add-on(style="font-size: 9px") @bericotechnologies.com
-    - if (typeof(user._rev) != "undefined")
-      input(type="hidden", name="user[_rev]", value="#{target_user._rev}")
     legend Roles
     div.control-group
       label.control-label User:

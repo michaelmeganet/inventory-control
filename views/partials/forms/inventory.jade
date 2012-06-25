@@ -4,6 +4,10 @@ action = "/inv/new"
 	action = "/inv/"
 
 form.form-horizontal(action="#{action}", method="POST")
+	- if (typeof(item._rev) != "undefined")
+		input(type="hidden", name="inv[_rev]", value="#{item._rev}")
+	- if (typeof(item.ext) != "undefined")
+		input(type="hidden", name="inv[ext]", value="#{item.ext}")
 	legend General Information
 	div.control-group
 		label.control-label Serial No.:
@@ -34,6 +38,12 @@ form.form-horizontal(action="#{action}", method="POST")
 		label.control-label Model:
 		div.controls
 			input(type="text", name="inv[model]", value="")
+		br
+		label.control-label Estimated Value:
+		div.controls
+			div.input-prepend
+				span.add-on $
+				input(type="text", name="inv[estimated_value]", style="width: 184px")
 		br
 		label.control-label Asset Tag:
 		div.controls
