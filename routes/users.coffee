@@ -1,7 +1,8 @@
 _ = (require "underscore")._
-user_repo_module = require("../middleware/couchdb_user_repository.js");
-CouchDbUserRepository = user_repo_module.CouchDbUserRepository;
-user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" });
+CouchDbUserRepository = (require "../middleware/couchdb_repository.js").CouchDbUserRepository
+ListHandler = (require "./helpers/helpers.js").ListHandler
+
+user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" })
 
 validate_user_state = (user) ->
 	valid = true
@@ -54,17 +55,25 @@ module.exports.create_form = (req, res) ->
 
 module.exports.get = (req, res) ->
 	user_repo.get req.params.id, (user) ->
-		res.render("users_view", { title: "User Information", description: "#{user.last_name}, #{user.first_name}", target_user: user, user: req.user })
+		state = 
+			title: "User Information"
+			description: "#{user.last_name}, #{user.first_name}" 
+			target_user: user
+			user: req.user
+		res.render "users_view", state
 
 module.exports.remove = (req, res) ->	
-	console.log("Deleting: #{req.params.id}")
 	user_repo.get req.params.id, (user) ->
 		user_repo.remove user
 		res.redirect("/users/")
 
 module.exports.remove_form = (req, res) ->
 	user_repo.get req.params.id, (user) ->	
-		res.render("users_remove", { title: "Remove User?", user: req.user, target_user: user })
+		state = 
+			title: "Remove User?"
+			user: req.user
+			target_user: user
+		res.render "users_remove", state
 	
 module.exports.update = (req, res) ->
 	user = normalize_post_values req.body.user, req.body.roles
@@ -76,22 +85,12 @@ module.exports.update = (req, res) ->
 module.exports.update_form = (req, res) ->
 	user_repo.get req.params.id, (user) ->
 		roles = role_membership(user.roles)
-		res.render("users_update", { title: "Update User", user: req.user, target_user: user, roles: roles })
-
-class ListHandler 
-	constructor: (@req, @res, @title, @desc, @template) ->
-		@state = {}
-		@state.prev_key = @req.params.prev_key if @req.params.prev_key?
-		@state.startkey = @req.params.startkey if @req.params.startkey?
-		@state.title = @title
-		@state.description = @desc
-		@state.user = @req.user
-		
-	handle_results: (results) =>
-		@state.users = results.users
-		@state.next_key = results.next_startkey if results.next_startkey?
-		@state.cur_key = results.startkey
-		@res.render(@template, @state)
+		state = 
+			title: "Update User"
+			user: req.user
+			target_user: user
+			roles: roles
+		res.render "users_update", state
 
 module.exports.list = (req, res) ->
 	handler = new ListHandler(req, res, "Inventory Users", "", "users_by_last_name")
@@ -108,9 +107,10 @@ module.exports.by_role = (req, res) ->
 	state.title = "Users by Role"
 	state.description = role
 	state.user = req.user
-	user_repo.get_by_role role, (users) ->
-		state.users = users
+	handler = (users) ->
+		state.models = users
 		res.render("users_by_role", state)
-
+	user_repo.get_by_role handler, role
+		
 module.exports.by_last_name = (req, res) ->
 	res.redirect("/users/")

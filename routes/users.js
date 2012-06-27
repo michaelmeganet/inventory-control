@@ -1,12 +1,11 @@
 (function() {
-  var CouchDbUserRepository, ListHandler, flatten_roles, normalize_post_values, role_membership, user_repo, user_repo_module, validate_user_state, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var CouchDbUserRepository, ListHandler, flatten_roles, normalize_post_values, role_membership, user_repo, validate_user_state, _;
 
   _ = (require("underscore"))._;
 
-  user_repo_module = require("../middleware/couchdb_user_repository.js");
+  CouchDbUserRepository = (require("../middleware/couchdb_repository.js")).CouchDbUserRepository;
 
-  CouchDbUserRepository = user_repo_module.CouchDbUserRepository;
+  ListHandler = (require("./helpers/helpers.js")).ListHandler;
 
   user_repo = new CouchDbUserRepository({
     couchdb_url: "http://192.168.192.143:5984/"
@@ -82,17 +81,18 @@
 
   module.exports.get = function(req, res) {
     return user_repo.get(req.params.id, function(user) {
-      return res.render("users_view", {
+      var state;
+      state = {
         title: "User Information",
         description: "" + user.last_name + ", " + user.first_name,
         target_user: user,
         user: req.user
-      });
+      };
+      return res.render("users_view", state);
     });
   };
 
   module.exports.remove = function(req, res) {
-    console.log("Deleting: " + req.params.id);
     return user_repo.get(req.params.id, function(user) {
       user_repo.remove(user);
       return res.redirect("/users/");
@@ -101,11 +101,13 @@
 
   module.exports.remove_form = function(req, res) {
     return user_repo.get(req.params.id, function(user) {
-      return res.render("users_remove", {
+      var state;
+      state = {
         title: "Remove User?",
         user: req.user,
         target_user: user
-      });
+      };
+      return res.render("users_remove", state);
     });
   };
 
@@ -121,50 +123,17 @@
 
   module.exports.update_form = function(req, res) {
     return user_repo.get(req.params.id, function(user) {
-      var roles;
+      var roles, state;
       roles = role_membership(user.roles);
-      return res.render("users_update", {
+      state = {
         title: "Update User",
         user: req.user,
         target_user: user,
         roles: roles
-      });
+      };
+      return res.render("users_update", state);
     });
   };
-
-  ListHandler = (function() {
-
-    function ListHandler(req, res, title, desc, template) {
-      this.req = req;
-      this.res = res;
-      this.title = title;
-      this.desc = desc;
-      this.template = template;
-      this.handle_results = __bind(this.handle_results, this);
-      this.state = {};
-      if (this.req.params.prev_key != null) {
-        this.state.prev_key = this.req.params.prev_key;
-      }
-      if (this.req.params.startkey != null) {
-        this.state.startkey = this.req.params.startkey;
-      }
-      this.state.title = this.title;
-      this.state.description = this.desc;
-      this.state.user = this.req.user;
-    }
-
-    ListHandler.prototype.handle_results = function(results) {
-      this.state.users = results.users;
-      if (results.next_startkey != null) {
-        this.state.next_key = results.next_startkey;
-      }
-      this.state.cur_key = results.startkey;
-      return this.res.render(this.template, this.state);
-    };
-
-    return ListHandler;
-
-  })();
 
   module.exports.list = function(req, res) {
     var handler;
@@ -177,7 +146,7 @@
   };
 
   module.exports.by_role = function(req, res) {
-    var role, state, _ref, _ref2;
+    var handler, role, state, _ref, _ref2;
     state = {};
     state.role = role = (_ref = (_ref2 = req.params.role) != null ? _ref2 : req.body.role) != null ? _ref : "admin";
     if (req.params.prev_key != null) state.prev_key = req.params.prev_key;
@@ -185,10 +154,11 @@
     state.title = "Users by Role";
     state.description = role;
     state.user = req.user;
-    return user_repo.get_by_role(role, function(users) {
-      state.users = users;
+    handler = function(users) {
+      state.models = users;
       return res.render("users_by_role", state);
-    });
+    };
+    return user_repo.get_by_role(handler, role);
   };
 
   module.exports.by_last_name = function(req, res) {

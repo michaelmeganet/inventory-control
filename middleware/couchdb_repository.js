@@ -1,5 +1,5 @@
 (function() {
-  var CouchDbInventoryRepository, CouchDbRepository, CouchDbUserRepository, InventoryItem, User, dir, nano, repo, urepo, _,
+  var CouchDbInventoryRepository, CouchDbRepository, CouchDbUserRepository, InventoryItem, User, UserInfoProvider, nano, _,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -18,10 +18,10 @@
       this.paging_view = __bind(this.paging_view, this);
       var _ref, _ref2, _ref3;
       if ((options != null ? options.couchdb_url : void 0) == null) {
-        throw "Must provide CouchDB URL";
+        throw "Must provide CouchDB URL: 'options.couchdb_url'";
       }
       if ((options != null ? options.database : void 0) == null) {
-        throw "Must provide database name";
+        throw "Must provide database name: 'options.database'";
       }
       this.connection = nano(options.couchdb_url);
       this.db = this.connection.db.use(options.database);
@@ -122,14 +122,43 @@
 
     function CouchDbUserRepository(options) {
       options.database = "inventory_users";
+      options.model_adaptor = CouchDbUserRepository.adapt_to_user;
+      options.array_of_model_adaptor = CouchDbUserRepository.adapt_to_user_array;
       CouchDbUserRepository.__super__.constructor.call(this, options);
     }
+
+    CouchDbUserRepository.prototype.list = function(callback, startkey) {
+      var options;
+      options = {};
+      options.view_doc = "users";
+      options.view = "by_lastname";
+      options.key_factory = function(user) {
+        return "" + user.last_name + "," + user.first_name;
+      };
+      options.limit = 10;
+      return this.paging_view(callback, startkey, options);
+    };
+
+    CouchDbUserRepository.prototype.get_by_email = function(callback, startkey) {
+      var options;
+      options = {};
+      options.view_doc = "users";
+      options.view = "all";
+      options.key_factory = function(user) {
+        return user.email;
+      };
+      options.limit = 10;
+      return this.paging_view(callback, startkey, options);
+    };
 
     CouchDbUserRepository.prototype.get_by_role = function(callback, key) {
       var options;
       options = {};
+      key = key != null ? key : "user";
       options.view_doc = "users";
       options.view = "by_roles";
+      console.dir(options);
+      console.log(key);
       return this.view(callback, key, options);
     };
 
@@ -155,6 +184,27 @@
 
   })(CouchDbRepository);
 
+  module.exports.CouchDbUserRepository = CouchDbUserRepository;
+
+  UserInfoProvider = (function() {
+
+    function UserInfoProvider(couchdb_user_repository) {
+      this.couchdb_user_repository = couchdb_user_repository;
+      if (this.couchdb_user_repository == null) {
+        throw "CouchDbUserRepository must not be null";
+      }
+    }
+
+    UserInfoProvider.prototype.get_user_info = function(subject, handler) {
+      return this.couchdb_user_repository.get(subject.emailAddress, handler);
+    };
+
+    return UserInfoProvider;
+
+  })();
+
+  module.exports.UserInfoProvider = UserInfoProvider;
+
   CouchDbInventoryRepository = (function(_super) {
 
     __extends(CouchDbInventoryRepository, _super);
@@ -174,7 +224,7 @@
       options.key_factory = function(item) {
         return item.serial_no;
       };
-      options.limit = 3;
+      options.limit = 25;
       return this.paging_view(callback, startkey, options);
     };
 
@@ -201,19 +251,5 @@
   })(CouchDbRepository);
 
   module.exports.CouchDbInventoryRepository = CouchDbInventoryRepository;
-
-  repo = new CouchDbInventoryRepository({
-    couchdb_url: "http://192.168.192.143:5984/"
-  });
-
-  dir = function(items) {
-    return console.dir(items);
-  };
-
-  urepo = new CouchDbUserRepository({
-    couchdb_url: "http://192.168.192.143:5984/"
-  });
-
-  urepo.get_by_role(dir, "admin");
 
 }).call(this);
