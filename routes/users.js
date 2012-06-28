@@ -1,23 +1,28 @@
 (function() {
-  var CouchDbUserRepository, ListHandler, flatten_roles, normalize_post_values, role_membership, user_repo, validate_user_state, _;
+  var CouchDbUserRepository, ListHandler, MandatoryFieldChecker, ResultsHandler, flatten_roles, helpers, mando_fields, normalize_post_values, role_membership, user_checker, user_repo, validate_user_state, _;
 
   _ = (require("underscore"))._;
 
   CouchDbUserRepository = (require("../middleware/couchdb_repository.js")).CouchDbUserRepository;
 
-  ListHandler = (require("./helpers/helpers.js")).ListHandler;
-
   user_repo = new CouchDbUserRepository({
     couchdb_url: "http://192.168.192.143:5984/"
   });
 
+  helpers = require("./helpers/helpers.js");
+
+  ListHandler = helpers.ListHandler;
+
+  ResultsHandler = helpers.ResultsHandler;
+
+  MandatoryFieldChecker = helpers.MandatoryFieldChecker;
+
+  mando_fields = ["first_name", "last_name", "logon_name"];
+
+  user_checker = new MandatoryFieldChecker(mando_fields);
+
   validate_user_state = function(user) {
-    var valid;
-    valid = true;
-    if (user.first_name == null) valid = false;
-    if (user.last_name == null) valid = false;
-    if (user.logon_name == null) valid = false;
-    return valid;
+    return user_checker.mandatory_fields_are_set(user);
   };
 
   normalize_post_values = function(user, roles) {
@@ -163,6 +168,11 @@
 
   module.exports.by_last_name = function(req, res) {
     return res.redirect("/users/");
+  };
+
+  module.exports.refresh_info = function(req, res) {
+    delete req.session.user;
+    return res.redirect(req.header('Referer'));
   };
 
 }).call(this);

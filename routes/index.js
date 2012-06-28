@@ -31,10 +31,22 @@
 
   module.exports.users_by_last_name = users_module.by_last_name;
 
+  module.exports.users_refresh_info = users_module.refresh_info;
+
   inventory_module = require("./inventory.js");
 
   module.exports.inventory_create = inventory_module.create;
 
   module.exports.inventory_create_form = inventory_module.create_form;
+
+  module.exports.inventory_update = inventory_module.update;
+
+  module.exports.inventory_update_form = inventory_module.update_form;
+
+  module.exports.inventory_list = inventory_module.list;
+
+  module.exports.inventory_remove = inventory_module.remove;
+
+  module.exports.inventory_remove_form = inventory_module.remove_form;
 
 }).call(this);

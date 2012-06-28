@@ -16,3 +16,27 @@ class ListHandler
 		@res.render(@template, @state)
 		
 module.exports.ListHandler = ListHandler
+
+class ResultsHandler
+	
+	constructor: (@res, @success_url, @fail_url) ->
+
+	handle_results: (error, body) =>
+		unless error
+			@res.redirect(@success_url)
+		else
+			@res.redirect(@fail_url)
+
+module.exports.ResultsHandler = ResultsHandler
+
+class MandatoryFieldChecker
+	
+	constructor: (@required_fields) ->
+		
+	mandatory_fields_are_set: (obj) ->
+		valid = true
+		for field in @required_fields
+			valid = false unless obj[field]?	
+		valid
+
+module.exports.MandatoryFieldChecker = MandatoryFieldChecker

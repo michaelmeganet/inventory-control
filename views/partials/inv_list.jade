@@ -1,0 +1,58 @@
+table.table.table-striped
+	thead
+		tr
+			th Serial No.
+			th Type
+			th Make
+			th Model
+			th No.
+			th Disposition
+			th 
+				i.icon-road
+			th Location
+			th Room
+			th Received
+			th &nbsp;
+			th &nbsp;
+	tbody
+		each item in models
+			tr
+				td 
+					a(href="/inv/#{item.serial_no}") #{item.serial_no}
+				td #{item.type}
+				td #{item.make}
+				td #{item.model_no}
+				td #{item.model}
+				td #{item.disposition}
+				is_mobile = "N"
+				- if (item.location.is_mobile)
+					is_mobile = "Y"
+				td #{is_mobile}
+				td #{item.location.city}
+				td #{item.location.room}
+				date_received = (item.date_received == null) ? "" : item.date_received.substring(0, 10);
+				td #{date_received}
+				td 
+					a(onclick="window.location='/inv/#{item.serial_no}/update';") 
+						i.over.icon-pencil
+				td 
+					a(onclick="window.location='/inv/#{item.serial_no}/remove';")
+						i.over.icon-trash
+script(type="text/javascript")
+	$(".over").hover(
+		function(){	$(this).addClass("icon-white"); },
+		function(){	$(this).removeClass("icon-white"); });
+div.pagination(style="float: right")
+	ul
+		- if (typeof(prev_key) == "undefined")
+			li.active
+				a(href="#") &laquo;
+		- else
+			li
+				a(href="#{base_url}s/#{prev_key}") &laquo;
+		- if (typeof(next_key) == "undefined")
+			li.active
+				a(href="#") &raquo;
+		- else
+			li
+				a(href="#{base_url}s/#{next_key}/p/#{cur_key}") &raquo;

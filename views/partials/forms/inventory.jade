@@ -1,7 +1,7 @@
 action = "/inv/new"
 
 - if (is_edit)
-	action = "/inv/"
+	action = "/inv/" + item.serial_no
 
 form.form-horizontal(action="#{action}", method="POST")
 	- if (typeof(item._rev) != "undefined")
@@ -12,17 +12,17 @@ form.form-horizontal(action="#{action}", method="POST")
 	div.control-group
 		label.control-label Serial No.:
 		div.controls
-			input(type="text", name="inv[serial_no]", value="")
+			input(type="text", name="inv[serial_no]", value="#{item.serial_no}")
 			p.help-block.form-comment.w420px This can also be a 'Service Tag', which is common on most Dell products.
 		br
 		label.control-label Categories:
 		div.controls
-			input(type="text", name="inv[categories]", value="")
+			input(type="text", name="inv[categories]", value="#{item.categories}")
 			p.help-block.form-comment.w420px Comma-separated list of tags to apply to this item.
 		br
 		label.control-label Item or Device Type:
 		div.controls
-			select(name="inv[type]")
+			select(id="itype", name="inv[type]")
 				option(value="laptop") Laptop
 				option(value="monitor") Monitor
 				option(value="server") Server
@@ -33,51 +33,110 @@ form.form-horizontal(action="#{action}", method="POST")
 		br
 		label.control-label Make:
 		div.controls
-			input(type="text", name="inv[make]", value="")
+			input(type="text", name="inv[make]", value="#{item.make}")
 		br
 		label.control-label Model:
 		div.controls
-			input(type="text", name="inv[model]", value="")
+			input(type="text", name="inv[model]", value="#{item.model}")
+		br
+		label.control-label Model No.:
+		div.controls
+			input(type="text", name="inv[model_no]", value="#{item.model_no}")
 		br
 		label.control-label Estimated Value:
 		div.controls
 			div.input-prepend
 				span.add-on $
-				input(type="text", name="inv[estimated_value]", style="width: 184px")
+				input(type="text", name="inv[estimated_value]", style="width: 184px", value="#{item.estimated_value}")
 		br
 		label.control-label Asset Tag:
 		div.controls
-			input(type="text", name="inv[asset_tag]", value="")
+			input(type="text", name="inv[asset_tag]", value="#{item.asset_tag}")
 			p.help-block.form-comment.w420px Legacy Asset Tag number Berico uses on devices.
 	legend Disposition
 	div.control-group
-		current_date = new Date()
 		label.control-label Date Received:
 		div.controls
-			input(type="text", name="inv[date_received]", value="#{current_date.toISOString()}")
+			input(type="text", name="inv[date_received]", value="#{item.date_received}")
 		br
 		label.control-label Date Added:
 		div.controls
-			input(type="text", name="inv[date_added]", value="#{current_date.toISOString()}", disabled="true")
+			input(type="text", name="inv[date_added]", value="#{item.date_added}", disabled="true")
 			p.help-block.form-comment.w420px Date Added to the Berico Inventory application.
 		br
 		label.control-label Owner:
 		div.controls
-			input(type="text", name="inv[owner]", value="Berico Technologies")
+			input(type="text", name="inv[owner]", value="#{item.owner}")
 			p.help-block.form-comment.w420px The entity or person that legally owns the item.
 		br
 		label.control-label Disposition:
 		div.controls
-			input(type="text", name="inv[disposition]", value="Available", disabled="true")
+			input(type="text", name="inv[disposition]", value="#{item.disposition}", disabled="true")
 			p.help-block.form-comment.w420px Current status of the inventory item.  If you are assigning
 				| the inventory item immediately after adding it to the system,
 				| user the Assign inventory workflow on the bottom of the Inventory item's page.
 		br
+		legend Location
+		div.control-group
+			label.control-label Mobile?:
+			div.controls
+				label.radio No, it stays put.
+					- if (item.location.is_mobile == false || item.location.is_mobile == "false")
+						input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="false", checked="checked")
+					- else
+						input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="false")
+				label.radio Yes, it will migrate with the user.
+					- if (item.location.is_mobile == true || item.location.is_mobile == "true")
+						input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="true", checked="checked")
+					- else
+						input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="true")
+			br
+			label.control-label Primary Location:
+			div.controls
+				select#office(name="inv[office]")
+					option(value="reston") Berico Reston
+					option(value="rosslyn") Berico Rosslyn
+					option(value="other") Other
+					- if (is_edit)
+						option(value="old_loc") [Original Location]
+				p.help-block.form-comment.w420px If the item is mobile, specify the location
+					| the item will reside most of the time.  If this is a residence, please
+					| specify that location.
+			br
+			label.control-label Room (if office):
+			div.controls
+				input(type="text", name="inv[loc_room]", value="#{item.location.room}")
+			br
+			label.control-label Address:
+			div.controls
+				div.input-prepend
+					span.add-on.fs10 L1
+					input#line1(type="text", name="inv[loc_line1]", value="#{item.location.line1}", style="width: 182px")
+			div(style="height: 6px") &nbsp;
+			label.control-label &nbsp;
+			div.controls
+				div.input-prepend
+					span.add-on.fs10 L2
+					input#line2(type="text", name="inv[loc_line2]", value="#{item.location.line2}", style="width: 182px")
+			div(style="height: 6px") &nbsp;
+			label.control-label &nbsp;
+			div.controls
+				div.input-prepend
+					span.add-on.fs10 City
+					input#city(type="text", name="inv[loc_city]", value="#{item.location.city}", style="width: 90px")
+				span &nbsp;
+				div.input-prepend
+					span.add-on.fs10 State
+					input#state(type="text", name="inv[loc_state]", value="#{item.location.state}", style="width: 30px")
+				span &nbsp;
+				div.input-prepend
+					span.add-on.fs10 Zip
+					input#zipcode(type="text", name="inv[loc_zipcode]", value="#{item.location.zipcode}", style="width: 50px")
 		legend Actions
 		div.control-group
 			label.control-label Issuability:
 			div.controls
-				select(name="inv[issuability]")
+				select(id="issuability", name="inv[issuability]")
 					option(value="no-issue") None
 					option(value="issue") Issue to Employee
 					option(value="monitor") Allow Borrowing
@@ -85,18 +144,24 @@ form.form-horizontal(action="#{action}", method="POST")
 					| "Borrowing" indicates a temporary issuing for a length of time indicated by
 					| the "Default Borrow Time".
 			br
-			label.control-label Self-Issue?:
+			label.control-label Self-Issue?: 
 			div.controls
 				label.radio Not a chance.
-					input.radio.inline(type="radio", name="inv[allow_self_issue]", value="false", checked="checked")
+					- if (item.allow_self_issue == false || item.allow_self_issue == "false")
+						input.radio.inline(type="radio", name="inv[allow_self_issue]", value="false", checked="checked")
+					- else
+						input.radio.inline(type="radio", name="inv[allow_self_issue]", value="false")
 				label.radio Yes, allow Self-Issue.
-					input.radio.inline(type="radio", name="inv[allow_self_issue]", value="true")
+					- if (item.allow_self_issue == true || item.allow_self_issue == "true")
+						input.radio.inline(type="radio", name="inv[allow_self_issue]", value="true", checked="checked")
+					- else
+						input.radio.inline(type="radio", name="inv[allow_self_issue]", value="true")
 				p.help-block.form-comment.w420px Can an employee issue or borrow this item without explicit
 					| authorization?
 			br
 			label.control-label Borrow Time:
 			div.controls
-				input(type="text", name="inv[borrow_time]", value="1w")
+				input(type="text", name="inv[borrow_time]", value="#{item.borrow_time}")
 				p.help-block.form-comment.w420px The amount of time a person can borrow this item without
 					| needing to check it back in, or having it reissued.  Use a number plus the time increment
 					| to indicate how long the item can be borrowed: 1m 2w 3d 4h.
@@ -105,8 +170,64 @@ form.form-horizontal(action="#{action}", method="POST")
 		case is_edit
 			when true
 				button.btn.btn-primary.mr10(type="submit") Update Item
-				button.btn.btn-danger.mr10(type="button", onclick="window.location='/inv/_item_id_/remove';") Remove User
+				button.btn.btn-danger.mr10(type="button", onclick="window.location='/inv/#{item.serial_no}/remove';") Remove Item
 			default
 				button.btn.btn-primary.mr10(type="submit") Add Item
 		button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back
-		
+
+script(type="text/javascript")
+
+	//Save the old location just in case.
+	var old_loc = {};
+	old_loc.line1 = "#{item.location.line1}";
+	old_loc.line2 = "#{item.location.line1}";
+	old_loc.city = "#{item.location.city}";
+	old_loc.state = "#{item.location.city}";
+	old_loc.zipcode = "#{item.location.zipcode}";
+
+	var reston = {
+		line1: "11130 Sunrise Valley Drive",
+		line2: "",
+		city: "Reston",
+		state: "VA",
+		zipcode: "20191"
+	};
+
+	var rosslyn = {
+		line1: "1501 Lee Highway",
+		line2: "Suite 303",
+		city: "Arlington",
+		state: "VA",
+		zipcode: "22209"
+	};
+
+	function select(element, value){
+		$("#" + element + " option[value='" + value + "']").attr("selected", true);
+	}
+
+	function apply_location(location){
+		$("#line1").attr("value", location.line1);
+		$("#line2").attr("value", location.line2);
+		$("#city").attr("value", location.city);
+		$("#state").attr("value", location.state);
+		$("#zipcode").attr("value", location.zipcode);
+	}
+
+	$(function(){
+		select("itype", "#{item.type}");
+		select("issuability", "#{item.issuability}");
+		$("#office").change(function(){
+			var value = $("#office").val();
+			if(value == "rosslyn"){
+				apply_location(rosslyn);
+			}
+			else if(value == "reston"){
+				apply_location(reston);
+			}
+			else if(value == "old_loc"){
+				apply_location(old_loc);
+			}
+		});
+	});
+
+

@@ -38,6 +38,14 @@
     return function(req, res, next) {
       var handle_user;
       handle_user = function(user) {
+        var subject;
+        if (user == null) {
+          subject = req.connection.getPeerCertificate().subject;
+          res.redirect("403", {
+            title: "Not Authorized",
+            subject: subject
+          });
+        }
         req.user = req.session.user = user;
         console.log(("AUTH:    " + (moment().format('YY-MM-DDTHH:mm:ss.SSS')) + " ") + ("" + req.method + " url:" + req.url + " user:" + req.user.logon_name));
         return next();

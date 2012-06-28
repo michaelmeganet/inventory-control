@@ -1,6 +1,7 @@
 ul.nav.nav-tabs.nav-stacked
 	!=partial("menu_item", { link: "/", title: "Home", icon: "icon-home"})
 	!=partial("menu_item", { link: "/home/" + user.email, title: user.first_name + "'s Dashboard", icon: "icon-flag"})
+	!=partial("menu_item", { link: "/users/refresh_info", title: "Refresh Session", icon: "icon-refresh" })
 	- if (user.is_in_role("admin"))
 		li.nav-header Administration
 		!=partial("menu_item", { link: "/users/", title: "Manage Users", icon: "icon-user"})
@@ -11,7 +12,7 @@ ul.nav.nav-tabs.nav-stacked
 	li.nav-header Inventory
 	!=partial("menu_item", { link: "/inv/by_user/" + user.email, title: "Issued to " + user.first_name, icon: "icon-list-alt"})
 	- if (user.is_in_role("view_inventory"))
-		!=partial("menu_item", { link: "/inv/", title: "View Inventory", icon: "icon-eye-open"})
+		!=partial("menu_item", { link: "/inv/items", title: "View Inventory", icon: "icon-eye-open"})
 	- if (user.is_in_role("add_inventory"))	
 		!=partial("menu_item", { link: "/inv/new", title: "Add Inventory", icon: "icon-plus-sign"})
 	- if (user.is_in_role("assign_inventory"))

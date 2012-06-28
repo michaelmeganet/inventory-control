@@ -25,6 +25,11 @@ authentication_bridge = (options) ->
 	options.user_info_provider = options.user_info_provider ? new CertificateUserInfoProvider()
 	(req, res, next)->
 		handle_user = (user) ->
+				# It's possible that the client has a valid certificate but the
+				# user is not in the system.  In this event, go to the 403 error page.
+				unless user?
+					subject = req.connection.getPeerCertificate().subject
+					res.redirect("403", { title: "Not Authorized", subject: subject })
 				# This is a double variable set (pretty cool, huh?)
 				req.user = req.session.user = user
 				console.log("AUTH:    #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +

@@ -5,12 +5,15 @@ unauthorized_user_handler = (options) ->
 	unauth_template = options.unauth_template ? "unauthorized"
 	# Returning the Middleware Function
 	(req, res, next) ->
-		unless req.client.authorized
-			console.log("UNAUTH:  #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +
+		if ////[0-9]+.html$///.test(req.url)
+			next()
+		else
+			unless req.client.authorized
+				console.log("UNAUTH:  #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +
 						"#{req.method} url:#{req.url}")
-						
-			#res.render unauth_template, { title: "Unauthorized" }
-			next "401"
-		next()
+			
+				res.redirect("/401.html")
+			else
+				next()
 
 module.exports = unauthorized_user_handler

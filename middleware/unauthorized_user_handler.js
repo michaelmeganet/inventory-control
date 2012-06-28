@@ -8,11 +8,16 @@
     options = options != null ? options : {};
     unauth_template = (_ref = options.unauth_template) != null ? _ref : "unauthorized";
     return function(req, res, next) {
-      if (!req.client.authorized) {
-        console.log(("UNAUTH:  " + (moment().format('YY-MM-DDTHH:mm:ss.SSS')) + " ") + ("" + req.method + " url:" + req.url));
-        next("401");
+      if (/\/[0-9]+.html$/.test(req.url)) {
+        return next();
+      } else {
+        if (!req.client.authorized) {
+          console.log(("UNAUTH:  " + (moment().format('YY-MM-DDTHH:mm:ss.SSS')) + " ") + ("" + req.method + " url:" + req.url));
+          return res.redirect("/401.html");
+        } else {
+          return next();
+        }
       }
-      return next();
     };
   };
 

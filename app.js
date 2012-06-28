@@ -59,9 +59,16 @@ app.get('/users/by_role/s/:startkey/p/:prev_key', routes.users_by_role);
 app.post('/users/by_role/', routes.users_by_role);
 app.get('/users/by_role/:role', routes.users_by_role);
 app.get('/users/by_last_name/:last_name', routes.users_by_last_name);
+app.get('/users/refresh_info', routes.users_refresh_info);
 app.post('/inv/new', routes.inventory_create);
 app.get('/inv/new', routes.inventory_create_form);
+app.get('/inv/items', routes.inventory_list);
+app.post('/inv/:id', routes.inventory_update);
+app.get('/inv/:id/update', routes.inventory_update_form);
+app.post('/inv/:id/remove', routes.inventory_remove);
+app.get('/inv/:id/remove', routes.inventory_remove_form);
 
-app.listen(8443);
-console.log("Express server listening on port %d in %s mode", 
-  8443, app.settings.env);
+server_port = 8443
+
+app.listen(server_port);
+console.log("Express server listening on port %d in %s mode", server_port, app.settings.env);

@@ -1,5 +1,5 @@
 (function() {
-  var ListHandler,
+  var ListHandler, MandatoryFieldChecker, ResultsHandler,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   ListHandler = (function() {
@@ -37,5 +37,51 @@
   })();
 
   module.exports.ListHandler = ListHandler;
+
+  ResultsHandler = (function() {
+
+    function ResultsHandler(res, success_url, fail_url) {
+      this.res = res;
+      this.success_url = success_url;
+      this.fail_url = fail_url;
+      this.handle_results = __bind(this.handle_results, this);
+    }
+
+    ResultsHandler.prototype.handle_results = function(error, body) {
+      if (!error) {
+        return this.res.redirect(this.success_url);
+      } else {
+        return this.res.redirect(this.fail_url);
+      }
+    };
+
+    return ResultsHandler;
+
+  })();
+
+  module.exports.ResultsHandler = ResultsHandler;
+
+  MandatoryFieldChecker = (function() {
+
+    function MandatoryFieldChecker(required_fields) {
+      this.required_fields = required_fields;
+    }
+
+    MandatoryFieldChecker.prototype.mandatory_fields_are_set = function(obj) {
+      var field, valid, _i, _len, _ref;
+      valid = true;
+      _ref = this.required_fields;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        field = _ref[_i];
+        if (obj[field] == null) valid = false;
+      }
+      return valid;
+    };
+
+    return MandatoryFieldChecker;
+
+  })();
+
+  module.exports.MandatoryFieldChecker = MandatoryFieldChecker;
 
 }).call(this);

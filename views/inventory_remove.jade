@@ -1,0 +1,12 @@
+div.well
+	img(src="/images/danger.png", style="float: right; height: 200px;")
+	h1(style="color: #d00;") Danger Will Robinson!
+	br
+	br
+	p.lead Do you really want to remove the inventory item:
+		b #{item.serial_no} #{item.make} - #{item.model} #{item.model_no}
+		| from the inventory control system?
+	br
+	form(action="/inv/#{item.serial_no}/remove", method="POST")
+		button.btn.btn-danger.mr10(type="submit") Stop being such a pansy and do it.
+		button.btn.btn-inverse(type="button", onclick="window.history.back();") Nevermind, this was a big mistake...

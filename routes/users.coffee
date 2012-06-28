@@ -1,15 +1,20 @@
 _ = (require "underscore")._
+
 CouchDbUserRepository = (require "../middleware/couchdb_repository.js").CouchDbUserRepository
-ListHandler = (require "./helpers/helpers.js").ListHandler
 
 user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" })
 
+helpers = require "./helpers/helpers.js"
+ListHandler = helpers.ListHandler
+ResultsHandler = helpers.ResultsHandler
+MandatoryFieldChecker = helpers.MandatoryFieldChecker
+
+mando_fields = [ "first_name", "last_name", "logon_name" ]
+
+user_checker = new MandatoryFieldChecker(mando_fields)
+
 validate_user_state = (user) ->
-	valid = true
-	unless user.first_name? then valid = false
-	unless user.last_name? then valid = false
-	unless user.logon_name? then valid = false
-	valid
+	user_checker.mandatory_fields_are_set(user)
 
 normalize_post_values = (user, roles) ->
 	if validate_user_state user
@@ -114,3 +119,10 @@ module.exports.by_role = (req, res) ->
 		
 module.exports.by_last_name = (req, res) ->
 	res.redirect("/users/")
+	
+module.exports.refresh_info = (req, res) ->
+	# Kill the user variable in the session,
+	# on next authentication we will force a 
+	# new user lookup
+	delete req.session.user
+	res.redirect(req.header('Referer'))
