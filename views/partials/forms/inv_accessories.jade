@@ -1,0 +1,185 @@
+legend Accessories
+div.description 
+	p Accessories are low-value inventory items associated with another (higher value)
+		| inventory item.  For example, mice and keyboards would be accessories to a laptop.
+		| For the purposes of inventory, do not add this accessory as an inventory item, 
+		| and do not associate it with any other inventory item.
+	p * Policy - items worth more than $100 should be entered individually into inventory
+		| and not associated with another inventory item.
+div.control-group
+	label.control-label Description:
+	div.controls
+		input(type="text", id="acc_description")
+	br
+	label.control-label Serial No:
+	div.controls
+		input(type="text", id="acc_serial_no")
+	br
+	label.control-label Estimated Value:
+	div.controls
+		div.input-prepend
+			span.add-on $
+			input(type="text", id="acc_estimated_value", style="width: 184px")
+	br
+	label.control-label &nbsp;
+	div.controls
+		button#add_accessory.btn.btn-danger.mr10(type="button")
+			i.icon-plus.icon-white.mr10
+			| Add Accessory
+		button#clear_accessory.btn(type="button") Clear Fields
+table#acc_items.table.table-striped.edit-table
+	tr
+		th Description
+		th Serial No
+		th Value ($)
+		th(style="width: 20px") &nbsp;
+		th(style="width: 20px") &nbsp;
+	- for (var a in item.accessories)
+		tr
+			td #{item.accessories[a].description}
+			td #{item.accessories[a].serial_no}
+			td #{item.accessories[a].estimated_value}
+			td 
+				i.icon-edit
+			td
+				i.icon-remove
+- var accessories = "[]"
+- if (item.accessories)
+	- accessories = JSON.stringify(item.accessories);
+input#acc_hidden(type="hidden", name="inv[accessories]", value="#{accessories}")
+
+script(type="text/javascript")		
+
+	(function(){
+
+		function add_accessory_to_table(accessory){
+			var content = "";
+			content += "<tr>";
+			content += "<td>" + accessory.description + "</td>";
+			content += "<td>" + accessory.serial_no + "</td>";
+			content += "<td>" + accessory.estimated_value + "</td>";
+			content += "<td><i class='icon-edit'></i></td>";
+			content += "<td><i class='icon-remove'></i></td>";
+			content += "</tr>";
+			$("#acc_items").append(content);
+		}
+
+		function add_accessory_to_hidden(accessory){
+			var current_val = JSON.parse($("#acc_hidden").val());
+			current_val.push(accessory);
+			$("#acc_hidden").val(JSON.stringify(current_val));
+		}
+
+		function lift_values_from_accessories(){
+			accessory = {};
+			accessory.description = $("#acc_description").val();
+			accessory.serial_no = $("#acc_serial_no").val();
+			accessory.estimated_value = $("#acc_estimated_value").val();
+			return accessory;
+		}
+
+		function lift_values_from_table_row(row){
+			$row = $(row);
+			var tds = $("td", $row);
+			var accessory = {};
+			accessory.description = $(tds[0]).html();
+			accessory.serial_no = $(tds[1]).html();
+			accessory.estimated_value = $(tds[2]).html();
+			return accessory;
+		}
+
+		function fill_accessories_form_values(accessory){
+			$("#acc_description").val(accessory.description);
+			$("#acc_serial_no").val(accessory.serial_no);
+			$("#acc_estimated_value").val(accessory.estimated_value);
+		}
+
+		function remove_accessory_from_table(accessory){
+			$("#acc_items tr").each(function(i){
+				if (i != 0){
+					var row_accessory = lift_values_from_table_row(this);
+					if(acc_equals(row_accessory, accessory)){
+						$(this).remove();
+					}
+				}
+			});
+		}
+
+		function acc_equals(acc1, acc2){
+			return (acc1.description == acc2.description 
+				&& acc1.serial_no == acc2.serial_no
+				&& acc1.estimated_value == acc2.estimated_value);
+		}
+
+		function remove_accessory_from_hidden(accessory){
+			var current_val = JSON.parse($("#acc_hidden").val());
+			var save = [];
+			for(var v in current_val){
+				if(!acc_equals(current_val[v], accessory)){
+					save.push(current_val[v]);
+				}
+			}
+			$("#acc_hidden").val(JSON.stringify(save));
+		}
+
+		function clear_accessories(){
+			fill_accessories_form_values({ description: "", serial_no: "", estimated_value: "" });
+			accessory_form_focus();
+		}
+
+		function accessory_form_focus(){
+			$("#acc_description").focus();
+		}
+
+		function add_accessory(accessory){
+			add_accessory_to_table(accessory);
+			add_accessory_to_hidden(accessory);
+		}
+
+		function remove_accessory(accessory){
+			remove_accessory_from_table(accessory);
+			remove_accessory_from_hidden(accessory);
+		}
+
+		function sync_table(){
+			if($("#acc_items tr").length == 1){
+				$("#acc_items").hide();
+			}
+			else {
+				$("#acc_items").show();
+			}
+		}
+
+		$(function(){
+		
+			sync_table();
+
+			$("#add_accessory").click(function(){
+				accessory = lift_values_from_accessories();
+				add_accessory(accessory);
+				clear_accessories();
+				sync_table();
+			});
+
+			$("#clear_accessory").click(function(){
+				clear_accessories();
+			});
+
+			$("i.icon-edit", $("#acc_items")).livequery("click", function(){
+				var $tr = $(this).parent().parent();
+				var accessory = lift_values_from_table_row($tr);
+				fill_accessories_form_values(accessory);
+				remove_accessory(accessory);
+				accessory_form_focus();
+				sync_table();
+			});
+
+			$("i.icon-remove", $("#acc_items")).livequery("click", function(){
+				var $tr = $(this).parent().parent();
+				var accessory = lift_values_from_table_row($tr);
+				remove_accessory(accessory);
+				sync_table();
+			});
+
+		});
+	})();

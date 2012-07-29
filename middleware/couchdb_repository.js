@@ -105,6 +105,13 @@
       });
     };
 
+    CouchDbRepository.prototype.partial_update = function(id, partial, update_doc, partial_handler, callback) {
+      return this.db.atomic(update_doc, partial_handler, id, partial, function(error, body) {
+        if (error) console.log(error);
+        if (callback != null) return callback(error, body);
+      });
+    };
+
     CouchDbRepository.prototype.remove = function(model, callback) {
       return this.db.destroy(model._id, model._rev, function(error, body) {
         if (error) console.log(error);
@@ -226,6 +233,15 @@
       };
       options.limit = 25;
       return this.paging_view(callback, startkey, options);
+    };
+
+    CouchDbInventoryRepository.prototype.update_core = function(model, callback) {
+      var id, _ref;
+      id = (_ref = model.id) != null ? _ref : model._id;
+      delete model.id;
+      delete model._id;
+      delete model._rev;
+      return this.partial_update(id, model, "inventory", "merge", callback);
     };
 
     CouchDbInventoryRepository.adapt_to_inventory_item = function(body) {

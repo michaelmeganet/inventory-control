@@ -84,16 +84,27 @@ module.exports.create_form = (req, res) ->
 	state = build_state req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System"
 	res.render("inventory_create", state)
 	
+
+module.exports.get = (req, res) ->
+	unless req.params.id is null
+		inv_repo.get req.params.id, (item) ->
+			state = build_state req, "Inventory Item", "#{item.make}-#{item.model}, [#{item.serial_no}]"
+			state.item = item
+			res.render "inventory_item_view", state
+	else
+		# No ID
+		res.redirect("/500.html")
+
 module.exports.update = (req, res) ->
 	item = normalize_post_values req.body.inv
 	unless item is null
 		results_handler = new ResultsHandler(res, "/inv/#{item.serial_no}", "/500.html")
-		inv_repo.update item, results_handler.handle_results
+		inv_repo.update_core item, results_handler.handle_results
 	else
 		res.redirect("/500.html")
 	
 module.exports.update_form = (req, res) ->
-	item = inv_repo.get req.params.id, (item) ->
+	inv_repo.get req.params.id, (item) ->
 		state = build_state req, "Update Item", "#{item.make}-#{item.model}, [#{item.serial_no}]"
 		state.item = item
 		res.render "inventory_update", state

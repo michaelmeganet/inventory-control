@@ -1,0 +1,45 @@
+legend General Information
+div.control-group
+	label.control-label Serial No.:
+	div.controls
+		input(type="text", name="inv[serial_no]", value="#{item.serial_no}")
+		p.help-block.form-comment.w420px This can also be a 'Service Tag', which is common on most Dell products.
+	br
+	label.control-label Categories:
+	div.controls
+		input(type="text", name="inv[categories]", value="#{item.categories}")
+		p.help-block.form-comment.w420px Comma-separated list of tags to apply to this item.
+	br
+	label.control-label Item or Device Type:
+	div.controls
+		select(id="itype", name="inv[type]")
+			option(value="laptop") Laptop
+			option(value="monitor") Monitor
+			option(value="server") Server
+			option(value="desktop-pc") Desktop Computer
+			option(value="tv") Television
+			option(value="cell-phone") Cell Phone
+			option(value="tablet") Tablet
+	br
+	label.control-label Make:
+	div.controls
+		input(type="text", name="inv[make]", value="#{item.make}")
+	br
+	label.control-label Model:
+	div.controls
+		input(type="text", name="inv[model]", value="#{item.model}")
+	br
+	label.control-label Model No.:
+	div.controls
+		input(type="text", name="inv[model_no]", value="#{item.model_no}")
+	br
+	label.control-label Estimated Value:
+	div.controls
+		div.input-prepend
+			span.add-on $
+			input(type="text", name="inv[estimated_value]", style="width: 184px", value="#{item.estimated_value}")
+	br
+	label.control-label Asset Tag:
+	div.controls
+		input(type="text", name="inv[asset_tag]", value="#{item.asset_tag}")
+		p.help-block.form-comment.w420px Legacy Asset Tag number Berico uses on devices.

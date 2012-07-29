@@ -1,0 +1,206 @@
+legend Software
+div.description 
+	p Licensed software associated with the inventory item.  This includes Operating Systems,
+		| Office/Productivity tools, IDEs, Photo Editing Software, etc.
+div.control-group
+	label.control-label Title:
+	div.controls
+		input#software_title(type="text")
+	br
+	label.control-label OS:
+	div.controls
+		input#software_os(type="text", data-provide="typeahead", data-items="4", data-source='["Windows XP", "Windows Server 2003", "Windows Vista", "Windows Server 2008", "Windows 7", "OSX", "RHEL 5", "RHEL 6", "Ubuntu 9", "Ubuntu 10", "Ubuntu 11+", "OpenSuSE", "Debian"]')
+	br
+	label.control-label Serial No:
+	div.controls
+		input#software_serial_no(type="text")
+	br
+	label.control-label Estimated Value:
+	div.controls
+		div.input-prepend
+			span.add-on $
+			input#software_estimated_value(type="text", style="width: 184px")
+	br
+	label.control-label Expiration:
+	div.controls
+		input#software_expiration(type="text")
+		p.help-block.form-comment.w420px The date the license expires, if this software was
+			| purchased under a subscription.  The Estimated Value should equal the cost per
+			| subscription period if this is the case.
+	br
+	label.control-label &nbsp;
+	div.controls
+		button#add_software.btn.btn-danger.mr10(type="button")
+			i.icon-plus.icon-white.mr10
+			| Add Accessory
+		button#clear_software.btn(type="button") Clear Fields
+table#software_items.table.table-striped.edit-table
+	tr
+		th Title
+		th OS
+		th Serial No
+		th Value ($)
+		th Expiration
+		th(style="width: 20px") &nbsp;
+		th(style="width: 20px") &nbsp;
+	- for (var s in item.software)
+		tr
+			td #{item.software[s].title}
+			td #{item.software[s].os}
+			td #{item.software[s].serial_no}
+			td #{item.software[s].estimated_value}
+			td #{item.software[s].expiration}
+			td 
+				i.icon-edit
+			td
+				i.icon-remove
+- var software = "[]"
+- if (item.software)
+	- software = JSON.stringify(item.software);
+input#software_hidden(type="hidden", name="inv[software]", value="#{software}")
+
+script(type="text/javascript")		
+
+	(function(){
+
+		function add_to_table(software){
+			var content = "";
+			content += "<tr>";
+			content += "<td>" + software.title + "</td>";
+			content += "<td>" + software.os + "</td>";
+			content += "<td>" + software.serial_no + "</td>";
+			content += "<td>" + software.estimated_value + "</td>";
+			content += "<td>" + software.expiration + "</td>";
+			content += "<td><i class='icon-edit'></i></td>";
+			content += "<td><i class='icon-remove'></i></td>";
+			content += "</tr>";
+			$("#software_items").append(content);
+		}
+
+		function add_to_hidden(software){
+			var current_val = JSON.parse($("#software_hidden").val());
+			current_val.push(software);
+			$("#software_hidden").val(JSON.stringify(current_val));
+		}
+
+		function lift_values_from_form(){
+			software = {};
+			software.title = $("#software_title").val();
+			software.os = $("#software_os").val();
+			software.serial_no = $("#software_serial_no").val();
+			software.expiration = $("#software_expiration").val();
+			software.estimated_value = $("#software_estimated_value").val();
+			return software;
+		}
+
+		function lift_values_from_table_row(row){
+			$row = $(row);
+			var tds = $("td", $row);
+			var software = {};
+			software.title = $(tds[0]).html();
+			software.os = $(tds[1]).html();
+			software.serial_no = $(tds[2]).html();
+			software.estimated_value = $(tds[3]).html();
+			software.expiration = $(tds[4]).html();
+			return software;
+		}
+
+		function fill_form_values(software){
+			$("#software_title").val(software.title);
+			$("#software_os").val(software.os);
+			$("#software_serial_no").val(software.serial_no);
+			$("#software_estimated_value").val(software.estimated_value);
+			$("#software_expiration").val(software.expiration);
+		}
+
+		function remove_from_table(software){
+			$("#software_items tr").each(function(i){
+				if (i != 0){
+					var row_software = lift_values_from_table_row(this);
+					if(software_equals(row_software, software)){
+						$(this).remove();
+					}
+				}
+			});
+		}
+
+		function software_equals(sw1, sw2){
+			return (sw1.title == sw2.title 
+				&& sw1.serial_no == sw2.serial_no
+				&& sw1.os == sw2.os
+				&& sw1.expiration == sw2.expiration
+				&& sw1.estimated_value == sw2.estimated_value);
+		}
+
+		function remove_from_hidden(software){
+			var current_val = JSON.parse($("#software_hidden").val());
+			var save = [];
+			for(var v in current_val){
+				if(!software_equals(current_val[v], software)){
+					save.push(current_val[v]);
+				}
+			}
+			$("#software_hidden").val(JSON.stringify(save));
+		}
+
+		function clear(){
+			fill_form_values({ title: "", serial_no: "", estimated_value: "", expiration: "", os: "" });
+			focus_form();
+		}
+
+		function focus_form(){
+			$("#software_title").focus();
+		}
+
+		function add(software){
+			add_to_table(software);
+			add_to_hidden(software);
+		}
+
+		function remove(software){
+			remove_from_table(software);
+			remove_from_hidden(software);
+		}
+
+		function sync_table(){
+			if($("#software_items tr").length == 1){
+				$("#software_items").hide();
+			}
+			else {
+				$("#software_items").show();
+			}
+		}
+		
+		$(function(){
+
+			sync_table();
+
+			$("#add_software").click(function(){
+				var software = lift_values_from_form();
+				add(software);
+				clear();
+				sync_table();
+			});
+
+			$("#clear_software").click(function(){
+				clear();
+			});
+
+			$("i.icon-edit", $("#software_items")).livequery("click", function(){
+				var $tr = $(this).parent().parent();
+				var software = lift_values_from_table_row($tr);
+				fill_form_values(software);
+				remove(software);
+				focus_form();
+				sync_table();
+			});
+
+			$("i.icon-remove", $("#software_items")).livequery("click", function(){
+				var $tr = $(this).parent().parent();
+				var software = lift_values_from_table_row($tr);
+				remove(software);
+				sync_table();
+			});
+
+		});
+	})();

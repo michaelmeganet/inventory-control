@@ -1,0 +1,34 @@
+legend Actions
+div.control-group
+	label.control-label Issuability:
+	div.controls
+		select(id="issuability", name="inv[issuability]")
+			option(value="no-issue") None
+			option(value="issue") Issue to Employee
+			option(value="monitor") Allow Borrowing
+		p.help-block.form-comment.w420px Can the inventory item be issued to an employee?  
+			| "Borrowing" indicates a temporary issuing for a length of time indicated by
+			| the "Default Borrow Time".
+	br
+	label.control-label Self-Issue?: 
+	div.controls
+		label.radio Not a chance.
+			- if (item.allow_self_issue == false || item.allow_self_issue == "false")
+				input.radio.inline(type="radio", name="inv[allow_self_issue]", value="false", checked="checked")
+			- else
+				input.radio.inline(type="radio", name="inv[allow_self_issue]", value="false")
+		label.radio Yes, allow Self-Issue.
+			- if (item.allow_self_issue == true || item.allow_self_issue == "true")
+				input.radio.inline(type="radio", name="inv[allow_self_issue]", value="true", checked="checked")
+			- else
+				input.radio.inline(type="radio", name="inv[allow_self_issue]", value="true")
+		p.help-block.form-comment.w420px Can an employee issue or borrow this item without explicit
+			| authorization?
+	br
+	label.control-label Borrow Time:
+	div.controls
+		input(type="text", name="inv[borrow_time]", value="#{item.borrow_time}")
+		p.help-block.form-comment.w420px The amount of time a person can borrow this item without
+			| needing to check it back in, or having it reissued.  Use a number plus the time increment
+			| to indicate how long the item can be borrowed: 1m 2w 3d 4h.
+	br

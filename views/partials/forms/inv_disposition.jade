@@ -1,0 +1,23 @@
+legend Disposition
+div.control-group
+	label.control-label Date Received:
+	div.controls
+		input(type="text", name="inv[date_received]", value="#{item.date_received}")
+	br
+	label.control-label Date Added:
+	div.controls
+		input(type="text", name="inv[date_added]", value="#{item.date_added}", disabled="true")
+		p.help-block.form-comment.w420px Date Added to the Berico Inventory application.
+	br
+	label.control-label Owner:
+	div.controls
+		input(type="text", name="inv[owner]", value="#{item.owner}")
+		p.help-block.form-comment.w420px The entity or person that legally owns the item.
+	br
+	label.control-label Disposition:
+	div.controls
+		input(type="text", name="inv[disposition]", value="#{item.disposition}", disabled="true")
+		p.help-block.form-comment.w420px Current status of the inventory item.  If you are assigning
+			| the inventory item immediately after adding it to the system,
+			| user the Assign inventory workflow on the bottom of the Inventory item's page.
+	br

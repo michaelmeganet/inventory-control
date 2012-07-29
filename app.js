@@ -63,6 +63,7 @@ app.get('/users/refresh_info', routes.users_refresh_info);
 app.post('/inv/new', routes.inventory_create);
 app.get('/inv/new', routes.inventory_create_form);
 app.get('/inv/items', routes.inventory_list);
+app.get('/inv/:id', routes.inventory_get);
 app.post('/inv/:id', routes.inventory_update);
 app.get('/inv/:id/update', routes.inventory_update_form);
 app.post('/inv/:id/remove', routes.inventory_remove);

@@ -110,20 +110,32 @@
     return res.render("inventory_create", state);
   };
 
+  module.exports.get = function(req, res) {
+    if (req.params.id !== null) {
+      return inv_repo.get(req.params.id, function(item) {
+        var state;
+        state = build_state(req, "Inventory Item", "" + item.make + "-" + item.model + ", [" + item.serial_no + "]");
+        state.item = item;
+        return res.render("inventory_item_view", state);
+      });
+    } else {
+      return res.redirect("/500.html");
+    }
+  };
+
   module.exports.update = function(req, res) {
     var item, results_handler;
     item = normalize_post_values(req.body.inv);
     if (item !== null) {
       results_handler = new ResultsHandler(res, "/inv/" + item.serial_no, "/500.html");
-      return inv_repo.update(item, results_handler.handle_results);
+      return inv_repo.update_core(item, results_handler.handle_results);
     } else {
       return res.redirect("/500.html");
     }
   };
 
   module.exports.update_form = function(req, res) {
-    var item;
-    return item = inv_repo.get(req.params.id, function(item) {
+    return inv_repo.get(req.params.id, function(item) {
       var state;
       state = build_state(req, "Update Item", "" + item.make + "-" + item.model + ", [" + item.serial_no + "]");
       state.item = item;

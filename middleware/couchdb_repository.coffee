@@ -127,6 +127,11 @@ class CouchDbRepository
 			console.log error if error
 			callback(error, body) if callback?
 	
+	partial_update: (id, partial, update_doc, partial_handler, callback) ->
+		@db.atomic update_doc, partial_handler, id, partial, (error, body) ->
+			console.log error if error
+			callback(error, body) if callback?
+	
 	remove: (model, callback) ->
 		@db.destroy model._id, model._rev, (error, body) ->
 			console.log error if error
@@ -205,6 +210,13 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		options.limit = 25
 		@paging_view callback, startkey, options
 		
+	update_core: (model, callback) ->
+		id = model.id ? model._id
+		delete model.id
+		delete model._id
+		delete model._rev
+		@partial_update id, model, "inventory", "merge", callback
+	
 	@adapt_to_inventory_item: (body) ->
 		item = new InventoryItem(body)
 		item.id = item._id if item._id?
@@ -221,10 +233,10 @@ module.exports.CouchDbInventoryRepository = CouchDbInventoryRepository
 
 #repo = new CouchDbInventoryRepository({ couchdb_url: "http://192.168.192.143:5984/"})
 #dir = (items) -> console.dir items
-#repo.list dir, "45678"
-#repo.get "45678", (item) ->
-#	item.hello = "world"
-#	repo.update item
+#repo.list dir, "R5920761"
+#repo.get "R5920761", (item) -> console.log item
+#repo.get "R5920761", (item) ->
+#	repo.partial_update item.id, { borrow_time: "1y" }, "inventory", "merge", (msg) -> console.log msg
 
 #urepo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/"})
 #urepo.list dir, "Clayton,Richard"

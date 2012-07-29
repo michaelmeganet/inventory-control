@@ -20,6 +20,7 @@ inventory_module = (require "./inventory.js")
 
 module.exports.inventory_create	  		  = inventory_module.create
 module.exports.inventory_create_form	  = inventory_module.create_form
+module.exports.inventory_get	  		  = inventory_module.get
 module.exports.inventory_update	  		  = inventory_module.update
 module.exports.inventory_update_form	  = inventory_module.update_form
 module.exports.inventory_list         	  = inventory_module.list

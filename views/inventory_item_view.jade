@@ -1,0 +1,107 @@
+h1 #{item.make} #{item.model}, [#{item.serial_no}]
+br
+div.row(style="margin-left: 10px;")
+	div.span9
+		div.infopanel
+			i.icon-chevron-up
+			span.lead General Information
+			table.table.table-striped
+				tr
+					th(style="width: 200px;") Serial Number
+					td #{item.serial_no}
+				tr
+					th Categories
+					td #{item.categories}
+				tr
+					th Item or Device Type
+					td #{item.type}
+				tr
+					th Make
+					td #{item.make}
+				tr
+					th Model
+					td #{item.model}
+				tr
+					th Model No.
+					td #{item.model_no}
+				tr
+					th Estimated Value 
+					td #{item.estimated_value}
+				tr
+					th Berico Asset Tag
+					td #{item.asset_tag}
+		br
+		div.infopanel
+			i.icon-chevron-up
+			span.lead Disposition
+			table.table.table-striped
+				tr
+					th(style="width: 200px;") Date Received
+					td #{item.date_received}
+				tr
+					th Date Added to Inventory
+					td #{item.date_added}
+				tr
+					th Owner
+					td #{item.owner}
+				tr
+					th Disposition
+					td #{item.disposition}
+		br
+		div.infopanel
+			i.icon-chevron-up
+			span.lead Location
+			table.table.table-striped
+				tr
+					th(style="width: 200px;") Mobile?
+					td #{item.location.is_mobile}
+				tr 
+					th Line 1
+					td #{item.location.line1}
+				tr 
+					th Line 2
+					td #{item.location.line2}
+				tr 
+					th City
+					td #{item.location.city}
+				tr	
+					th State 
+					td #{item.location.state}
+				tr	
+					th Zip Code
+					td #{item.location.zipcode}
+				tr
+					th Room (if office)
+					td #{item.location.room}
+		br
+		div.infopanel
+			i.icon-chevron-up
+			span.lead Actions
+			table.table.table-striped
+				tr
+					th(style="width: 200px;") Issuability
+					td #{item.issuability}
+				tr
+					th Allow Self Issue?
+					td #{item.allow_self_issue}
+				tr 
+					th Borrow Time
+					td #{item.borrow_time}
+	div.span3
+		img( src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=https://localhost:8443/inv/#{item.id}")
+		div.actions
+			span 
+				i.icon-tasks.mr10
+				span Available Actions
+			- if (item.disposition == "Available" && (user.is_in_role('assign_inventory') || item.allow_self_issue))
+				button.btn.btn-success.mr10(type="button", onclick="window.location = '/inv/#{item.id}/issue';") Issue Item
+			- if (item.disposition == "Issued" && user.is_in_role('check_in_inventory'))
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/#{item.id}/checkin';") Check In Item
+			- if (item.disposition == "Borrowed" && user.is_in_role('check_in_inventory'))
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/#{item.id}/return';") Return Item
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/#{item.id}/extend';") Extend Borrow Time
+			- if (user.is_in_role('admin'))
+				button.btn.btn-info.mr10(type="button", onclick="window.location = '/inv/#{item.id}/update';") Update Information
+			- if (user.is_in_role('admin'))
+				button.btn.btn-danger.mr10(type="button", onclick="window.location = '/inv/#{item.id}/remove';") Remove Item
+			button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back

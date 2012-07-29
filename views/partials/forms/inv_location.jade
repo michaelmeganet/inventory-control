@@ -1,0 +1,56 @@
+legend Location
+div.control-group
+	label.control-label Mobile?:
+	div.controls
+		label.radio No, it stays put.
+			- if (item.location.is_mobile == false || item.location.is_mobile == "false")
+				input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="false", checked="checked")
+			- else
+				input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="false")
+		label.radio Yes, it will migrate with the user.
+			- if (item.location.is_mobile == true || item.location.is_mobile == "true")
+				input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="true", checked="checked")
+			- else
+				input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="true")
+	br
+	label.control-label Primary Location:
+	div.controls
+		select#office(name="inv[office]")
+			option(value="reston") Berico Reston
+			option(value="rosslyn") Berico Rosslyn
+			option(value="other") Other
+			- if (is_edit)
+				option(value="old_loc") [Original Location]
+		p.help-block.form-comment.w420px If the item is mobile, specify the location
+			| the item will reside most of the time.  If this is a residence, please
+			| specify that location.
+	br
+	label.control-label Room (if office):
+	div.controls
+		input(type="text", name="inv[loc_room]", value="#{item.location.room}")
+	br
+	label.control-label Address:
+	div.controls
+		div.input-prepend
+			span.add-on.fs10 L1
+			input#line1(type="text", name="inv[loc_line1]", value="#{item.location.line1}", style="width: 182px")
+	div(style="height: 6px") &nbsp;
+	label.control-label &nbsp;
+	div.controls
+		div.input-prepend
+			span.add-on.fs10 L2
+			input#line2(type="text", name="inv[loc_line2]", value="#{item.location.line2}", style="width: 182px")
+	div(style="height: 6px") &nbsp;
+	label.control-label &nbsp;
+	div.controls
+		div.input-prepend
+			span.add-on.fs10 City
+			input#city(type="text", name="inv[loc_city]", value="#{item.location.city}", style="width: 90px")
+		span &nbsp;
+		div.input-prepend
+			span.add-on.fs10 State
+			input#state(type="text", name="inv[loc_state]", value="#{item.location.state}", style="width: 30px")
+		span &nbsp;
+		div.input-prepend
+			span.add-on.fs10 Zip
+			input#zipcode(type="text", name="inv[loc_zipcode]", value="#{item.location.zipcode}", style="width: 50px")
