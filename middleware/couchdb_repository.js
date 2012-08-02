@@ -76,32 +76,59 @@
       return model;
     };
 
-    CouchDbRepository.prototype.add = function(model, key, callback) {
+    CouchDbRepository.prototype.add = function(model, key, callback, error_callback) {
       var couch_model;
+      if (error_callback == null) {
+        error_callback = function(error) {
+          return null;
+        };
+      }
       delete model._rev;
       couch_model = CouchDbRepository.adapt_to_couch(model);
       return this.db.insert(couch_model, key, function(error, body) {
-        if (error) console.log(error);
-        if (callback != null) return callback(error, body);
+        if (error) {
+          console.log(error);
+          return error_callback(error);
+        } else {
+          if (callback != null) return callback(error, body);
+        }
       });
     };
 
-    CouchDbRepository.prototype.get = function(key, callback) {
+    CouchDbRepository.prototype.get = function(key, callback, error_callback) {
       var model_adaptor;
+      if (error_callback == null) {
+        error_callback = function(error) {
+          return null;
+        };
+      }
       model_adaptor = this.model_adaptor;
       return this.db.get(key, function(error, body) {
-        if (error) console.log(error);
-        return callback(model_adaptor(body));
+        if (error) {
+          console.log(error);
+          return error_callback(error);
+        } else {
+          return callback(model_adaptor(body));
+        }
       });
     };
 
-    CouchDbRepository.prototype.update = function(model, callback) {
+    CouchDbRepository.prototype.update = function(model, callback, error_callback) {
       var couch_model;
+      if (error_callback == null) {
+        error_callback = function(error) {
+          return null;
+        };
+      }
       couch_model = CouchDbRepository.adapt_to_couch(model);
       if (this.id_adaptor != null) couch_model._id = this.id_adaptor(model);
       return this.db.insert(model, model._id, function(error, body) {
-        if (error) console.log(error);
-        if (callback != null) return callback(error, body);
+        if (error) {
+          console.log(error);
+          return error_callback(error);
+        } else {
+          if (callback != null) return callback(error, body);
+        }
       });
     };
 
@@ -112,10 +139,19 @@
       });
     };
 
-    CouchDbRepository.prototype.remove = function(model, callback) {
+    CouchDbRepository.prototype.remove = function(model, callback, error_callback) {
+      if (error_callback == null) {
+        error_callback = function(error) {
+          return null;
+        };
+      }
       return this.db.destroy(model._id, model._rev, function(error, body) {
-        if (error) console.log(error);
-        if (callback != null) return callback(error, body);
+        if (error) {
+          console.log(error);
+          return error_callback(error);
+        } else {
+          if (callback != null) return callback(error, body);
+        }
       });
     };
 

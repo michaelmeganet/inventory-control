@@ -5,6 +5,7 @@ x = exports ? this
 class x.InventoryLocation
 	
 	constructor: (init_state) ->
+		init_state = init_state ? {}
 		@is_mobile = false
 		@line1 = null
 		@line2 = null
@@ -19,7 +20,9 @@ class x.InventoryLocation
 		@office? and @office is not ""
 
 class x.InventoryItem 
+	
 	constructor: (init_state) ->
+		init_state = init_state ? {}
 		@id = null
 		@serial_no = null
 		@categories = []

@@ -7,6 +7,6 @@ div.well
 		b #{item.serial_no} #{item.make} - #{item.model} #{item.model_no}
 		| from the inventory control system?
 	br
-	form(action="/inv/#{item.serial_no}/remove", method="POST")
+	form(action="/inv/item/#{item.serial_no}/remove", method="POST")
 		button.btn.btn-danger.mr10(type="submit") Stop being such a pansy and do it.
 		button.btn.btn-inverse(type="button", onclick="window.history.back();") Nevermind, this was a big mistake...

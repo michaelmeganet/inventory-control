@@ -105,37 +105,49 @@ class CouchDbRepository
 		model._id = model.id unless model._id?
 		model
 
-	add: (model, key, callback) ->
+	add: (model, key, callback, error_callback = (error) -> null) ->
 		# This is a sanity check;
 		# Sometimes a UI may leave a null revision.
 		delete model._rev
 		couch_model = CouchDbRepository.adapt_to_couch(model)
 		@db.insert couch_model, key, (error, body) ->
-			console.log error if error
-			callback(error, body) if callback?
+			if error
+				console.log error
+				error_callback(error)
+			else
+				callback(error, body) if callback?
 
-	get: (key, callback) ->
+	get: (key, callback, error_callback = (error) -> null) ->
 		model_adaptor = @model_adaptor
 		@db.get key, (error, body) ->
-			console.log error if error
-			callback(model_adaptor(body))
+			if error
+				console.log error
+				error_callback(error)
+			else
+				callback(model_adaptor(body))
 			
-	update: (model, callback) ->
+	update: (model, callback, error_callback = (error) -> null) ->
 		couch_model = CouchDbRepository.adapt_to_couch(model)
 		couch_model._id = @id_adaptor(model) if @id_adaptor?
 		@db.insert model, model._id, (error, body) ->
-			console.log error if error
-			callback(error, body) if callback?
+			if error
+				console.log error
+				error_callback(error)
+			else
+				callback(error, body) if callback?
 	
 	partial_update: (id, partial, update_doc, partial_handler, callback) ->
 		@db.atomic update_doc, partial_handler, id, partial, (error, body) ->
 			console.log error if error
 			callback(error, body) if callback?
 	
-	remove: (model, callback) ->
+	remove: (model, callback, error_callback = (error) -> null) ->
 		@db.destroy model._id, model._rev, (error, body) ->
-			console.log error if error
-			callback(error, body) if callback? 
+			if error
+				console.log error
+				error_callback(error)
+			else
+				callback(error, body) if callback? 
 
 
 class CouchDbUserRepository extends CouchDbRepository

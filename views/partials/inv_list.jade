@@ -18,7 +18,7 @@ table.table.table-striped
 		each item in models
 			tr
 				td 
-					a(href="/inv/#{item.serial_no}") #{item.serial_no}
+					a(href="/inv/item/#{item.serial_no}") #{item.serial_no}
 				td #{item.type}
 				td #{item.make}
 				td #{item.model_no}
@@ -33,10 +33,10 @@ table.table.table-striped
 				date_received = (item.date_received == null) ? "" : item.date_received.substring(0, 10);
 				td #{date_received}
 				td 
-					a(onclick="window.location='/inv/#{item.serial_no}/update';") 
+					a(onclick="window.location='/inv/item/#{item.serial_no}/update';") 
 						i.over.icon-pencil
 				td 
-					a(onclick="window.location='/inv/#{item.serial_no}/remove';")
+					a(onclick="window.location='/inv/item/#{item.serial_no}/remove';")
 						i.over.icon-trash
 script(type="text/javascript")
 	$(".over").hover(

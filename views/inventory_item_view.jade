@@ -88,20 +88,20 @@ div.row(style="margin-left: 10px;")
 					th Borrow Time
 					td #{item.borrow_time}
 	div.span3
-		img( src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=https://localhost:8443/inv/#{item.id}")
+		img( src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=#{config.base_url}/inv/item#{item.id}")
 		div.actions
 			span 
 				i.icon-tasks.mr10
 				span Available Actions
 			- if (item.disposition == "Available" && (user.is_in_role('assign_inventory') || item.allow_self_issue))
-				button.btn.btn-success.mr10(type="button", onclick="window.location = '/inv/#{item.id}/issue';") Issue Item
+				button.btn.btn-success.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/issue';") Issue Item
 			- if (item.disposition == "Issued" && user.is_in_role('check_in_inventory'))
-				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/#{item.id}/checkin';") Check In Item
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/checkin';") Check In Item
 			- if (item.disposition == "Borrowed" && user.is_in_role('check_in_inventory'))
-				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/#{item.id}/return';") Return Item
-				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/#{item.id}/extend';") Extend Borrow Time
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/return';") Return Item
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/extend';") Extend Borrow Time
 			- if (user.is_in_role('admin'))
-				button.btn.btn-info.mr10(type="button", onclick="window.location = '/inv/#{item.id}/update';") Update Information
+				button.btn.btn-info.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/update';") Update Information
 			- if (user.is_in_role('admin'))
-				button.btn.btn-danger.mr10(type="button", onclick="window.location = '/inv/#{item.id}/remove';") Remove Item
+				button.btn.btn-danger.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/remove';") Remove Item
 			button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back

@@ -1,5 +1,7 @@
 _ = (require "underscore")._
 
+config = require "../conf/app_config.js"
+
 CouchDbUserRepository = (require "../middleware/couchdb_repository.js").CouchDbUserRepository
 
 user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" })
@@ -49,80 +51,101 @@ role_membership = (roles) ->
 	_.extend(default_memberships, memberships)
 	default_memberships
 
-module.exports.create = (req, res) ->
-	user = normalize_post_values req.body.user, req.body.roles
-	unless user is null
-		user_repo.add user
-	res.redirect("/users/")
-
-module.exports.create_form = (req, res) ->
-	res.render("users_create", { title: "Add New User", user: req.user })
-
-module.exports.get = (req, res) ->
-	user_repo.get req.params.id, (user) ->
-		state = 
-			title: "User Information"
-			description: "#{user.last_name}, #{user.first_name}" 
-			target_user: user
-			user: req.user
-		res.render "users_view", state
-
-module.exports.remove = (req, res) ->	
-	user_repo.get req.params.id, (user) ->
-		user_repo.remove user
-		res.redirect("/users/")
-
-module.exports.remove_form = (req, res) ->
-	user_repo.get req.params.id, (user) ->	
-		state = 
-			title: "Remove User?"
-			user: req.user
-			target_user: user
-		res.render "users_remove", state
-	
-module.exports.update = (req, res) ->
-	user = normalize_post_values req.body.user, req.body.roles
-	unless user is null
-		user_repo.update user
-		req.session.user = user if user.id is req.session.user.id	
-	res.redirect("/users/")
-	
-module.exports.update_form = (req, res) ->
-	user_repo.get req.params.id, (user) ->
-		roles = role_membership(user.roles)
-		state = 
-			title: "Update User"
-			user: req.user
-			target_user: user
-			roles: roles
-		res.render "users_update", state
-
-module.exports.list = (req, res) ->
-	handler = new ListHandler(req, res, "Inventory Users", "", "users_by_last_name")
-	if req.params.startkey?
-		user_repo.list(handler.handle_results, req.params.startkey)
-	else
-		user_repo.list handler.handle_results
-
-module.exports.by_role = (req, res) ->
+build_state = (req, title, desc) ->
 	state = {}
-	state.role = role = req.params.role ? req.body.role ? "admin"
-	state.prev_key = req.params.prev_key if req.params.prev_key?
-	state.startkey = req.params.startkey if req.params.startkey?
-	state.title = "Users by Role"
-	state.description = role
+	state.title = title
+	state.description = desc
 	state.user = req.user
-	handler = (users) ->
-		state.models = users
-		res.render("users_by_role", state)
-	user_repo.get_by_role handler, role
-		
-module.exports.by_last_name = (req, res) ->
-	res.redirect("/users/")
+	# Imported from ../conf/app_config.js
+	state.config = config
+	state
+
+module.exports = (app) ->
 	
-module.exports.refresh_info = (req, res) ->
-	# Kill the user variable in the session,
-	# on next authentication we will force a 
-	# new user lookup
-	delete req.session.user
-	res.redirect(req.header('Referer'))
+	# HANDLE NEW USER
+	app.post '/user/new', (req, res) ->
+		user = normalize_post_values req.body.user, req.body.roles
+		unless user is null
+			user_repo.add user
+		res.redirect("/users/")
+		
+	# NEW USER FORM
+	app.get '/user/new', (req, res) ->
+		res.render("users_create", { title: "Add New User", user: req.user })
+	
+	# HANDLE UPDATE USER
+	app.post '/user/:id', 	(req, res) ->
+		user = normalize_post_values req.body.user, req.body.roles
+		unless user is null
+			user_repo.update user
+			req.session.user = user if user.id is req.session.user.id	
+		res.redirect("/users/")
+	
+	# GET USER VIEW
+	app.get '/user/:id', (req, res) ->
+		user_repo.get req.params.id, (user) ->
+			state = build_state req, "User Information", "#{user.last_name}, #{user.first_name}" 
+			state.target_user = user
+			res.render "users_view", state
+			
+	# UPDATE USER FORM
+	app.get '/user/:id/update', (req, res) ->
+		user_repo.get req.params.id, (user) ->
+			roles = role_membership(user.roles)
+			state = build_state req, "Update User", null
+			state.target_user = user
+			state.roles = roles
+			res.render "users_update", state
+	
+	# HANDLE REMOVE USER
+	app.post '/user/:id/remove', (req, res) ->	
+		user_repo.get req.params.id, (user) ->
+			user_repo.remove user
+			res.redirect("/users/")
+			
+	# REMOVE USER FORM
+	app.get '/user/:id/remove', (req, res) ->
+		user_repo.get req.params.id, (user) ->	
+			state = build_state req, "Remove User?", null
+			state.target_user = user
+			res.render "users_remove", state
+	
+	# GENERIC HANDLER FROM LIST USERS
+	list = (req, res) ->
+		handler = new ListHandler(req, res, "Inventory Users", "", "users_by_last_name")
+		if req.params.startkey?
+			user_repo.list(handler.handle_results, req.params.startkey)
+		else
+			user_repo.list handler.handle_results
+	
+	app.get '/users/', list
+	app.get '/users/s/:startkey', list
+	app.get '/users/s/:startkey/p/:prev_key', list
+	
+	# GENERIC HANDLER FOR LISTING USERS BY ROLE
+	by_role = (req, res) ->
+		state = build_state req, "Users by Role", role
+		state.role = role = req.params.role ? req.body.role ? "admin"
+		state.prev_key = req.params.prev_key if req.params.prev_key?
+		state.startkey = req.params.startkey if req.params.startkey?
+		handler = (users) ->
+			state.models = users
+			res.render("users_by_role", state)
+		user_repo.get_by_role handler, role
+	
+	app.get '/users/by_role/', by_role
+	app.get '/users/by_role/s/:startkey', by_role
+	app.get '/users/by_role/s/:startkey/p/:prev_key', by_role
+	app.post '/users/by_role/', by_role
+	app.get '/users/by_role/:role', by_role
+	
+	app.get '/users/by_last_name/:last_name', (req, res) ->
+		res.redirect("/users/")
+		
+	app.get '/users/refresh_info', (req, res) ->
+		# Kill the user variable in the session,
+		# on next authentication we will force a 
+		# new user lookup
+		delete req.session.user
+		res.redirect(req.header('Referer'))
+

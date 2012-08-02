@@ -8,6 +8,7 @@
   x.InventoryLocation = (function() {
 
     function InventoryLocation(init_state) {
+      init_state = init_state != null ? init_state : {};
       this.is_mobile = false;
       this.line1 = null;
       this.line2 = null;
@@ -31,6 +32,7 @@
 
     function InventoryItem(init_state) {
       var loc_state, _ref;
+      init_state = init_state != null ? init_state : {};
       this.id = null;
       this.serial_no = null;
       this.categories = [];

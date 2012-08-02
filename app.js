@@ -1,5 +1,4 @@
 var express = require('express')
-  , routes = require('./routes')
   , httpProxy = require('http-proxy')
   , proxy_conf = require('./conf/proxy_config.js')
   , server_conf = require('./conf/server_config.js')
@@ -42,32 +41,9 @@ app.configure('production', function(){
 });
 
 // Routes
-app.get('/', routes.index);
-app.post('/user/new', routes.users_create);
-app.get('/user/new', routes.users_create_form);
-app.post('/user/:id', routes.users_update);
-app.get('/user/:id', routes.users_get);
-app.get('/user/:id/update', routes.users_update_form);
-app.post('/user/:id/remove', routes.users_remove);
-app.get('/user/:id/remove', routes.users_remove_form);
-app.get('/users/', routes.users_list);
-app.get('/users/s/:startkey', routes.users_list);
-app.get('/users/s/:startkey/p/:prev_key', routes.users_list);
-app.get('/users/by_role/', routes.users_by_role);
-app.get('/users/by_role/s/:startkey', routes.users_by_role);
-app.get('/users/by_role/s/:startkey/p/:prev_key', routes.users_by_role);
-app.post('/users/by_role/', routes.users_by_role);
-app.get('/users/by_role/:role', routes.users_by_role);
-app.get('/users/by_last_name/:last_name', routes.users_by_last_name);
-app.get('/users/refresh_info', routes.users_refresh_info);
-app.post('/inv/new', routes.inventory_create);
-app.get('/inv/new', routes.inventory_create_form);
-app.get('/inv/items', routes.inventory_list);
-app.get('/inv/:id', routes.inventory_get);
-app.post('/inv/:id', routes.inventory_update);
-app.get('/inv/:id/update', routes.inventory_update_form);
-app.post('/inv/:id/remove', routes.inventory_remove);
-app.get('/inv/:id/remove', routes.inventory_remove_form);
+require("./routes/index.js")(app);
+require("./routes/inventory.js")(app);
+require("./routes/users.js")(app);
 
 server_port = 8443
 

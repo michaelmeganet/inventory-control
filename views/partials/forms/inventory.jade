@@ -1,24 +1,24 @@
 action = "/inv/new"
 
 - if (is_edit)
-	action = "/inv/" + item.serial_no
+	action = "/inv/item/" + item.serial_no
 
 form.form-horizontal(action="#{action}", method="POST")
 	- if (typeof(item._rev) != "undefined")
 		input(type="hidden", name="inv[_rev]", value="#{item._rev}")
 	- if (typeof(item.ext) != "undefined")
 		input(type="hidden", name="inv[ext]", value="#{item.ext}")
-	!=partial("partials/forms/inv_geninfo", this)
-	!=partial("partials/forms/inv_accessories", this)
-	!=partial("partials/forms/inv_software", this)
-	!=partial("partials/forms/inv_disposition", this)
-	!=partial("partials/forms/inv_location", this)	
-	!=partial("partials/forms/inv_actions", this)	
+	!=partial("partials/forms/inv_geninfo")
+	!=partial("partials/forms/inv_accessories")
+	!=partial("partials/forms/inv_software")
+	!=partial("partials/forms/inv_disposition")
+	!=partial("partials/forms/inv_location")	
+	!=partial("partials/forms/inv_actions")	
 	div.form-actions
 		case is_edit
 			when true
 				button.btn.btn-primary.mr10(type="submit") Update Item
-				button.btn.btn-danger.mr10(type="button", onclick="window.location='/inv/#{item.serial_no}/remove';") Remove Item
+				button.btn.btn-danger.mr10(type="button", onclick="window.location='/inv/item/#{item.serial_no}/remove';") Remove Item
 			default
 				button.btn.btn-primary.mr10(type="submit") Add Item
 		button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back

@@ -1,12 +1,14 @@
 (function() {
-  var CouchDbInventoryRepository, InventoryLocation, ListHandler, MandatoryFieldChecker, ResultsHandler, build_state, comma_sep_categories_to_array, expand_location, helpers, inv_repo, inventory_checker, mando_fields, normalize_post_values, prune_locations, validate_item_state, _;
+  var CouchDbInventoryRepository, InventoryLocation, ListHandler, MandatoryFieldChecker, ResultsHandler, build_state, comma_sep_categories_to_array, config, expand_location, helpers, inv_repo, inventory_checker, mando_fields, normalize_post_values, prune_locations, validate_item_state, _;
 
   _ = (require("underscore"))._;
+
+  config = require("../conf/app_config.js");
 
   CouchDbInventoryRepository = (require("../middleware/couchdb_repository.js")).CouchDbInventoryRepository;
 
   inv_repo = new CouchDbInventoryRepository({
-    couchdb_url: "http://192.168.192.143:5984/"
+    couchdb_url: config.couch_base_url
   });
 
   helpers = require("./helpers/helpers.js");
@@ -29,6 +31,7 @@
     state.title = title;
     state.description = desc;
     state.user = req.user;
+    state.config = config;
     return state;
   };
 
@@ -93,83 +96,78 @@
     }
   };
 
-  module.exports.create = function(req, res) {
-    var item, results_handler;
-    item = normalize_post_values(req.body.inv);
-    if (item !== null) {
-      results_handler = new ResultsHandler(res, "/inv/" + item.serial_no, "/500.html");
-      return inv_repo.add(item, item.serial_no, results_handler.handle_results);
-    } else {
-      return res.redirect("/500.html");
-    }
-  };
-
-  module.exports.create_form = function(req, res) {
-    var state;
-    state = build_state(req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System");
-    return res.render("inventory_create", state);
-  };
-
-  module.exports.get = function(req, res) {
-    if (req.params.id !== null) {
-      return inv_repo.get(req.params.id, function(item) {
-        var state;
-        state = build_state(req, "Inventory Item", "" + item.make + "-" + item.model + ", [" + item.serial_no + "]");
-        state.item = item;
-        return res.render("inventory_item_view", state);
-      });
-    } else {
-      return res.redirect("/500.html");
-    }
-  };
-
-  module.exports.update = function(req, res) {
-    var item, results_handler;
-    item = normalize_post_values(req.body.inv);
-    if (item !== null) {
-      results_handler = new ResultsHandler(res, "/inv/" + item.serial_no, "/500.html");
-      return inv_repo.update_core(item, results_handler.handle_results);
-    } else {
-      return res.redirect("/500.html");
-    }
-  };
-
-  module.exports.update_form = function(req, res) {
-    return inv_repo.get(req.params.id, function(item) {
-      var state;
-      state = build_state(req, "Update Item", "" + item.make + "-" + item.model + ", [" + item.serial_no + "]");
-      state.item = item;
-      return res.render("inventory_update", state);
+  module.exports = function(app) {
+    app.post('/inv/new', function(req, res) {
+      var item, results_handler;
+      item = normalize_post_values(req.body.inv);
+      if (item !== null) {
+        results_handler = new ResultsHandler(res, "/inv/item/" + item.serial_no, "/500.html");
+        return inv_repo.add(item, item.serial_no, results_handler.handle_results);
+      } else {
+        return res.redirect("/500.html");
+      }
     });
-  };
-
-  module.exports.list = function(req, res) {
-    var handler;
-    handler = new ListHandler(req, res, "Inventory Items", "", "inventory_by_serial_no");
-    if (req.params.startkey != null) {
-      return inv_repo.list(handler.handle_results, req.params.startkey);
-    } else {
-      return inv_repo.list(handler.handle_results);
-    }
-  };
-
-  module.exports.remove = function(req, res) {
-    return inv_repo.get(req.params.id, function(item) {
+    app.get('/inv/new', function(req, res) {
+      var state;
+      state = build_state(req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System");
+      return res.render("inventory_create", state);
+    });
+    app.get('/inv/items', function(req, res) {
+      var handler;
+      handler = new ListHandler(req, res, "Inventory Items", "", "inventory_by_serial_no");
+      if (req.params.startkey != null) {
+        return inv_repo.list(handler.handle_results, req.params.startkey);
+      } else {
+        return inv_repo.list(handler.handle_results);
+      }
+    });
+    app.get('/inv/item/:id', function(req, res) {
+      if (req.params.id !== null) {
+        return inv_repo.get(req.params.id, function(target_item) {
+          var state;
+          state = build_state(req, "Inventory Item", "" + target_item.make + "-" + target_item.model + ", [" + target_item.serial_no + "]");
+          state.item = target_item;
+          return res.render("inventory_item_view", state);
+        });
+      } else {
+        return res.redirect("/500.html");
+      }
+    });
+    app.post('/inv/item/:id', function(req, res) {
+      var item, results_handler;
+      item = normalize_post_values(req.body.inv);
+      if (item !== null) {
+        results_handler = new ResultsHandler(res, "/inv/item/" + item.serial_no, "/500.html");
+        return inv_repo.update_core(item, results_handler.handle_results);
+      } else {
+        return res.redirect("/500.html");
+      }
+    });
+    app.get('/inv/item/:id/update', function(req, res) {
+      var on_fail, on_success;
+      on_success = function(item_to_update) {
+        var state;
+        state = build_state(req, "Update Item", "" + item_to_update.make + "-" + item_to_update.model + ", [" + item_to_update.serial_no + "]");
+        state.item = item_to_update;
+        return res.render("inventory_update", state);
+      };
+      on_fail = function(error) {
+        return res.redirect("/500.html");
+      };
+      return inv_repo.get(req.params.id, on_success, on_fail);
+    });
+    app.post('/inv/item/:id/remove', function(req, res) {
+      inv_repo.get(req.params.id, function(item) {});
       inv_repo.remove(item);
       return res.redirect("/inv/items");
     });
-  };
-
-  module.exports.remove_form = function(req, res) {
-    return inv_repo.get(req.params.id, function(item) {
-      var state;
-      state = {
-        title: "Remove Inventory Item?",
-        description: "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no,
-        user: req.user,
-        item: item
-      };
-      return res.render("inventory_remove", state);
+    return app.get('/inv/item/:id/remove', function(req, res) {
+      return inv_repo.get(req.params.id, function(item) {
+        var state;
+        state = build_state(req, "Remove Inventory Item?", "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no);
+        state.item = item;
+        return res.render("inventory_remove", state);
+      });
     });
   };
 
