@@ -1,0 +1,31 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- var cssclass = "table";
+- if(typeof(condensed) != "undefined" && condensed == true)
+	- cssclass += " table-condensed";
+- if(typeof(stripe) == "undefined" || stripe == true)
+	- cssclass += " table-striped";
+- if(typeof(border) != "undefined" && border == true)
+	- cssclass += " table-bordered";
+table(id="#{elem_id}", class="#{cssclass}")
+	tr
+		th(style="width: 200px;") Mobile?
+		td #{inv_item.location.is_mobile}
+	tr 
+		th Line 1
+		td #{inv_item.location.line1}
+	tr 
+		th Line 2
+		td #{inv_item.location.line2}
+	tr 
+		th City
+		td #{inv_item.location.city}
+	tr	
+		th State 
+		td #{inv_item.location.state}
+	tr	
+		th Zip Code
+		td #{inv_item.location.zipcode}
+	tr
+		th Room (if office)
+		td #{inv_item.location.room}

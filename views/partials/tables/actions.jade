@@ -1,0 +1,19 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- var cssclass = "table";
+- if(typeof(condensed) != "undefined" && condensed == true)
+	- cssclass += " table-condensed";
+- if(typeof(stripe) == "undefined" || stripe == true)
+	- cssclass += " table-striped";
+- if(typeof(border) != "undefined" && border == true)
+	- cssclass += " table-bordered";
+table(id="#{elem_id}", class="#{cssclass}")
+	tr
+		th(style="width: 200px;") Issuability
+		td #{inv_item.issuability}
+	tr
+		th Allow Self Issue?
+		td #{inv_item.allow_self_issue}
+	tr 
+		th Borrow Time
+		td #{inv_item.borrow_time}

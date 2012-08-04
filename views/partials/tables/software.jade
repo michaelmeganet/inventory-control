@@ -1,0 +1,35 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- if(typeof(edit) == "undefined")
+	- var edit = false;
+- var cssclass = "table";
+- if(typeof(condensed) != "undefined" && condensed == true)
+	- cssclass += " table-condensed";
+- if(typeof(stripe) == "undefined" || stripe == true)
+	- cssclass += " table-striped";
+- if(typeof(border) != "undefined" && border == true)
+	- cssclass += " table-bordered";
+- if (edit)	
+	- cssclass += " edit-table"
+table(id="#{elem_id}", class="#{cssclass}")
+	tr
+		th Title
+		th OS
+		th Serial No
+		th Value ($)
+		th Expiration
+		- if (edit)
+			th(style="width: 20px") &nbsp;
+			th(style="width: 20px") &nbsp;
+	- for (var s in software)
+		tr
+			td #{software[s].title}
+			td #{software[s].os}
+			td #{software[s].serial_no}
+			td #{software[s].estimated_value}
+			td #{software[s].expiration}
+			- if (edit)
+				td 
+					i.icon-edit
+				td
+					i.icon-remove

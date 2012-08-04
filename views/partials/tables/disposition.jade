@@ -1,0 +1,22 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- var cssclass = "table";
+- if(typeof(condensed) != "undefined" && condensed == true)
+	- cssclass += " table-condensed";
+- if(typeof(stripe) == "undefined" || stripe == true)
+	- cssclass += " table-striped";
+- if(typeof(border) != "undefined" && border == true)
+	- cssclass += " table-bordered";
+table(id="#{elem_id}", class="#{cssclass}")
+	tr
+		th(style="width: 200px;") Date Received
+		td #{inv_item.date_received}
+	tr
+		th Date Added to Inventory
+		td #{inv_item.date_added}
+	tr
+		th Owner
+		td #{inv_item.owner}
+	tr
+		th Disposition
+		td #{inv_item.disposition}

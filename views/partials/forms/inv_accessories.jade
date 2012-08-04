@@ -16,22 +16,7 @@ div.control-group
 			i.icon-plus.icon-white.mr10
 			| Add Accessory
 		button#clear_accessory.btn(type="button") Clear Fields
-table#acc_items.table.table-striped.edit-table
-	tr
-		th Description
-		th Serial No
-		th Value ($)
-		th(style="width: 20px") &nbsp;
-		th(style="width: 20px") &nbsp;
-	- for (var a in item.accessories)
-		tr
-			td #{item.accessories[a].description}
-			td #{item.accessories[a].serial_no}
-			td #{item.accessories[a].estimated_value}
-			td 
-				i.icon-edit
-			td
-				i.icon-remove
+!=partial("partials/tables/accessories", { edit: true, elem_id: "acc_items", accessories: item.accessories })
 - var accessories = "[]"
 - if (item.accessories)
 	- accessories = JSON.stringify(item.accessories);

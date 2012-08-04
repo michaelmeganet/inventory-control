@@ -1,0 +1,31 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- if(typeof(edit) == "undefined")
+	- var edit = false;
+- var cssclass = "table";
+- if(typeof(condensed) != "undefined" && condensed == true)
+	- cssclass += " table-condensed";
+- if(typeof(stripe) == "undefined" || stripe == true)
+	- cssclass += " table-striped";
+- if(typeof(border) != "undefined" && border == true)
+	- cssclass += " table-bordered";
+- if (edit)	
+	- cssclass += " edit-table"
+table(id="#{elem_id}", class="#{cssclass}")
+	tr
+		th Description
+		th Serial No
+		th Value ($)
+		- if (edit)
+			th(style="width: 20px") &nbsp;
+			th(style="width: 20px") &nbsp;
+	- for (var a in accessories)
+		tr
+			td #{accessories[a].description}
+			td #{accessories[a].serial_no}
+			td #{accessories[a].estimated_value}
+			- if (edit)
+				td 
+					i.icon-edit
+				td
+					i.icon-remove

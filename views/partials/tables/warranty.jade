@@ -1,0 +1,19 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- var cssclass = "table";
+- if(typeof(condensed) != "undefined" && condensed == true)
+	- cssclass += " table-condensed";
+- if(typeof(stripe) == "undefined" || stripe == true)
+	- cssclass += " table-striped";
+- if(typeof(border) != "undefined" && border == true)
+	- cssclass += " table-bordered";
+table(id="#{elem_id}", class="#{cssclass}")
+	tr
+		th(style="width: 200px;") Description
+		td #{warranty.description}
+	tr
+		th Start Date:
+		td #{warranty.start_date}
+	tr 
+		th End Date
+		td #{warranty.end_date}

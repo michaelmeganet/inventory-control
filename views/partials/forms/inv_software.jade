@@ -6,8 +6,7 @@ div.control-group
 	!=partial("partials/controls/textbox", { elem_id: "software_title", label: "Title:" })
 	!=partial("partials/controls/autocomplete", { elem_id: "software_os", label: "OS:", source: "operating_systems", data_load: "one-time" })
 	!=partial("partials/controls/textbox", { elem_id: "software_serial_no", label: "Serial No.:" })
-	!=partial("partials/controls/textbox", { elem_id: "software_title", id: "", label: "Title:" })
-	!=partial("partials/controls/prelabel_textbox", { elem_id: "software_estimated_value", label: "Estimated Value:", value: item.estimated_value, prelabel: "$", width: "184px" })
+	!=partial("partials/controls/prelabel_textbox", { elem_id: "software_estimated_value", label: "Estimated Value:", prelabel: "$", width: "184px" })
 	!=partial("partials/controls/textbox", { elem_id: "software_expiration", label: "Expiration:", help: "The date the license expires, if this software was purchased under a subscription.  The Estimated Value should equal the cost per subscription period if this is the case." })
 	label.control-label &nbsp;
 	div.controls
@@ -15,26 +14,7 @@ div.control-group
 			i.icon-plus.icon-white.mr10
 			| Add Accessory
 		button#clear_software.btn(type="button") Clear Fields
-table#software_items.table.table-striped.edit-table
-	tr
-		th Title
-		th OS
-		th Serial No
-		th Value ($)
-		th Expiration
-		th(style="width: 20px") &nbsp;
-		th(style="width: 20px") &nbsp;
-	- for (var s in item.software)
-		tr
-			td #{item.software[s].title}
-			td #{item.software[s].os}
-			td #{item.software[s].serial_no}
-			td #{item.software[s].estimated_value}
-			td #{item.software[s].expiration}
-			td 
-				i.icon-edit
-			td
-				i.icon-remove
+!=partial("partials/tables/software", { edit: true, elem_id: "software_items", software: item.software })
 - var software = "[]"
 - if (item.software)
 	- software = JSON.stringify(item.software);

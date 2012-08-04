@@ -2,91 +2,42 @@ h1 #{item.make} #{item.model}, [#{item.serial_no}]
 br
 div.row(style="margin-left: 10px;")
 	div.span9
-		div.infopanel
-			i.icon-chevron-up
-			span.lead General Information
-			table.table.table-striped
-				tr
-					th(style="width: 200px;") Serial Number
-					td #{item.serial_no}
-				tr
-					th Categories
-					td #{item.categories}
-				tr
-					th Item or Device Type
-					td #{item.type}
-				tr
-					th Make
-					td #{item.make}
-				tr
-					th Model
-					td #{item.model}
-				tr
-					th Model No.
-					td #{item.model_no}
-				tr
-					th Estimated Value 
-					td #{item.estimated_value}
-				tr
-					th Berico Asset Tag
-					td #{item.asset_tag}
+		ul.nav.nav-tabs
+			li.active
+				a(href="#gen-info",data-toggle="tab") General Information
+			li
+				a(href="#disposition",data-toggle="tab") Disposition
+			li
+				a(href="#location",data-toggle="tab") Location
+			- if (typeof(item.accessories) != "undefined")
+				li
+					a(href="#accessories",data-toggle="tab") Accessories
+			- if (typeof(item.software) != "undefined")
+				li
+					a(href="#software",data-toggle="tab") Software
+			- if (typeof(item.warranty) != "undefined")
+				li
+					a(href="#warranty",data-toggle="tab") Warranty
+			li
+				a(href="#actions",data-toggle="tab") Actions
+		div.tab-content
+			div#gen-info.tab-pane.active
+				!=partial("partials/tables/gen-info", { inv_item: item, border: true, condensed: true })
+			div#disposition.tab-pane
+				!=partial("partials/tables/disposition", { inv_item: item, border: true, condensed: true })
+			div#location.tab-pane
+				!=partial("partials/tables/location", { inv_item: item, border: true, condensed: true })	
+			div#accessories.tab-pane
+				!=partial("partials/tables/accessories", { edit: false, accessories: item.accessories, condensed: true, border: true })
+			div#software.tab-pane
+				!=partial("partials/tables/software", { edit: false, software: item.software, condensed: true, border: true })
+			div#warranty.tab-pane
+				!=partial("partials/tables/warranty", { warranty: item.warranty, border: true, condensed: true })
+			div#actions.tab-pane
+				!=partial("partials/tables/actions", { inv_item: item, border: true, condensed: true })	
 		br
-		div.infopanel
-			i.icon-chevron-up
-			span.lead Disposition
-			table.table.table-striped
-				tr
-					th(style="width: 200px;") Date Received
-					td #{item.date_received}
-				tr
-					th Date Added to Inventory
-					td #{item.date_added}
-				tr
-					th Owner
-					td #{item.owner}
-				tr
-					th Disposition
-					td #{item.disposition}
-		br
-		div.infopanel
-			i.icon-chevron-up
-			span.lead Location
-			table.table.table-striped
-				tr
-					th(style="width: 200px;") Mobile?
-					td #{item.location.is_mobile}
-				tr 
-					th Line 1
-					td #{item.location.line1}
-				tr 
-					th Line 2
-					td #{item.location.line2}
-				tr 
-					th City
-					td #{item.location.city}
-				tr	
-					th State 
-					td #{item.location.state}
-				tr	
-					th Zip Code
-					td #{item.location.zipcode}
-				tr
-					th Room (if office)
-					td #{item.location.room}
-		br
-		div.infopanel
-			i.icon-chevron-up
-			span.lead Actions
-			table.table.table-striped
-				tr
-					th(style="width: 200px;") Issuability
-					td #{item.issuability}
-				tr
-					th Allow Self Issue?
-					td #{item.allow_self_issue}
-				tr 
-					th Borrow Time
-					td #{item.borrow_time}
+		form.form-horizontal(action="/comments/item/#{item.id}", method="POST")
+			textarea#make_comment.span9 Make Comment
 	div.span3
 		img( src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=#{config.base_url}/inv/item#{item.id}")
 		div.actions
