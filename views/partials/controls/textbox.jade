@@ -1,5 +1,9 @@
 - if (typeof(elem_id) == "undefined")
 	- var elem_id = "";
+- if (typeof(id) == "undefined")
+	- var id = "";
+- if (typeof(value) == "undefined")
+	- var value = "";
 label.control-label #{label}   
 div.controls
 	- if (typeof(disabled) != "undefined" && disabled == true)

@@ -7,20 +7,9 @@ div.description
 	p * Policy - items worth more than $100 should be entered individually into inventory
 		| and not associated with another inventory item.
 div.control-group
-	label.control-label Description:
-	div.controls
-		input(type="text", id="acc_description")
-	br
-	label.control-label Serial No:
-	div.controls
-		input(type="text", id="acc_serial_no")
-	br
-	label.control-label Estimated Value:
-	div.controls
-		div.input-prepend
-			span.add-on $
-			input(type="text", id="acc_estimated_value", style="width: 184px")
-	br
+	!=partial("partials/controls/textbox", { elem_id: "acc_description", id: "", label: "Description:" })
+	!=partial("partials/controls/textbox", { elem_id: "acc_serial_no", id: "", label: "Serial No:" })
+	!=partial("partials/controls/prelabel_textbox", { elem_id: "acc_estimated_value", id: "", label: "Estimated Value:", prelabel: "$", width: "184px" })
 	label.control-label &nbsp;
 	div.controls
 		button#add_accessory.btn.btn-danger.mr10(type="button")

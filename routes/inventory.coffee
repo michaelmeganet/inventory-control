@@ -73,15 +73,15 @@ normalize_post_values = (item) ->
 	item.date_added = new Date().toISOString() unless item.date_added?
 	item.disposition = "Available" unless item.disposition?
 	new_item = {}
+	
+	new_item.location = expand_location item
+	new_item.warranty = expand_warranty_info item
 		
 	pruned = prune_prefixed_fields item, "loc_"
 	pruned = prune_prefixed_fields pruned, "war_"
 		
 	_.extend(new_item, pruned)
 		
-	new_item.location = expand_location item
-	new_item.warranty = expand_warranty_info item
-	
 	new_item.software = JSON.parse(item.software)
 	new_item.accessories = JSON.parse(item.accessories)
 	

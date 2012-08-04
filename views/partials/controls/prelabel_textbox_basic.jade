@@ -2,6 +2,10 @@
 	- var elem_id = "";
 - if (typeof(width) == "undefined")
 	- var width = "182px"
+- if (typeof(id) == "undefined")
+	- var id = "";
+- if (typeof(value) == "undefined")
+	- var value = "";
 div.input-prepend
 	span.add-on.fs10 #{prelabel}
 	- if (typeof(disabled) != "undefined" && disabled == true)
