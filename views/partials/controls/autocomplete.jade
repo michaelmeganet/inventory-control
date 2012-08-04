@@ -1,0 +1,23 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- if (typeof(id) == "undefined")
+	- var id = "";
+- if (typeof(value) == "undefined")
+	- var value = "";
+- if (typeof(data_load) == "undefined")
+	- var data_load = "one-time";
+- if (typeof(sync_with) == "undefined")
+	- var sync_with = "";
+- if (typeof(show_button) == "undefined")
+	- var show_button = false;
+label.control-label #{label}   
+div.controls
+	- if (typeof(disabled) != "undefined" && disabled == true)
+		input(id="#{elem_id}", type="text", name="#{id}", value="#{value}", autocomplete, data-load="#{data_load}", source="#{source}", sync-value-with="#{sync_with}", disabled="true")
+	- else
+		input(id="#{elem_id}", type="text", name="#{id}", value="#{value}", autocomplete, data-load="#{data_load}", source="#{source}", sync-value-with="#{sync_with}")
+	- if (typeof(button_label) != "undefined" && typeof(button_id) != "undefined" && show_button)
+		button.btn.mr10(id="#{button_id}", type="button", style="margin-left: 6px;") #{button_label}
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}
+br

@@ -8,13 +8,20 @@ form.form-horizontal(action="#{action}", method="POST")
 		input(type="hidden", name="inv[_rev]", value="#{item._rev}")
 	- if (typeof(item.ext) != "undefined")
 		input(type="hidden", name="inv[ext]", value="#{item.ext}")
-	!=partial("partials/forms/inv_geninfo")
-	!=partial("partials/forms/inv_warranty")
-	!=partial("partials/forms/inv_accessories")
-	!=partial("partials/forms/inv_software")
-	!=partial("partials/forms/inv_disposition")
-	!=partial("partials/forms/inv_location")	
-	!=partial("partials/forms/inv_actions")	
+	div#inv-gen-info
+		!=partial("partials/forms/inv_geninfo")
+	div#inv-accessories
+		!=partial("partials/forms/inv_accessories")
+	div#inv-software
+		!=partial("partials/forms/inv_software")
+	div#inv-warranty
+		!=partial("partials/forms/inv_warranty")
+	div#inv-disposition
+		!=partial("partials/forms/inv_disposition")
+	div#inv-location
+		!=partial("partials/forms/inv_location")
+	div#inv-actions
+		!=partial("partials/forms/inv_actions")	
 	div.form-actions
 		case is_edit
 			when true
@@ -24,4 +31,36 @@ form.form-horizontal(action="#{action}", method="POST")
 				!=partial("partials/controls/button_submit", { label: "Add Item" })
 		!=partial("partials/controls/button_back")
 
+script(type="text/javascript")
+
+	var optional_forms = [ "warranty", "software", "accessories" ];
+
+	function sync_visible_elements(show_forms){
+		for(var f in optional_forms){
+			if(_.include(show_forms, optional_forms[f])){
+				$("#inv-" + optional_forms[f]).slideDown();
+			}
+			else {
+				$("#inv-" + optional_forms[f]).slideUp();
+			}
+		}
+	}
+
+	$(function(){
+
+		if($("#inv_type").val() != ""){
+			$.getJSON("/inventory_enums/item_types", function(types){
+				var init_type = $("#inv_type").val();
+				if(typeof(types[init_type]) != "undefined"){
+					sync_visible_elements(types[init_type].show);
+				}
+			});
+		}
+
+
+		$("#inv_type_selected").change(function(){
+			var show_forms = JSON.parse($("#inv_type_selected").val());
+			sync_visible_elements(show_forms.show);
+		});
+	});
 

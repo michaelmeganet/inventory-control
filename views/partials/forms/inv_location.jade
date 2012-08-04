@@ -12,20 +12,11 @@ div.control-group
 				input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="true", checked="checked")
 			- else
 				input.radio.inline(type="radio", name="inv[loc_is_mobile]", value="true")
-	br
-	label.control-label Primary Location:
-	div.controls
-		select#office(name="inv[office]")
-			option(value="reston") Berico Reston
-			option(value="rosslyn") Berico Rosslyn
-			option(value="other") Other
-			- if (is_edit)
-				option(value="old_loc") [Original Location]
-		p.help-block.form-comment.w420px If the item is mobile, specify the location
-			| the item will reside most of the time.  If this is a residence, please
-			| specify that location.
-	br
-	!=partial("partials/controls/textbox", { label: "Room (if office):", id: "inv[loc_room]", value: item.location.room })
+	br	
+	!=partial("partials/controls/hidden", { elem_id: "loc_selected_value", value: JSON.stringify(item.location) })
+	!=partial("partials/controls/autocomplete", { label: "Known Location:", source: "locations", data_load: "one-time", sync_with: "#loc_selected_value", show_button: is_edit, button_id: "loc_reset", button_label: "Reset to Original Value", help: "Type the name of a known location, 'Berico Reston' or 'Berico Rosslyn', otherwise, ignore this field and enter the address the item resides.  If the item is mobile (Laptop or Cell Phone), please enter the location it is most often kept." })
+	
+	!=partial("partials/controls/textbox", { label: "Room (if office):", elem_id: "room", id: "inv[loc_room]", value: item.location.room })
 	!=partial("partials/controls/prelabel_textbox", { label: "Address:", elem_id: "line1", prelabel: "L1", id: "inv[loc_line1]", value: item.location.line1, width: "182px" })
 	div(style="height: 6px") &nbsp;
 	!=partial("partials/controls/prelabel_textbox", { label: "&nbsp;", elem_id: "line2", prelabel: "L2", id: "inv[loc_line2]", value: item.location.line2, width: "182px" })
@@ -42,27 +33,12 @@ script(type="text/javascript")
 
 	//Save the old location just in case.
 	var old_loc = {};
+	old_loc.room = "#{item.location.room}";
 	old_loc.line1 = "#{item.location.line1}";
-	old_loc.line2 = "#{item.location.line1}";
+	old_loc.line2 = "#{item.location.line2}";
 	old_loc.city = "#{item.location.city}";
-	old_loc.state = "#{item.location.city}";
+	old_loc.state = "#{item.location.state}";
 	old_loc.zipcode = "#{item.location.zipcode}";
-
-	var reston = {
-		line1: "11130 Sunrise Valley Drive",
-		line2: "Suite 300",
-		city: "Reston",
-		state: "VA",
-		zipcode: "20191"
-	};
-
-	var rosslyn = {
-		line1: "1501 Lee Highway",
-		line2: "Suite 303",
-		city: "Arlington",
-		state: "VA",
-		zipcode: "22209"
-	};
 
 	function select(element, value){
 		$("#" + element + " option[value='" + value + "']").attr("selected", true);
@@ -74,21 +50,20 @@ script(type="text/javascript")
 		$("#city").attr("value", location.city);
 		$("#state").attr("value", location.state);
 		$("#zipcode").attr("value", location.zipcode);
+		if(typeof(location.room) != "undefined"){
+			$("#room").attr("value", location.room);
+		}
 	}
 
 	$(function(){
 		select("itype", "#{item.type}");
 		select("issuability", "#{item.issuability}");
-		$("#office").change(function(){
-			var value = $("#office").val();
-			if(value == "rosslyn"){
-				apply_location(rosslyn);
-			}
-			else if(value == "reston"){
-				apply_location(reston);
-			}
-			else if(value == "old_loc"){
-				apply_location(old_loc);
-			}
+		$("#loc_selected_value").change(function(){
+			var value = JSON.parse($("#loc_selected_value").val());
+			apply_location(value);
+		});
+
+		$("#loc_reset").click(function(){
+			apply_location(old_loc);
 		});
 	});
