@@ -1,5 +1,5 @@
 (function() {
-  var CouchDbUserRepository, ListHandler, MandatoryFieldChecker, ResultsHandler, build_state, config, flatten_roles, helpers, mando_fields, normalize_post_values, role_membership, user_checker, user_repo, validate_user_state, _;
+  var CouchDbUserRepository, ListHandler, ResultsHandler, build_state, config, flatten_roles, helpers, normalize_post_values, role_membership, user_repo, _;
 
   _ = (require("underscore"))._;
 
@@ -17,33 +17,19 @@
 
   ResultsHandler = helpers.ResultsHandler;
 
-  MandatoryFieldChecker = helpers.MandatoryFieldChecker;
-
-  mando_fields = ["first_name", "last_name", "logon_name"];
-
-  user_checker = new MandatoryFieldChecker(mando_fields);
-
-  validate_user_state = function(user) {
-    return user_checker.mandatory_fields_are_set(user);
-  };
-
   normalize_post_values = function(user, roles) {
     var new_user, role, v;
-    if (validate_user_state(user)) {
-      new_user = {};
-      _.extend(new_user, user);
-      new_user.roles = [];
-      new_user.roles.push("user");
-      for (role in roles) {
-        v = roles[role];
-        new_user.roles.push(role);
-      }
-      new_user.email = "" + new_user.logon_name + "@bericotechnologies.com";
-      new_user.id = new_user.email;
-      return new_user;
-    } else {
-      return null;
+    new_user = {};
+    _.extend(new_user, user);
+    new_user.roles = [];
+    new_user.roles.push("user");
+    for (role in roles) {
+      v = roles[role];
+      new_user.roles.push(role);
     }
+    new_user.email = "" + new_user.logon_name + "@bericotechnologies.com";
+    new_user.id = new_user.email;
+    return new_user;
   };
 
   flatten_roles = function(roles) {

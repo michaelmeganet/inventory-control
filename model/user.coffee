@@ -1,8 +1,12 @@
 _ = (require "underscore")._
+Entity = (require "./entity").Entity
 
 x = exports ? this
 
-class x.User
+class x.User extends Entity
+	
+	required_fields: ->
+		[ "first_name", "last_name", "logon_name" ]
 	
 	constructor: (init_state) ->
 		@id = null

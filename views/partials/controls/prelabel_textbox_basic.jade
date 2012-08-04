@@ -1,0 +1,12 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- if (typeof(width) == "undefined")
+	- var width = "182px"
+div.input-prepend
+	span.add-on.fs10 #{prelabel}
+	- if (typeof(disabled) != "undefined" && disabled == true)
+		input#line1(id="#{elem_id}", type="text", name="#{id}", value="#{value}", style="width: #{width}", disabled="true")
+	- else
+		input#line1(id="#{elem_id}", type="text", name="#{id}", value="#{value}", style="width: #{width}")
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}

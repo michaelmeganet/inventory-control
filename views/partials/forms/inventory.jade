@@ -9,6 +9,7 @@ form.form-horizontal(action="#{action}", method="POST")
 	- if (typeof(item.ext) != "undefined")
 		input(type="hidden", name="inv[ext]", value="#{item.ext}")
 	!=partial("partials/forms/inv_geninfo")
+	!=partial("partials/forms/inv_warranty")
 	!=partial("partials/forms/inv_accessories")
 	!=partial("partials/forms/inv_software")
 	!=partial("partials/forms/inv_disposition")
@@ -17,65 +18,10 @@ form.form-horizontal(action="#{action}", method="POST")
 	div.form-actions
 		case is_edit
 			when true
-				button.btn.btn-primary.mr10(type="submit") Update Item
-				button.btn.btn-danger.mr10(type="button", onclick="window.location='/inv/item/#{item.serial_no}/remove';") Remove Item
+				!=partial("partials/controls/button_submit", { label: "Update Item" })
+				!=partial("partials/controls/button_goto", { label: "Remove Item", url: '//inv/item/' + item.serial_no + '/remove' })
 			default
-				button.btn.btn-primary.mr10(type="submit") Add Item
-		button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back
-
-script(type="text/javascript")
-
-	//Save the old location just in case.
-	var old_loc = {};
-	old_loc.line1 = "#{item.location.line1}";
-	old_loc.line2 = "#{item.location.line1}";
-	old_loc.city = "#{item.location.city}";
-	old_loc.state = "#{item.location.city}";
-	old_loc.zipcode = "#{item.location.zipcode}";
-
-	var reston = {
-		line1: "11130 Sunrise Valley Drive",
-		line2: "Suite 300",
-		city: "Reston",
-		state: "VA",
-		zipcode: "20191"
-	};
-
-	var rosslyn = {
-		line1: "1501 Lee Highway",
-		line2: "Suite 303",
-		city: "Arlington",
-		state: "VA",
-		zipcode: "22209"
-	};
-
-	function select(element, value){
-		$("#" + element + " option[value='" + value + "']").attr("selected", true);
-	}
-
-	function apply_location(location){
-		$("#line1").attr("value", location.line1);
-		$("#line2").attr("value", location.line2);
-		$("#city").attr("value", location.city);
-		$("#state").attr("value", location.state);
-		$("#zipcode").attr("value", location.zipcode);
-	}
-
-	$(function(){
-		select("itype", "#{item.type}");
-		select("issuability", "#{item.issuability}");
-		$("#office").change(function(){
-			var value = $("#office").val();
-			if(value == "rosslyn"){
-				apply_location(rosslyn);
-			}
-			else if(value == "reston"){
-				apply_location(reston);
-			}
-			else if(value == "old_loc"){
-				apply_location(old_loc);
-			}
-		});
-	});
+				!=partial("partials/controls/button_submit", { label: "Add Item" })
+		!=partial("partials/controls/button_back")
 
 

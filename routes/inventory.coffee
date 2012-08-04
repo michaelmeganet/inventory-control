@@ -1,24 +1,22 @@
 _ = (require "underscore")._
-config = require "../conf/app_config.js"
+config = require ("../conf/app_config.js")
+helpers = (require "./helpers/helpers.js")
+inv_models = (require "../model/inventory_item.js")
+repos = (require "../middleware/couchdb_repository.js")
 
-CouchDbInventoryRepository = (require "../middleware/couchdb_repository.js").CouchDbInventoryRepository
+CouchDbInventoryRepository = repos.CouchDbInventoryRepository
+ListHandler = helpers.ListHandler
+ResultsHandler = helpers.ResultsHandler
+InventoryLocation = inv_models.InventoryLocation
+WarrantyInfo = inv_models.WarrantyInfo
 
 inv_repo = new CouchDbInventoryRepository({ couchdb_url: config.couch_base_url })
 
-helpers = require "./helpers/helpers.js"
-ListHandler = helpers.ListHandler
-ResultsHandler = helpers.ResultsHandler
-MandatoryFieldChecker = helpers.MandatoryFieldChecker
-
-InventoryLocation = (require "../model/inventory_item.js").InventoryLocation
-
-mando_fields = ["serial_no", "make", "model", "owner", 
-	"date_added", "date_received", "disposition",
-	"issuability", "allow_self_issue", "type", 
-	"estimated_value" ]
-	
-inventory_checker = new MandatoryFieldChecker(mando_fields)
-
+# Very simple function to consistently build the state 
+# supplied to the template engine
+# @param req Request Object
+# @param title Page Title
+# @param desc Page Description
 build_state = (req, title, desc) ->
 	state = {}
 	state.title = title
@@ -28,9 +26,7 @@ build_state = (req, title, desc) ->
 	state.config = config
 	state
 
-validate_item_state = (item) ->
-	inventory_checker.mandatory_fields_are_set(item)
-
+# Turn a CSV category list to an array of categories.
 comma_sep_categories_to_array = (categories) ->
 	cat_array = []
 	if categories?
@@ -39,6 +35,8 @@ comma_sep_categories_to_array = (categories) ->
 			cat_array.push cat.replace(" ", "")
 	cat_array
 
+# Expand the flatten form fields for location into
+# a location object.
 expand_location = (item) ->
 	loc = 
 		is_mobile: item.loc_is_mobile
@@ -50,30 +48,54 @@ expand_location = (item) ->
 		office: item.loc_office
 		room: item.loc_room
 	new InventoryLocation(loc)
-	
-prune_locations = (item) ->
+
+# Expand the flatten form fields for warranty info into
+# a location object.
+expand_warranty_info = (item) ->
+	warranty_info = 
+		start_date: item.war_start_date
+		end_date: item.war_end_date
+		description: item.war_description
+	new WarrantyInfo(warranty_info)
+
+# When we extend the model object with the state from the form,
+# we don't want extraneous fields (particularly subobjects) from
+# polluting the core model.  Since I have taken the convention of 
+# prefixing the fields of submodels, we can prune those properties
+# from the form state 
+prune_prefixed_fields = (item, prefix) ->
 	for k, v of item
-		if k.substring(0, 4) is "loc_"
+		if k.indexOf(prefix) is 0
 			delete item[k]
-	console.dir item
 	item
 
 normalize_post_values = (item) ->
 	item.date_added = new Date().toISOString() unless item.date_added?
 	item.disposition = "Available" unless item.disposition?
-	if validate_item_state item
-		new_item = {}
-		new_item.location = expand_location item
-		pruned = prune_locations item
-		_.extend(new_item, pruned)
-		new_item.categories = comma_sep_categories_to_array item.categories
-		new_item.id = item.serial_no
-		new_item.estimated_value = parseFloat(item.estimated_value)
-		new_item.allow_self_issue = Boolean(item.allow_self_issue)
-		new_item
-	else
-		null
+	new_item = {}
+		
+	pruned = prune_prefixed_fields item, "loc_"
+	pruned = prune_prefixed_fields pruned, "war_"
+		
+	_.extend(new_item, pruned)
+		
+	new_item.location = expand_location item
+	new_item.warranty = expand_warranty_info item
+	
+	new_item.software = JSON.parse(item.software)
+	new_item.accessories = JSON.parse(item.accessories)
+	
+	new_item.categories = comma_sep_categories_to_array item.categories
+	new_item.id = item.serial_no
+	new_item.estimated_value = parseFloat(item.estimated_value)
+	new_item.allow_self_issue = Boolean(item.allow_self_issue)
+	
+	console.log JSON.stringify new_item
+	
+	new_item
 
+
+# ROUTE DEFINITIONS AND HANDLERS
 module.exports = (app) ->
 	
 	app.post '/inv/new', (req, res) ->

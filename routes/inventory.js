@@ -1,29 +1,29 @@
 (function() {
-  var CouchDbInventoryRepository, InventoryLocation, ListHandler, MandatoryFieldChecker, ResultsHandler, build_state, comma_sep_categories_to_array, config, expand_location, helpers, inv_repo, inventory_checker, mando_fields, normalize_post_values, prune_locations, validate_item_state, _;
+  var CouchDbInventoryRepository, InventoryLocation, ListHandler, ResultsHandler, WarrantyInfo, build_state, comma_sep_categories_to_array, config, expand_location, expand_warranty_info, helpers, inv_models, inv_repo, normalize_post_values, prune_prefixed_fields, repos, _;
 
   _ = (require("underscore"))._;
 
   config = require("../conf/app_config.js");
 
-  CouchDbInventoryRepository = (require("../middleware/couchdb_repository.js")).CouchDbInventoryRepository;
-
-  inv_repo = new CouchDbInventoryRepository({
-    couchdb_url: config.couch_base_url
-  });
-
   helpers = require("./helpers/helpers.js");
+
+  inv_models = require("../model/inventory_item.js");
+
+  repos = require("../middleware/couchdb_repository.js");
+
+  CouchDbInventoryRepository = repos.CouchDbInventoryRepository;
 
   ListHandler = helpers.ListHandler;
 
   ResultsHandler = helpers.ResultsHandler;
 
-  MandatoryFieldChecker = helpers.MandatoryFieldChecker;
+  InventoryLocation = inv_models.InventoryLocation;
 
-  InventoryLocation = (require("../model/inventory_item.js")).InventoryLocation;
+  WarrantyInfo = inv_models.WarrantyInfo;
 
-  mando_fields = ["serial_no", "make", "model", "owner", "date_added", "date_received", "disposition", "issuability", "allow_self_issue", "type", "estimated_value"];
-
-  inventory_checker = new MandatoryFieldChecker(mando_fields);
+  inv_repo = new CouchDbInventoryRepository({
+    couchdb_url: config.couch_base_url
+  });
 
   build_state = function(req, title, desc) {
     var state;
@@ -33,10 +33,6 @@
     state.user = req.user;
     state.config = config;
     return state;
-  };
-
-  validate_item_state = function(item) {
-    return inventory_checker.mandatory_fields_are_set(item);
   };
 
   comma_sep_categories_to_array = function(categories) {
@@ -67,13 +63,22 @@
     return new InventoryLocation(loc);
   };
 
-  prune_locations = function(item) {
+  expand_warranty_info = function(item) {
+    var warranty_info;
+    warranty_info = {
+      start_date: item.war_start_date,
+      end_date: item.war_end_date,
+      description: item.war_description
+    };
+    return new WarrantyInfo(warranty_info);
+  };
+
+  prune_prefixed_fields = function(item, prefix) {
     var k, v;
     for (k in item) {
       v = item[k];
-      if (k.substring(0, 4) === "loc_") delete item[k];
+      if (k.indexOf(prefix) === 0) delete item[k];
     }
-    console.dir(item);
     return item;
   };
 
@@ -81,19 +86,20 @@
     var new_item, pruned;
     if (item.date_added == null) item.date_added = new Date().toISOString();
     if (item.disposition == null) item.disposition = "Available";
-    if (validate_item_state(item)) {
-      new_item = {};
-      new_item.location = expand_location(item);
-      pruned = prune_locations(item);
-      _.extend(new_item, pruned);
-      new_item.categories = comma_sep_categories_to_array(item.categories);
-      new_item.id = item.serial_no;
-      new_item.estimated_value = parseFloat(item.estimated_value);
-      new_item.allow_self_issue = Boolean(item.allow_self_issue);
-      return new_item;
-    } else {
-      return null;
-    }
+    new_item = {};
+    pruned = prune_prefixed_fields(item, "loc_");
+    pruned = prune_prefixed_fields(pruned, "war_");
+    _.extend(new_item, pruned);
+    new_item.location = expand_location(item);
+    new_item.warranty = expand_warranty_info(item);
+    new_item.software = JSON.parse(item.software);
+    new_item.accessories = JSON.parse(item.accessories);
+    new_item.categories = comma_sep_categories_to_array(item.categories);
+    new_item.id = item.serial_no;
+    new_item.estimated_value = parseFloat(item.estimated_value);
+    new_item.allow_self_issue = Boolean(item.allow_self_issue);
+    console.log(JSON.stringify(new_item));
+    return new_item;
   };
 
   module.exports = function(app) {

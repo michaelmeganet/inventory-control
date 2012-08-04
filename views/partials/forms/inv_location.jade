@@ -25,32 +25,70 @@ div.control-group
 			| the item will reside most of the time.  If this is a residence, please
 			| specify that location.
 	br
-	label.control-label Room (if office):
-	div.controls
-		input(type="text", name="inv[loc_room]", value="#{item.location.room}")
-	br
-	label.control-label Address:
-	div.controls
-		div.input-prepend
-			span.add-on.fs10 L1
-			input#line1(type="text", name="inv[loc_line1]", value="#{item.location.line1}", style="width: 182px")
+	!=partial("partials/controls/textbox", { label: "Room (if office):", id: "inv[loc_room]", value: item.location.room })
+	!=partial("partials/controls/prelabel_textbox", { label: "Address:", elem_id: "line1", prelabel: "L1", id: "inv[loc_line1]", value: item.location.line1, width: "182px" })
+	div(style="height: 6px") &nbsp;
+	!=partial("partials/controls/prelabel_textbox", { label: "&nbsp;", elem_id: "line2", prelabel: "L2", id: "inv[loc_line2]", value: item.location.line2, width: "182px" })
 	div(style="height: 6px") &nbsp;
 	label.control-label &nbsp;
 	div.controls
-		div.input-prepend
-			span.add-on.fs10 L2
-			input#line2(type="text", name="inv[loc_line2]", value="#{item.location.line2}", style="width: 182px")
-	div(style="height: 6px") &nbsp;
-	label.control-label &nbsp;
-	div.controls
-		div.input-prepend
-			span.add-on.fs10 City
-			input#city(type="text", name="inv[loc_city]", value="#{item.location.city}", style="width: 90px")
+		!=partial("partials/controls/prelabel_textbox_basic", { prelabel: "City", elem_id: "city", id: "inv[loc_city]", value: item.location.city, width: "90px" })
 		span &nbsp;
-		div.input-prepend
-			span.add-on.fs10 State
-			input#state(type="text", name="inv[loc_state]", value="#{item.location.state}", style="width: 30px")
+		!=partial("partials/controls/prelabel_textbox_basic", { prelabel: "State", elem_id: "state", id: "inv[loc_state]", value: item.location.state, width: "30px" })
 		span &nbsp;
-		div.input-prepend
-			span.add-on.fs10 Zip
-			input#zipcode(type="text", name="inv[loc_zipcode]", value="#{item.location.zipcode}", style="width: 50px")
+		!=partial("partials/controls/prelabel_textbox_basic", { prelabel: "Zip", elem_id: "zipcode", id: "inv[loc_zipcode]", value: item.location.zipcode, width: "50px" })
+
+script(type="text/javascript")
+
+	//Save the old location just in case.
+	var old_loc = {};
+	old_loc.line1 = "#{item.location.line1}";
+	old_loc.line2 = "#{item.location.line1}";
+	old_loc.city = "#{item.location.city}";
+	old_loc.state = "#{item.location.city}";
+	old_loc.zipcode = "#{item.location.zipcode}";
+
+	var reston = {
+		line1: "11130 Sunrise Valley Drive",
+		line2: "Suite 300",
+		city: "Reston",
+		state: "VA",
+		zipcode: "20191"
+	};
+
+	var rosslyn = {
+		line1: "1501 Lee Highway",
+		line2: "Suite 303",
+		city: "Arlington",
+		state: "VA",
+		zipcode: "22209"
+	};
+
+	function select(element, value){
+		$("#" + element + " option[value='" + value + "']").attr("selected", true);
+	}
+
+	function apply_location(location){
+		$("#line1").attr("value", location.line1);
+		$("#line2").attr("value", location.line2);
+		$("#city").attr("value", location.city);
+		$("#state").attr("value", location.state);
+		$("#zipcode").attr("value", location.zipcode);
+	}
+
+	$(function(){
+		select("itype", "#{item.type}");
+		select("issuability", "#{item.issuability}");
+		$("#office").change(function(){
+			var value = $("#office").val();
+			if(value == "rosslyn"){
+				apply_location(rosslyn);
+			}
+			else if(value == "reston"){
+				apply_location(reston);
+			}
+			else if(value == "old_loc"){
+				apply_location(old_loc);
+			}
+		});
+	});

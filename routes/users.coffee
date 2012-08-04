@@ -9,28 +9,18 @@ user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:598
 helpers = require "./helpers/helpers.js"
 ListHandler = helpers.ListHandler
 ResultsHandler = helpers.ResultsHandler
-MandatoryFieldChecker = helpers.MandatoryFieldChecker
 
-mando_fields = [ "first_name", "last_name", "logon_name" ]
-
-user_checker = new MandatoryFieldChecker(mando_fields)
-
-validate_user_state = (user) ->
-	user_checker.mandatory_fields_are_set(user)
 
 normalize_post_values = (user, roles) ->
-	if validate_user_state user
-		new_user = {}
-		_.extend(new_user, user)
-		new_user.roles = []
-		new_user.roles.push "user"
-		for role, v of roles
-			new_user.roles.push role
-		new_user.email = "#{new_user.logon_name}@bericotechnologies.com"
-		new_user.id = new_user.email
-		new_user
-	else
-		null
+	new_user = {}
+	_.extend(new_user, user)
+	new_user.roles = []
+	new_user.roles.push "user"
+	for role, v of roles
+		new_user.roles.push role
+	new_user.email = "#{new_user.logon_name}@bericotechnologies.com"
+	new_user.id = new_user.email
+	new_user
 
 flatten_roles = (roles) ->
 	membership = {}

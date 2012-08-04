@@ -1,0 +1,11 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+label.control-label #{label}   
+div.controls
+	- if (typeof(disabled) != "undefined" && disabled == true)
+		input(id="#{elem_id}", type="text", name="#{id}", value="#{value}", disabled="true")
+	- else
+		input(id="#{elem_id}", type="text", name="#{id}", value="#{value}")
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}
+br

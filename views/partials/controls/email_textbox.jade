@@ -1,0 +1,14 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+label.control-label #{label}
+div.controls
+	div.input-append
+		- if (typeof(disabled) != "undefined" && disabled == true)
+			input(id="#{elem_id}", type="text", name="#{id}", style="width: 87px", value="#{value}", disabled="true")
+		- else
+			input(id="#{elem_id}", type="text", name="#{id}", style="width: 87px", value="#{value}")
+		span.add-on(style="font-size: 9px") @#{domain}
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}
+
+!=partial("partials/controls/postlabel_textbox", { id: id, label: label, value: value, postlabel: "@" + domain, font_size: "9", help: help, elem_id: elem_id, disabled: disabled})

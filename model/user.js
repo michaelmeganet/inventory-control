@@ -1,11 +1,21 @@
 (function() {
-  var x, _;
+  var Entity, x, _,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   _ = (require("underscore"))._;
 
+  Entity = (require("./entity")).Entity;
+
   x = typeof exports !== "undefined" && exports !== null ? exports : this;
 
-  x.User = (function() {
+  x.User = (function(_super) {
+
+    __extends(User, _super);
+
+    User.prototype.required_fields = function() {
+      return ["first_name", "last_name", "logon_name"];
+    };
 
     function User(init_state) {
       this.id = null;
@@ -23,6 +33,6 @@
 
     return User;
 
-  })();
+  })(Entity);
 
 }).call(this);

@@ -5,90 +5,35 @@ action = "/user/new"
   
 form.form-horizontal(action="#{action}", method="POST")
     - if (typeof(target_user._rev) != "undefined")
-      input(type="hidden", name="user[_rev]", value="#{target_user._rev}")
+      !=partial("partials/controls/hidden", { id: "user[_rev]", value: target_user._rev })
     legend Information
     div.control-group
-      label.control-label First Name:   
-      div.controls
-        input(type="text", name="user[first_name]", value="#{target_user.first_name}")
-      br
-      label.control-label Last Name:   
-      div.controls
-        input(type="text", name="user[last_name]", value="#{target_user.last_name}")
-      br
-      label.control-label Email:
-      div.controls
-        div.input-append
-          input(type="text", name="user[logon_name]", style="width: 87px", value="#{target_user.logon_name}")
-          span.add-on(style="font-size: 9px") @bericotechnologies.com
+      !=partial("partials/controls/textbox", { label: "First Name:", id: "user[first_name]", value: target_user.first_name })
+      !=partial("partials/controls/textbox", { label: "Last Name:", id: "user[last_name]", value: target_user.last_name })
+      !=partial("partials/controls/postlabel_textbox", { id: "user[logon_name]", label: "Email:", value: target_user.logon_name, postlabel: "@bericotechnologies.com", font_size: "9px", disabled: is_edit})
     legend Roles
     div.control-group
-      label.control-label User:
-      div.controls
-        label.checkbox
-          input(type="checkbox", name="roles[user]", checked="checked", disabled="disabled") 
-          | Can view items they have issued to them. 
-      label.control-label Admin:
-      div.controls
-        label.checkbox
-          - if (roles.admin)
-            input(type="checkbox", name="roles[admin]", checked="checked") 
-          - else
-            input(type="checkbox", name="roles[admin]")
-          | Can add/remove users and modify the inventory system.
-      label.control-label View Inventory:
-      div.controls
-        label.checkbox
-          - if (roles.view_inventory)
-            input(type="checkbox", name="roles[view_inventory]", checked="checked") 
-          - else
-            input(type="checkbox", name="roles[view_inventory]")
-          | Can view inventory items that are not assigned to them.          
-      label.control-label View Reports:
-      div.controls
-        label.checkbox
-          - if (roles.view_reports)
-            input(type="checkbox", name="roles[view_reports]", checked="#{roles.view_reports}") 
-          - else
-            input(type="checkbox", name="roles[view_reports]")
-          | Can view reports about the inventory.   
-      label.control-label Add Inventory:
-      div.controls
-        label.checkbox
-          - if (roles.add_inventory)
-            input(type="checkbox", name="roles[add_inventory]", checked="#{roles.add_inventory}") 
-          - else
-            input(type="checkbox", name="roles[add_inventory]")
-          | Can add new items to the inventory.
-      label.control-label Remove Inventory:
-      div.controls
-        label.checkbox
-          - if (roles.remove_inventory)
-            input(type="checkbox", name="roles[remove_inventory]", checked="#{roles.remove_inventory}") 
-          - else
-            input(type="checkbox", name="roles[remove_inventory]")
-          | Can remove items from the inventory.
-      label.control-label Assign Inventory:
-      div.controls
-        label.checkbox
-          - if (roles.assign_inventory)
-            input(type="checkbox", name="roles[assign_inventory]", checked="#{roles.assign_inventory}") 
-          - else
-            input(type="checkbox", name="roles[assign_inventory]")
-          | Can assign items in the inventory to employees.   
-      label.control-label Check-in Inventory:
-      div.controls
-        label.checkbox
-          - if (roles.check_in_inventory)
-            input(type="checkbox", name="roles[check_in_inventory]", checked="#{roles.check_in_inventory}") 
-          - else
-            input(type="checkbox", name="roles[check_in_inventory]")
-          | Can check-in inventory items from employees.
+      !=partial("partials/controls/role_checkbox", { label: "User:", id: "roles[user]", role: roles.user, disabled: true, help: "Can view items they have issued to them." })
+      
+      !=partial("partials/controls/role_checkbox", { label: "Admin:", id: "roles[admin]", role: roles.admin, help: "Can add/remove users and modify the inventory system." })
+      
+      !=partial("partials/controls/role_checkbox", { label: "View Inventory:", id: "roles[view_inventory]", role: roles.view_inventory, help: "Can view inventory items that are not assigned to them." })
+  
+      !=partial("partials/controls/role_checkbox", { label: "View Reports:", id: "roles[view_reports]", role: roles.view_reports, help: "Can view reports about the inventory." })
+      
+      !=partial("partials/controls/role_checkbox", { label: "Add Inventory:", id: "roles[add_inventory]", role: roles.add_inventory, help: "Can add new items to the inventory." })
+      
+      !=partial("partials/controls/role_checkbox", { label: "Remove Inventory:", id: "roles[remove_inventory]", role: roles.remove_inventory, help: "Can remove items from the inventory." })
+      
+      !=partial("partials/controls/role_checkbox", { label: "Assign Inventory:", id: "roles[assign_inventory]", role: roles.assign_inventory, help: "Can assign items in the inventory to employees." })
+      
+      !=partial("partials/controls/role_checkbox", { label: "Check-in Inventory:", id: "roles[check_in_inventory]", role: roles.check_in_inventory, help: "Can check-in inventory items from employees." })
+      
     div.form-actions
       case is_edit
         when true
-          button.btn.btn-primary.mr10(type="submit") Update User
-          button.btn.btn-danger.mr10(type="button", onclick="window.location='/user/#{target_user.email}/remove';") Remove User
+          !=partial("partials/controls/button_submit", { label: "Update User" })
+          !=partial("partials/controls/button_goto", { label: "Remove User", url: '/user/' + target_user.email + '/remove' })
         default
-          button.btn.btn-primary.mr10(type="submit") Create User
-      button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back
+          !=partial("partials/controls/button_submit", { label: "Create User" })
+      !=partial("partials/controls/button_back")

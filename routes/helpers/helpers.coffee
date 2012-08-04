@@ -28,15 +28,3 @@ class ResultsHandler
 			@res.redirect(@fail_url)
 
 module.exports.ResultsHandler = ResultsHandler
-
-class MandatoryFieldChecker
-	
-	constructor: (@required_fields) ->
-		
-	mandatory_fields_are_set: (obj) ->
-		valid = true
-		for field in @required_fields
-			valid = false unless obj[field]?	
-		valid
-
-module.exports.MandatoryFieldChecker = MandatoryFieldChecker

@@ -2,7 +2,7 @@ legend Disposition
 div.control-group
 	label.control-label Date Received:
 	div.controls
-		input(type="text", name="inv[date_received]", value="#{item.date_received}")
+		input(type="text", id="date_received", name="inv[date_received]", value="#{item.date_received}")
 	br
 	label.control-label Date Added:
 	div.controls
@@ -21,3 +21,5 @@ div.control-group
 			| the inventory item immediately after adding it to the system,
 			| user the Assign inventory workflow on the bottom of the Inventory item's page.
 	br
+script(type="text/javascript")
+	$("#date_received").datepicker({ defaultDate: "#{item.date_received}", dateFormat: "yy-mm-dd" });

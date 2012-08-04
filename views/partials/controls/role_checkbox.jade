@@ -1,0 +1,10 @@
+label.control-label #{label}
+div.controls
+	label.checkbox
+		- if (role && (typeof(disabled) != "undefined" && disabled))
+			input(type="checkbox", name="#{id}", checked="checked", disabled="true") 
+		- else if (role)
+			input(type="checkbox", name="#{id}", checked="checked") 
+		- else
+			input(type="checkbox", name="#{id}")
+		| #{help}

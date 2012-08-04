@@ -1,5 +1,5 @@
 (function() {
-  var ListHandler, MandatoryFieldChecker, ResultsHandler,
+  var ListHandler, ResultsHandler,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   ListHandler = (function() {
@@ -60,28 +60,5 @@
   })();
 
   module.exports.ResultsHandler = ResultsHandler;
-
-  MandatoryFieldChecker = (function() {
-
-    function MandatoryFieldChecker(required_fields) {
-      this.required_fields = required_fields;
-    }
-
-    MandatoryFieldChecker.prototype.mandatory_fields_are_set = function(obj) {
-      var field, valid, _i, _len, _ref;
-      valid = true;
-      _ref = this.required_fields;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        field = _ref[_i];
-        if (obj[field] == null) valid = false;
-      }
-      return valid;
-    };
-
-    return MandatoryFieldChecker;
-
-  })();
-
-  module.exports.MandatoryFieldChecker = MandatoryFieldChecker;
 
 }).call(this);
