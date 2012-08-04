@@ -25,10 +25,4 @@ div.control-group
 		p.help-block.form-comment.w420px Can an employee issue or borrow this item without explicit
 			| authorization?
 	br
-	label.control-label Borrow Time:
-	div.controls
-		input(type="text", name="inv[borrow_time]", value="#{item.borrow_time}")
-		p.help-block.form-comment.w420px The amount of time a person can borrow this item without
-			| needing to check it back in, or having it reissued.  Use a number plus the time increment
-			| to indicate how long the item can be borrowed: 1m 2w 3d 4h.
-	br
+	!=partial("partials/controls/textbox", { id: "inv[borrow_time]", label: "Borrow Time:", value: item.borrow_time, help: "The amount of time a person can borrow this item without needing to check it back in, or having it reissued.  Use a number plus the time increment to indicate how long the item can be borrowed: 1m 2w 3d 4h." })

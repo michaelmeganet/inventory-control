@@ -1,25 +1,8 @@
 legend Disposition
 div.control-group
-	label.control-label Date Received:
-	div.controls
-		input(type="text", id="date_received", name="inv[date_received]", value="#{item.date_received}")
-	br
-	label.control-label Date Added:
-	div.controls
-		input(type="text", name="inv[date_added]", value="#{item.date_added}", disabled="true")
-		p.help-block.form-comment.w420px Date Added to the Berico Inventory application.
-	br
-	label.control-label Owner:
-	div.controls
-		input(type="text", name="inv[owner]", value="#{item.owner}")
-		p.help-block.form-comment.w420px The entity or person that legally owns the item.
-	br
-	label.control-label Disposition:
-	div.controls
-		input(type="text", name="inv[disposition]", value="#{item.disposition}", disabled="true")
-		p.help-block.form-comment.w420px Current status of the inventory item.  If you are assigning
-			| the inventory item immediately after adding it to the system,
-			| user the Assign inventory workflow on the bottom of the Inventory item's page.
-	br
+	!=partial("partials/controls/textbox", { id: "inv[date_received]", elem_id: "date_received", label: "Date Received:", value: item.date_received })
+	!=partial("partials/controls/textbox", { id: "inv[date_added]", label: "Date Added:", value: item.date_added, disabled: true, help: "Date Added to the Berico Inventory application." })
+	!=partial("partials/controls/textbox", { id: "inv[owner]", label: "Owner:", value: item.owner, help: "The entity or person that legally owns the item." })
+	!=partial("partials/controls/textbox", { id: "inv[disposition]", label: "Disposition:", value: item.disposition, disabled: true, help: "Current status of the inventory item.  If you are assigning the inventory item immediately after adding it to the system, user the Assign inventory workflow on the bottom of the Inventory item's page." })
 script(type="text/javascript")
 	$("#date_received").datepicker({ defaultDate: "#{item.date_received}", dateFormat: "yy-mm-dd" });

@@ -3,31 +3,15 @@ div.description
 	p Licensed software associated with the inventory item.  This includes Operating Systems,
 		| Office/Productivity tools, IDEs, Photo Editing Software, etc.
 div.control-group
-	label.control-label Title:
-	div.controls
-		input#software_title(type="text")
-	br
+	!=partial("partials/controls/textbox", { elem_id: "software_title", label: "Title:" })
 	label.control-label OS:
 	div.controls
 		input#software_os(type="text", data-provide="typeahead", data-items="4", data-source='["Windows XP", "Windows Server 2003", "Windows Vista", "Windows Server 2008", "Windows 7", "OSX", "RHEL 5", "RHEL 6", "Ubuntu 9", "Ubuntu 10", "Ubuntu 11+", "OpenSuSE", "Debian"]')
 	br
-	label.control-label Serial No:
-	div.controls
-		input#software_serial_no(type="text")
-	br
-	label.control-label Estimated Value:
-	div.controls
-		div.input-prepend
-			span.add-on $
-			input#software_estimated_value(type="text", style="width: 184px")
-	br
-	label.control-label Expiration:
-	div.controls
-		input#software_expiration(type="text")
-		p.help-block.form-comment.w420px The date the license expires, if this software was
-			| purchased under a subscription.  The Estimated Value should equal the cost per
-			| subscription period if this is the case.
-	br
+	!=partial("partials/controls/textbox", { elem_id: "software_serial_no", label: "Serial No.:" })
+	!=partial("partials/controls/textbox", { elem_id: "software_title", id: "", label: "Title:" })
+	!=partial("partials/controls/prelabel_textbox", { elem_id: "software_estimated_value", label: "Estimated Value:", value: item.estimated_value, prelabel: "$", width: "184px" })
+	!=partial("partials/controls/textbox", { elem_id: "software_expiration", label: "Expiration:", help: "The date the license expires, if this software was purchased under a subscription.  The Estimated Value should equal the cost per subscription period if this is the case." })
 	label.control-label &nbsp;
 	div.controls
 		button#add_software.btn.btn-danger.mr10(type="button")

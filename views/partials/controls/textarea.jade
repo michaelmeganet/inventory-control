@@ -1,0 +1,19 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- if (typeof(id) == "undefined")
+	- var id = "";
+- if (typeof(value) == "undefined")
+	- var value = "";
+- if (typeof(width) == "undefined")
+	- var width = "210px";
+- if (typeof(height) == "undefined")
+	- var height = "150px";
+label.control-label #{label}   
+div.controls
+	- if (typeof(disabled) != "undefined" && disabled == true)
+		textarea(id="#{elem_id}", name="#{id}", value="#{value}", disabled="true", style="height: #{height}; width: #{width}")
+	- else
+		textarea(id="#{elem_id}", name="#{id}", value="#{value}", style="height: #{height}; width: #{width}")
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}
+br
