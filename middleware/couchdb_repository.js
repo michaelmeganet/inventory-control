@@ -1,5 +1,5 @@
 (function() {
-  var CouchDbInventoryRepository, CouchDbLogRepository, CouchDbRepository, CouchDbUserRepository, ErrorTranslater, InventoryItem, LogEntry, User, UserInfoProvider, dir, nano, _,
+  var CouchDbInventoryRepository, CouchDbLogRepository, CouchDbRepository, CouchDbUserRepository, ErrorTranslater, InventoryItem, ItemLog, LogEntry, User, UserInfoProvider, dir, nano, _,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -11,6 +11,8 @@
   User = (require("../model/user.js")).User;
 
   LogEntry = (require("../model/logentry.js")).LogEntry;
+
+  ItemLog = (require("../model/logentry.js")).ItemLog;
 
   InventoryItem = (require("../model/inventory_item.js")).InventoryItem;
 
@@ -324,20 +326,20 @@
       return this.partial_update(logentry.item_id, logentry, "inventory_log", "add_logentry", update_handler, true);
     };
 
-    CouchDbLogRepository.adapt_to_logentry = function(body) {
-      var logentry;
-      logentry = new LogEntry(body);
-      if (logentry._id != null) logentry.id = logentry._id;
-      return logentry;
+    CouchDbLogRepository.adapt_to_itemlog = function(body) {
+      var itemlog;
+      itemlog = new ItemLog(body);
+      if (itemlog._id != null) itemlog.id = itemlog._id;
+      return itemlog;
     };
 
-    CouchDbLogRepository.adapt_to_logentry_array = function(body) {
-      var entries, logentry, _i, _len, _ref;
+    CouchDbLogRepository.adapt_to_itemlog_array = function(body) {
+      var entries, itemlog, _i, _len, _ref;
       entries = [];
       _ref = body.rows;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        logentry = _ref[_i];
-        entries.push(CouchDbLogRepository.adapt_to_logentry(logentry.value));
+        itemlog = _ref[_i];
+        entries.push(CouchDbLogRepository.adapt_to_itemlog(itemlog.value));
       }
       return entries;
     };

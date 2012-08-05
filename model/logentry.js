@@ -9,6 +9,22 @@
 
   x = typeof exports !== "undefined" && exports !== null ? exports : this;
 
+  x.ItemLog = (function(_super) {
+
+    __extends(ItemLog, _super);
+
+    function ItemLog() {
+      ItemLog.__super__.constructor.apply(this, arguments);
+    }
+
+    ItemLog.prototype.required_fields = function() {
+      return [];
+    };
+
+    return ItemLog;
+
+  })(Entity);
+
   x.LogEntry = (function(_super) {
 
     __extends(LogEntry, _super);

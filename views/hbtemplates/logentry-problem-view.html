@@ -1,0 +1,12 @@
+<script id="problem-template" type="text/x-handlebars-template">
+	<div class="row" style="margin-left: 10px;padding: 10px">
+		<div class="span1" style="text-align: center;">
+			<img src="/images/problem.svg" alt="comment" style="height: 24px;" />
+		</div>
+		<div class="span8">
+			<div class="lead">{{text}}</div>
+			<div style="font-size: 10px; color: #ccc;"><a href="/user/{{user.email}}">{{user.first_name}} {{user.last_name}}</a> @ {{datesimple}}</div>
+		</div>
+	</div>
+	<hr />
+</script>

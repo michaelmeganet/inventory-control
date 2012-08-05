@@ -2,6 +2,7 @@ nano = require "nano"
 _ = (require "underscore")._
 User = (require "../model/user.js").User
 LogEntry = (require "../model/logentry.js").LogEntry
+ItemLog = (require "../model/logentry.js").ItemLog
 InventoryItem = (require "../model/inventory_item.js").InventoryItem
 
 class ErrorTranslater
@@ -257,15 +258,15 @@ class CouchDbLogRepository extends CouchDbRepository
 				callback(error, body) if callback?
 		@partial_update logentry.item_id, logentry, "inventory_log", "add_logentry", update_handler, true
 	
-	@adapt_to_logentry: (body) ->
-		logentry = new LogEntry(body)
-		logentry.id = logentry._id if logentry._id?
-		logentry
+	@adapt_to_itemlog: (body) ->
+		itemlog = new ItemLog(body)
+		itemlog.id = itemlog._id if itemlog._id?
+		itemlog
 
-	@adapt_to_logentry_array: (body) ->
+	@adapt_to_itemlog_array: (body) ->
 		entries = []
-		for logentry in body.rows
-			entries.push CouchDbLogRepository.adapt_to_logentry(logentry.value)
+		for itemlog in body.rows
+			entries.push CouchDbLogRepository.adapt_to_itemlog(itemlog.value)
 		entries
 	
 module.exports.CouchDbLogRepository = CouchDbLogRepository
