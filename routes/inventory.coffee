@@ -4,13 +4,12 @@ helpers = (require "./helpers/helpers.js")
 inv_models = (require "../model/inventory_item.js")
 repos = (require "../middleware/couchdb_repository.js")
 
-CouchDbInventoryRepository = repos.CouchDbInventoryRepository
 ListHandler = helpers.ListHandler
 ResultsHandler = helpers.ResultsHandler
 InventoryLocation = inv_models.InventoryLocation
 WarrantyInfo = inv_models.WarrantyInfo
 
-inv_repo = new CouchDbInventoryRepository({ couchdb_url: config.couch_base_url })
+inv_repo = new repos.CouchDbInventoryRepository({ couchdb_url: config.couch_base_url })
 
 # Very simple function to consistently build the state 
 # supplied to the template engine
@@ -89,8 +88,6 @@ normalize_post_values = (item) ->
 	new_item.id = item.serial_no
 	new_item.estimated_value = parseFloat(item.estimated_value)
 	new_item.allow_self_issue = Boolean(item.allow_self_issue)
-	
-	console.log JSON.stringify new_item
 	
 	new_item
 

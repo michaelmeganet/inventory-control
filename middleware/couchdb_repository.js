@@ -1,5 +1,5 @@
 (function() {
-  var CouchDbInventoryRepository, CouchDbRepository, CouchDbUserRepository, InventoryItem, User, UserInfoProvider, nano, _,
+  var CouchDbInventoryRepository, CouchDbLogRepository, CouchDbRepository, CouchDbUserRepository, ErrorTranslater, InventoryItem, LogEntry, User, UserInfoProvider, dir, nano, _,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -10,7 +10,37 @@
 
   User = (require("../model/user.js")).User;
 
+  LogEntry = (require("../model/logentry.js")).LogEntry;
+
   InventoryItem = (require("../model/inventory_item.js")).InventoryItem;
+
+  ErrorTranslater = (function() {
+
+    function ErrorTranslater() {}
+
+    ErrorTranslater.get_reason = function(error, context) {
+      switch (error.status_code) {
+        case 404:
+          if (error.error === "not_found") {
+            return "No document was found for " + context;
+          } else {
+            return "Couch says " + error.error + " was the reason for failure for " + context;
+          }
+          break;
+        default:
+          return "Couch says " + error.error + " was the reason for failure for " + context;
+      }
+    };
+
+    ErrorTranslater.prototype.log = function(error, context) {
+      var reason;
+      reason = ErrorTranslater.get_reason(error);
+      return console.log(reason);
+    };
+
+    return ErrorTranslater;
+
+  })();
 
   CouchDbRepository = (function() {
 
@@ -32,10 +62,12 @@
         return body.rows;
       };
       this.id_adaptor = (_ref3 = options.id_adaptor) != null ? _ref3 : null;
+      this.error_translater = new ErrorTranslater();
     }
 
     CouchDbRepository.prototype.paging_view = function(callback, startkey, options) {
-      var params, _ref;
+      var ERRLOG, params, _ref;
+      ERRLOG = this.error_translater;
       options.limit = (_ref = options.limit) != null ? _ref : 10;
       options.array_of_model_adaptor = this.array_of_model_adaptor;
       params = {};
@@ -43,7 +75,9 @@
       params.limit = options.limit + 1;
       return this.db.view(options.view_doc, options.view, params, function(error, body) {
         var last_model, models, results;
-        if (error) console.log("Problem accessing view " + error);
+        if (error) {
+          ERRLOG.log(error, "[paging-view," + startkey + "," + options.view_name + "]");
+        }
         models = options.array_of_model_adaptor(body);
         results = {};
         if (models.length === (options.limit + 1)) {
@@ -57,7 +91,8 @@
     };
 
     CouchDbRepository.prototype.view = function(callback, key, options) {
-      var params;
+      var ERRLOG, params;
+      ERRLOG = this.error_translater;
       options.array_of_model_adaptor = this.array_of_model_adaptor;
       params = {};
       if (key != null) params.key = key;
@@ -66,6 +101,9 @@
       }
       return this.db.view(options.view_doc, options.view, params, function(error, body) {
         var models;
+        if (error) {
+          ERRLOG.log(error, "[view:" + key + "," + options.view_name + "]");
+        }
         models = options.array_of_model_adaptor(body);
         return callback.apply(this, [models]);
       });
@@ -77,17 +115,18 @@
     };
 
     CouchDbRepository.prototype.add = function(model, key, callback, error_callback) {
-      var couch_model;
+      var ERRLOG, couch_model;
       if (error_callback == null) {
         error_callback = function(error) {
           return null;
         };
       }
+      ERRLOG = this.error_translater;
       delete model._rev;
       couch_model = CouchDbRepository.adapt_to_couch(model);
       return this.db.insert(couch_model, key, function(error, body) {
         if (error) {
-          console.log(error);
+          ERRLOG.log(error, "[add:" + key + "]");
           return error_callback(error);
         } else {
           if (callback != null) return callback(error, body);
@@ -96,16 +135,17 @@
     };
 
     CouchDbRepository.prototype.get = function(key, callback, error_callback) {
-      var model_adaptor;
+      var ERRLOG, model_adaptor;
       if (error_callback == null) {
         error_callback = function(error) {
           return null;
         };
       }
+      ERRLOG = this.error_translater;
       model_adaptor = this.model_adaptor;
       return this.db.get(key, function(error, body) {
         if (error) {
-          console.log(error);
+          ERRLOG.log(error, "[get:" + key + "]");
           return error_callback(error);
         } else {
           return callback(model_adaptor(body));
@@ -114,17 +154,18 @@
     };
 
     CouchDbRepository.prototype.update = function(model, callback, error_callback) {
-      var couch_model;
+      var ERRLOG, couch_model;
       if (error_callback == null) {
         error_callback = function(error) {
           return null;
         };
       }
+      ERRLOG = this.error_translater;
       couch_model = CouchDbRepository.adapt_to_couch(model);
       if (this.id_adaptor != null) couch_model._id = this.id_adaptor(model);
       return this.db.insert(model, model._id, function(error, body) {
         if (error) {
-          console.log(error);
+          ERRLOG.log(error, "[update:" + model._id + "]");
           return error_callback(error);
         } else {
           if (callback != null) return callback(error, body);
@@ -132,22 +173,28 @@
       });
     };
 
-    CouchDbRepository.prototype.partial_update = function(id, partial, update_doc, partial_handler, callback) {
+    CouchDbRepository.prototype.partial_update = function(id, partial, update_doc, partial_handler, callback, suppress_error) {
+      var ERRLOG;
+      ERRLOG = this.error_translater;
       return this.db.atomic(update_doc, partial_handler, id, partial, function(error, body) {
-        if (error) console.log(error);
+        if (error && !(suppress_error != null)) {
+          ERRLOG.log(error, "[pupdate:" + id + "," + partial + "]");
+        }
         if (callback != null) return callback(error, body);
       });
     };
 
     CouchDbRepository.prototype.remove = function(model, callback, error_callback) {
+      var ERRLOG;
       if (error_callback == null) {
         error_callback = function(error) {
           return null;
         };
       }
+      ERRLOG = this.error_translater;
       return this.db.destroy(model._id, model._rev, function(error, body) {
         if (error) {
-          console.log(error);
+          ERRLOG.log(error, "[remove:" + model._id + "]");
           return error_callback(error);
         } else {
           if (callback != null) return callback(error, body);
@@ -248,6 +295,59 @@
 
   module.exports.UserInfoProvider = UserInfoProvider;
 
+  CouchDbLogRepository = (function(_super) {
+
+    __extends(CouchDbLogRepository, _super);
+
+    function CouchDbLogRepository(options) {
+      this.add_logentry = __bind(this.add_logentry, this);      options.database = "inventory_log";
+      options.model_adaptor = CouchDbLogRepository.adapt_to_logentry;
+      options.array_of_model_adaptor = CouchDbLogRepository.adapt_to_logentry_array;
+      CouchDbLogRepository.__super__.constructor.call(this, options);
+    }
+
+    CouchDbLogRepository.prototype.add_logentry = function(logentry, callback) {
+      var that, update_handler;
+      that = this;
+      update_handler = function(error, body) {
+        var logentry_doc, logentry_id;
+        if ((error != null ? error.status_code : void 0) === 500 && error.reason.indexOf('new TypeError("doc is null", "")' === !-1)) {
+          logentry_id = "" + logentry.datetime + "~" + logentry.user.logon_name;
+          logentry_doc = {};
+          logentry_doc["_id"] = logentry.item_id;
+          logentry_doc[logentry_id] = logentry;
+          return that.add(logentry_doc, logentry.item_id, callback);
+        } else {
+          if (callback != null) return callback(error, body);
+        }
+      };
+      return this.partial_update(logentry.item_id, logentry, "inventory_log", "add_logentry", update_handler, true);
+    };
+
+    CouchDbLogRepository.adapt_to_logentry = function(body) {
+      var logentry;
+      logentry = new LogEntry(body);
+      if (logentry._id != null) logentry.id = logentry._id;
+      return logentry;
+    };
+
+    CouchDbLogRepository.adapt_to_logentry_array = function(body) {
+      var entries, logentry, _i, _len, _ref;
+      entries = [];
+      _ref = body.rows;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        logentry = _ref[_i];
+        entries.push(CouchDbLogRepository.adapt_to_logentry(logentry.value));
+      }
+      return entries;
+    };
+
+    return CouchDbLogRepository;
+
+  })(CouchDbRepository);
+
+  module.exports.CouchDbLogRepository = CouchDbLogRepository;
+
   CouchDbInventoryRepository = (function(_super) {
 
     __extends(CouchDbInventoryRepository, _super);
@@ -303,5 +403,21 @@
   })(CouchDbRepository);
 
   module.exports.CouchDbInventoryRepository = CouchDbInventoryRepository;
+
+  dir = function(err, items) {
+    return console.dir(items);
+  };
+
+  /*
+  repo = new CouchDbLogRepository({ couchdb_url: "http://192.168.192.143:5984/"})
+  
+  comment = 
+  	item_id: "12345"
+  	text: "This shit's awesome"
+  	user: { first_name: "Richard", last_name: "Clayton", logon_name: "rclayton@bericotechnologies.com" }
+  	datetime: new Date().getTime()
+  
+  repo.add_logentry comment, dir
+  */
 
 }).call(this);

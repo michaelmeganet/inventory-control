@@ -36,8 +36,44 @@ div.row(style="margin-left: 10px;")
 			div#actions.tab-pane
 				!=partial("partials/tables/actions", { inv_item: item, border: true, condensed: true })	
 		br
-		form.form-horizontal(action="/comments/item/#{item.id}", method="POST")
-			textarea#make_comment.span9 Make Comment
+		legend Comments
+		div#comments
+			span.lead Loading comments, please wait a second...
+		div#comment-no-content.modal.hide.fade
+			div.modal-header
+				button.close(type="button", data-dismiss="modal") x
+				h3 Whatcha talkin bout Willis?
+			div.modal-body(style="text-align: center")
+				p.alert.alert-error 
+					img(src="/images/willis.jpg", alt="", style="height: 250px;")
+					br
+					br
+					| You actually have to write a comment before 
+					br
+					| you attempt to post it to the boards...
+			div.modal-footer
+				a.btn(data-dismiss="modal") Close
+		form.form-horizontal
+			div.form-actions(style="margin-left: 10px;")
+				div.row
+					div.span8 
+						span.ml10(style="font-size: 10px;") Leave a comment related to this item.
+						br
+						textarea#comment-text(style="width: 100%; height: 80px;") 
+					div.span3
+						button#comment-post.btn.btn-info.mt30(type="button", style="width: 60px;") Post
+						br
+						button#comment-clear.btn.mt4(type="button", style="width: 60px;") Clear
+				div.row.mt4
+					div.span8
+						!=partial("partials/controls/hidden", { elem_id: "comment-con", value: "general"})
+						div#comment-con-selectors.ml10.btn-group(data-toggle="buttons-radio")
+							button.btn.btn-small.btn-info.active(type="button", value="general", bstyle="btn-info") General
+							button.btn.btn-small.btn-primary(type="button", value="info", bstyle="btn-primary") Info
+							button.btn.btn-small.btn-success(type="button", value="resolution", bstyle="btn-success") Resolution
+							button.btn.btn-small.btn-warning(type="button", value="issue", bstyle="btn-warning") Issue
+							button.btn.btn-small.btn-danger(type="button", value="problem", bstyle="btn-danger") Problem
+							button.btn.btn-small.btn-inverse(type="button", value="critical", bstyle="btn-inverse") Critical
 	div.span3
 		img( src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=#{config.base_url}/inv/item#{item.id}")
 		div.actions
@@ -56,3 +92,66 @@ div.row(style="margin-left: 10px;")
 			- if (user.is_in_role('admin'))
 				button.btn.btn-danger.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/remove';") Remove Item
 			button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back
+script(type="text/javascript")
+	var item_id = "#{item.id}";
+	var logon = "#{user.logon_name}";
+	var fname = "#{user.first_name}";
+	var lname = "#{user.last_name}";
+	var last_style = "btn-info";
+
+	$(function(){
+
+		$("#comment-post").click(function(){
+			var comment = {};
+			var text = $.trim($("#comment-text").val());
+			if (text != null && text != ""){
+				comment.item_id = item_id;
+				comment.text = text;
+				comment.user = {};
+				comment.user.logon_name = logon;
+				comment.user.first_name = fname;
+				comment.user.last_name = lname;
+				comment.datetime = new Date().toISOString();
+				comment.category = $("#comment-con").attr("value");
+				console.log("Making call!")
+				$.ajax({
+					url : '/log/' + item_id,
+					dataType : "json",
+					data : JSON.stringify(comment),
+					contentType: "application/json", 
+					type : 'POST',
+					success : function(resp) {
+						console.dir(resp);
+					}
+				});
+			}
+			else {
+				$("#comment-no-content").modal();
+			}
+		});
+
+		$("#comment-clear").click(function(){
+			$("#comment-text").val("");
+		});
+
+		$("#comment-con-selectors button").each(function(){
+			$(this).click(function(){
+				var con = $(this).attr("value");
+				$("#comment-con").attr("value", con);
+				$("#comment-post").removeClass(last_style);
+				last_style = $(this).attr("bstyle");
+				$("#comment-post").addClass(last_style);
+			})
+		});
+		
+		$.getJSON("/log/" + item_id)
+			.success(
+				function(data){
+					console.log(data);
+				}).error(
+			function(err){
+				var err_context = JSON.parse(err.responseText);
+				$("#comments").html("<span class='lead'>" + err_context.reason + "</span>");
+		});
+	});
+	

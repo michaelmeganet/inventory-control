@@ -1,7 +1,24 @@
 nano = require "nano"
 _ = (require "underscore")._
 User = (require "../model/user.js").User
+LogEntry = (require "../model/logentry.js").LogEntry
 InventoryItem = (require "../model/inventory_item.js").InventoryItem
+
+class ErrorTranslater
+	
+	@get_reason: (error, context) ->
+		switch error.status_code
+			when 404 
+				if error.error is "not_found"
+					"No document was found for #{context}"
+				else
+					"Couch says #{error.error} was the reason for failure for #{context}"
+			else
+				"Couch says #{error.error} was the reason for failure for #{context}"
+	
+	log: (error, context) ->
+		reason = ErrorTranslater.get_reason(error)
+		console.log reason
 
 # CouchDB Repository
 #
@@ -41,6 +58,8 @@ class CouchDbRepository
 		# used by CouchDB's "_id" construct.  (This is admittedly not as completely
 		# implemented as I want it to be).
 		@id_adaptor = options.id_adaptor ? null
+		# Error translater; used to determine how errors are output to the console
+		@error_translater = new ErrorTranslater()
 	
 	# This is a generic way to do paging against a view.
 	# 
@@ -61,6 +80,7 @@ class CouchDbRepository
 	#      in the resultset which will serve as the basis of the next page).
 	#   results.models = the array of model objects returned from the paging.
 	paging_view: (callback, startkey, options) =>
+		ERRLOG = @error_translater
 		options.limit = options.limit ? 10
 		options.array_of_model_adaptor = @array_of_model_adaptor
 		params = {}
@@ -68,7 +88,7 @@ class CouchDbRepository
 			params.startkey = startkey
 		params.limit = options.limit + 1
 		@db.view options.view_doc, options.view, params, (error, body) ->
-			console.log "Problem accessing view #{error}" if error
+			ERRLOG.log(error, "[paging-view,#{startkey},#{options.view_name}]") if error
 			models = options.array_of_model_adaptor(body)
 			results = {}
 			if models.length is (options.limit + 1)
@@ -92,11 +112,13 @@ class CouchDbRepository
 	# options.array_of_model_adaptor = An adapter that will take a list of JSON state
 	# 									and convert it to model objects
 	view: (callback, key, options) ->
+		ERRLOG = @error_translater
 		options.array_of_model_adaptor = @array_of_model_adaptor
 		params = {}
 		params.key = key if key?
 		params.limit = options.limit if options?.limit?	
 		@db.view options.view_doc, options.view, params, (error, body) ->
+			ERRLOG.log(error, "[view:#{key},#{options.view_name}]") if error
 			models = options.array_of_model_adaptor(body)
 			callback.apply(@, [models])
 	
@@ -106,45 +128,50 @@ class CouchDbRepository
 		model
 
 	add: (model, key, callback, error_callback = (error) -> null) ->
+		ERRLOG = @error_translater
 		# This is a sanity check;
 		# Sometimes a UI may leave a null revision.
 		delete model._rev
 		couch_model = CouchDbRepository.adapt_to_couch(model)
 		@db.insert couch_model, key, (error, body) ->
 			if error
-				console.log error
+				ERRLOG.log(error, "[add:#{key}]")
 				error_callback(error)
 			else
 				callback(error, body) if callback?
 
 	get: (key, callback, error_callback = (error) -> null) ->
+		ERRLOG = @error_translater
 		model_adaptor = @model_adaptor
 		@db.get key, (error, body) ->
 			if error
-				console.log error
+				ERRLOG.log(error, "[get:#{key}]")
 				error_callback(error)
 			else
 				callback(model_adaptor(body))
 			
 	update: (model, callback, error_callback = (error) -> null) ->
+		ERRLOG = @error_translater
 		couch_model = CouchDbRepository.adapt_to_couch(model)
 		couch_model._id = @id_adaptor(model) if @id_adaptor?
 		@db.insert model, model._id, (error, body) ->
 			if error
-				console.log error
+				ERRLOG.log(error, "[update:#{model._id}]")
 				error_callback(error)
 			else
 				callback(error, body) if callback?
 	
-	partial_update: (id, partial, update_doc, partial_handler, callback) ->
+	partial_update: (id, partial, update_doc, partial_handler, callback, suppress_error) ->
+		ERRLOG = @error_translater
 		@db.atomic update_doc, partial_handler, id, partial, (error, body) ->
-			console.log error if error
+			ERRLOG.log(error, "[pupdate:#{id},#{partial}]") if error and not suppress_error?
 			callback(error, body) if callback?
 	
 	remove: (model, callback, error_callback = (error) -> null) ->
+		ERRLOG = @error_translater
 		@db.destroy model._id, model._rev, (error, body) ->
 			if error
-				console.log error
+				ERRLOG.log(error, "[remove:#{model._id}]")
 				error_callback(error)
 			else
 				callback(error, body) if callback? 
@@ -206,6 +233,43 @@ class UserInfoProvider
 
 module.exports.UserInfoProvider = UserInfoProvider
 
+class CouchDbLogRepository extends CouchDbRepository
+	
+	constructor: (options) ->
+		options.database = "inventory_log"
+		options.model_adaptor = CouchDbLogRepository.adapt_to_logentry
+		options.array_of_model_adaptor = CouchDbLogRepository.adapt_to_logentry_array
+		super options
+	
+	add_logentry: (logentry, callback) =>
+		that = @
+		# This is the function that will be called when the result comes back
+		update_handler = (error, body) ->
+			# Document may not exist, so let's create it.
+			if error?.status_code is 500 and error.reason.indexOf 'new TypeError("doc is null", "")' is not -1
+				# Create document
+				logentry_id = "#{logentry.datetime}~#{logentry.user.logon_name}"
+				logentry_doc = {}
+				logentry_doc["_id"] = logentry.item_id
+				logentry_doc[logentry_id] = logentry 
+				that.add logentry_doc, logentry.item_id, callback
+			else
+				callback(error, body) if callback?
+		@partial_update logentry.item_id, logentry, "inventory_log", "add_logentry", update_handler, true
+	
+	@adapt_to_logentry: (body) ->
+		logentry = new LogEntry(body)
+		logentry.id = logentry._id if logentry._id?
+		logentry
+
+	@adapt_to_logentry_array: (body) ->
+		entries = []
+		for logentry in body.rows
+			entries.push CouchDbLogRepository.adapt_to_logentry(logentry.value)
+		entries
+	
+module.exports.CouchDbLogRepository = CouchDbLogRepository
+
 class CouchDbInventoryRepository extends CouchDbRepository
 
 	constructor: (options) ->
@@ -243,8 +307,11 @@ class CouchDbInventoryRepository extends CouchDbRepository
 
 module.exports.CouchDbInventoryRepository = CouchDbInventoryRepository
 
+# A simple callback function for testing
+dir = (err, items) -> console.dir items
+
 #repo = new CouchDbInventoryRepository({ couchdb_url: "http://192.168.192.143:5984/"})
-#dir = (items) -> console.dir items
+
 #repo.list dir, "R5920761"
 #repo.get "R5920761", (item) -> console.log item
 #repo.get "R5920761", (item) ->
@@ -252,3 +319,14 @@ module.exports.CouchDbInventoryRepository = CouchDbInventoryRepository
 
 #urepo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/"})
 #urepo.list dir, "Clayton,Richard"
+###
+repo = new CouchDbLogRepository({ couchdb_url: "http://192.168.192.143:5984/"})
+
+comment = 
+	item_id: "12345"
+	text: "This shit's awesome"
+	user: { first_name: "Richard", last_name: "Clayton", logon_name: "rclayton@bericotechnologies.com" }
+	datetime: new Date().getTime()
+
+repo.add_logentry comment, dir
+###

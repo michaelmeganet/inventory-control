@@ -44,6 +44,7 @@ app.configure('production', function(){
 require("./routes/index.js")(app);
 require("./routes/inventory.js")(app);
 require("./routes/users.js")(app);
+require("./routes/log.js")(app);
 
 server_port = 8443
 

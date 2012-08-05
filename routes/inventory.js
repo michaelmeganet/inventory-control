@@ -1,5 +1,5 @@
 (function() {
-  var CouchDbInventoryRepository, InventoryLocation, ListHandler, ResultsHandler, WarrantyInfo, build_state, comma_sep_categories_to_array, config, expand_location, expand_warranty_info, helpers, inv_models, inv_repo, normalize_post_values, prune_prefixed_fields, repos, _;
+  var InventoryLocation, ListHandler, ResultsHandler, WarrantyInfo, build_state, comma_sep_categories_to_array, config, expand_location, expand_warranty_info, helpers, inv_models, inv_repo, normalize_post_values, prune_prefixed_fields, repos, _;
 
   _ = (require("underscore"))._;
 
@@ -11,8 +11,6 @@
 
   repos = require("../middleware/couchdb_repository.js");
 
-  CouchDbInventoryRepository = repos.CouchDbInventoryRepository;
-
   ListHandler = helpers.ListHandler;
 
   ResultsHandler = helpers.ResultsHandler;
@@ -21,7 +19,7 @@
 
   WarrantyInfo = inv_models.WarrantyInfo;
 
-  inv_repo = new CouchDbInventoryRepository({
+  inv_repo = new repos.CouchDbInventoryRepository({
     couchdb_url: config.couch_base_url
   });
 
@@ -98,7 +96,6 @@
     new_item.id = item.serial_no;
     new_item.estimated_value = parseFloat(item.estimated_value);
     new_item.allow_self_issue = Boolean(item.allow_self_issue);
-    console.log(JSON.stringify(new_item));
     return new_item;
   };
 
