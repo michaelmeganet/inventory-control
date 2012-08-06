@@ -127,7 +127,7 @@ script(type="text/javascript")
 	};
 
 	function simple_time(date){
-		return date.toString("dddd, MMMM dd, yyyy | hh:mm");
+		return date.toString("dddd, MMMM dd, yyyy @ hh:mm tt");
 	}
 
 	function add_logentry(logentry){
@@ -145,6 +145,10 @@ script(type="text/javascript")
 		$("#history-status").html("");
 	}
 
+	function clear_textarea(){
+		$("#history-text").val("");
+	}
+
 	function push_new_logentry_to_server(logentry){
 		$.ajax({
 			url : itemlog_url,
@@ -156,6 +160,7 @@ script(type="text/javascript")
 				console.log("Syncing after insert.");
 				clear_comments_status();
 				sync_records(itemlog);
+				clear_textarea();
 			}
 		});
 	}
@@ -220,7 +225,7 @@ script(type="text/javascript")
 		});
 
 		$("#history-clear").click(function(){
-			$("#history-text").val("");
+			clear_textarea();
 		});
 
 		$("#history-con-selectors button").each(function(){

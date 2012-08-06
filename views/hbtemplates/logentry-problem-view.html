@@ -1,12 +1,16 @@
 <script id="problem-template" type="text/x-handlebars-template">
-	<div class="row" style="margin-left: 10px;padding: 10px">
-		<div class="span1" style="text-align: center;">
-			<img src="/images/problem.svg" alt="comment" style="height: 24px;" />
+	<hr />
+	<div style="float: right;"><a class="going-down" href="#history-con-selectors"><i class="icon-comment"></i></a></div>
+	<div class="row logentry">
+		<div class="span1 logentry-icon">
+			<img src="/images/problem.svg" alt="problem" />
+			<span class="label label-warning" style="margin-left: -4px">Problem</span>
 		</div>
-		<div class="span8">
-			<div class="lead">{{text}}</div>
-			<div style="font-size: 10px; color: #ccc;"><a href="/user/{{user.email}}">{{user.first_name}} {{user.last_name}}</a> @ {{datesimple}}</div>
+		<div class="span10">
+			<div class="logentry-info"><a href="/user/{{user.email}}">{{user.first_name}} {{user.last_name}}</a> <strong>posted on</strong> <span class="logentry-date">{{datesimple}}</span></div>
+			<blockquote class="logentry-text">
+				<p>{{text}}</p>
+			</blockquote>
 		</div>
 	</div>
-	<hr />
 </script>

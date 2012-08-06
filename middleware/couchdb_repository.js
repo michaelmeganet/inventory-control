@@ -374,8 +374,8 @@
     };
 
     CouchDbInventoryRepository.prototype.update_core = function(model, callback) {
-      var id, _ref;
-      id = (_ref = model.id) != null ? _ref : model._id;
+      var id, _ref, _ref2;
+      id = (_ref = (_ref2 = model.id) != null ? _ref2 : model._id) != null ? _ref : model.serial_no;
       delete model.id;
       delete model._id;
       delete model._rev;

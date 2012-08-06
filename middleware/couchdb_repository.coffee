@@ -288,7 +288,7 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		@paging_view callback, startkey, options
 		
 	update_core: (model, callback) ->
-		id = model.id ? model._id
+		id = model.id ? model._id ? model.serial_no
 		delete model.id
 		delete model._id
 		delete model._rev

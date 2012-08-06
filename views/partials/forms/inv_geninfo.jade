@@ -1,6 +1,8 @@
 legend General Information
 div.control-group
-	!=partial("partials/controls/textbox", { id: "inv[serial_no]", label: "Serial No:", value: item.serial_no, help: "This can also be a 'Service Tag', which is common on most Dell products." })
+	- if (is_edit)
+		!=partial("partials/controls/hidden", { id: "inv[serial_no]", value: item.serial_no })
+	!=partial("partials/controls/textbox", { id: "inv[serial_no]", label: "Serial No:", value: item.serial_no, help: "This can also be a 'Service Tag', which is common on most Dell products.", disabled: is_edit })
 	!=partial("partials/controls/textbox", { id: "inv[categories]", label: "Categories:", value: item.categories, help: "Comma-separated list of tags to apply to this item." })
 	!=partial("partials/controls/hidden", { elem_id: "inv_type_selected" })
 	!=partial("partials/controls/autocomplete", { elem_id: "inv_type", id: "inv[type]", label: "Item or Device Type:", value: item.type, source: "item_types", data_load: "one-time", sync_with: "#inv_type_selected" })
@@ -8,4 +10,5 @@ div.control-group
 	!=partial("partials/controls/textbox", { id: "inv[model]", label: "Model:", value: item.model })
 	!=partial("partials/controls/textbox", { id: "inv[model_no]", label: "Model No.:", value: item.model_no })
 	!=partial("partials/controls/prelabel_textbox", { id: "inv[estimated_value]", label: "Estimated Value:", value: item.estimated_value, prelabel: "$", width: "184px" })
+	!=partial("partials/controls/autocomplete", { id: "inv[condition]", label: "Condition:", value: item.condition, source: "conditions", data_load: "one-time" })
 	!=partial("partials/controls/textbox", { id: "inv[asset_tag]", label: "Asset Tag:", value: item.asset_tag, help: "Legacy Asset Tag number Berico uses on devices." })

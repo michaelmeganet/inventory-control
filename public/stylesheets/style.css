@@ -11,10 +11,50 @@ a {
 	
 }
 
+.logentry {
+	margin-left: 10px; 
+	padding: 10px;
+}
+
+.logentry-text {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 16px; 
+	margin-top: 10px;
+	color: #434343;
+}
+
+.logentry-info {
+	font-size: 14px;
+}
+
+.logentry-icon {
+	text-align: center;
+}
+
+.logentry-icon img {
+	height: 32px;
+}
+
+.logentry-date {
+	color: #5bc0de;
+}
+
 .footer {
 	text-align: center;
 	font-size: 10px;
 	color: #ccc;
+}
+
+a.going-down {
+	padding-top: 4px;
+	padding-left: 4px;
+	padding-right: 3px;
+}
+
+a.going-down:hover {
+	border: 1px solid #999;
+	background-color: #eee;
+	border-radius: 6px;
 }
 
 .mt2 {

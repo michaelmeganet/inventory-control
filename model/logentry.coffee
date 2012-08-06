@@ -10,7 +10,7 @@ class x.ItemLog extends Entity
 	constructor: (init_state) ->
 		for k, v of init_state
 			unless k.indexOf("_") is 0
-			@[k] = new LogEntry(v)
+				@[k] = new LogEntry(v)
 		
 
 class x.LogEntry extends Entity

@@ -13,13 +13,17 @@
 
     __extends(ItemLog, _super);
 
-    function ItemLog() {
-      ItemLog.__super__.constructor.apply(this, arguments);
-    }
-
     ItemLog.prototype.required_fields = function() {
       return [];
     };
+
+    function ItemLog(init_state) {
+      var k, v;
+      for (k in init_state) {
+        v = init_state[k];
+        if (k.indexOf("_") !== 0) this[k] = new LogEntry(v);
+      }
+    }
 
     return ItemLog;
 
