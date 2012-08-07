@@ -6,8 +6,6 @@ action = "/inv/new"
 form.form-horizontal(action="#{action}", method="POST")
 	- if (typeof(item._rev) != "undefined")
 		input(type="hidden", name="inv[_rev]", value="#{item._rev}")
-	- if (typeof(item.ext) != "undefined")
-		input(type="hidden", name="inv[ext]", value="#{item.ext}")
 	div#inv-gen-info
 		!=partial("partials/forms/inv_geninfo")
 	div#inv-accessories
@@ -16,12 +14,12 @@ form.form-horizontal(action="#{action}", method="POST")
 		!=partial("partials/forms/inv_software")
 	div#inv-warranty
 		!=partial("partials/forms/inv_warranty")
+	div#inv-actions
+		!=partial("partials/forms/inv_actions")	
 	div#inv-disposition
 		!=partial("partials/forms/inv_disposition")
 	div#inv-location
 		!=partial("partials/forms/inv_location")
-	div#inv-actions
-		!=partial("partials/forms/inv_actions")	
 	div.form-actions
 		case is_edit
 			when true
@@ -57,10 +55,26 @@ script(type="text/javascript")
 			});
 		}
 
-
 		$("#inv_type_selected").change(function(){
 			var show_forms = JSON.parse($("#inv_type_selected").val());
 			sync_visible_elements(show_forms.show);
 		});
+
+		function update_disposition(value){
+			$("#inv_disposition").val(value);
+			$("#inv_disposition_vis").val(value);
+		}
+
+		function sync_disposition(){
+			if($.trim($("#inv_checked_out_to").val()) != ""){
+				update_disposition("Issued");
+			}
+			else {
+				update_disposition("Available");
+			}
+		}
+		
+		$("#inv_checked_out_to").blur(sync_disposition);
+
 	});
 

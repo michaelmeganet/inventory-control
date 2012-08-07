@@ -1,0 +1,17 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+- if (typeof(id) == "undefined")
+	- var id = "";
+- if (typeof(value) == "undefined")
+	- var value = "";
+label.control-label #{label}
+div.controls
+	- for option in options
+		label.radio #{option.label}
+			- if (typeof(option.selected) != "undefined" && option.selected == true)
+				input.radio(type="radio", name="#{id}", value="#{option.value}", checked="checked")
+			- else
+				input.radio(type="radio", name="#{id}", value="#{option.value}")
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}
+br

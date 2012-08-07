@@ -77,7 +77,7 @@ module.exports = (app) ->
 			state = build_state req, "User Information", "#{user.last_name}, #{user.first_name}" 
 			state.target_user = user
 			res.render "users_view", state
-			
+	
 	# UPDATE USER FORM
 	app.get '/user/:id/update', (req, res) ->
 		user_repo.get req.params.id, (user) ->
@@ -131,7 +131,17 @@ module.exports = (app) ->
 	
 	app.get '/users/by_last_name/:last_name', (req, res) ->
 		res.redirect("/users/")
-		
+	
+	app.get '/search/users/:query', (req, res) ->
+		if req.params.query?
+			console.log "Query: #{req.params.query}"
+			json_response = (data) ->
+				console.log "Done!"
+				res.json data
+			user_repo.get_by_name json_response, req.params.query
+		else
+			res.status(400).json({success: false, reason: "No query term in url." })
+	
 	app.get '/users/refresh_info', (req, res) ->
 		# Kill the user variable in the session,
 		# on next authentication we will force a 

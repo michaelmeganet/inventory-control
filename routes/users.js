@@ -155,6 +155,22 @@
     app.get('/users/by_last_name/:last_name', function(req, res) {
       return res.redirect("/users/");
     });
+    app.get('/search/users/:query', function(req, res) {
+      var json_response;
+      if (req.params.query != null) {
+        console.log("Query: " + req.params.query);
+        json_response = function(data) {
+          console.log("Done!");
+          return res.json(data);
+        };
+        return user_repo.get_by_name(json_response, req.params.query);
+      } else {
+        return res.status(400).json({
+          success: false,
+          reason: "No query term in url."
+        });
+      }
+    });
     return app.get('/users/refresh_info', function(req, res) {
       delete req.session.user;
       return res.redirect(req.header('Referer'));

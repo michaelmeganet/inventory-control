@@ -4,6 +4,7 @@ User = (require "../model/user.js").User
 LogEntry = (require "../model/logentry.js").LogEntry
 ItemLog = (require "../model/logentry.js").ItemLog
 InventoryItem = (require "../model/inventory_item.js").InventoryItem
+restler = (require "restler")
 
 class ErrorTranslater
 	
@@ -13,9 +14,9 @@ class ErrorTranslater
 				if error.error is "not_found"
 					"No document was found for #{context}"
 				else
-					"Couch says #{error.error} was the reason for failure for #{context}"
+					"Couch says '#{error.error}' was the reason for failure for '#{context}'"
 			else
-				"Couch says #{error.error} was the reason for failure for #{context}"
+				"Couch says '#{error.error}' was the reason for failure for '#{context}'"
 	
 	log: (error, context) ->
 		reason = ErrorTranslater.get_reason(error)
@@ -45,6 +46,8 @@ class CouchDbRepository
 		# Some state assertions
 		unless options?.couchdb_url? then throw "Must provide CouchDB URL: 'options.couchdb_url'"
 		unless options?.database? then throw "Must provide database name: 'options.database'"
+		@couchdb_url = options.couchdb_url
+		@database_name = options.database
 		# Connect to CouchDB
 		@connection = nano(options.couchdb_url)
 		# Select the Database your Repo uses
@@ -152,6 +155,7 @@ class CouchDbRepository
 				callback(model_adaptor(body))
 			
 	update: (model, callback, error_callback = (error) -> null) ->
+		console.dir model
 		ERRLOG = @error_translater
 		couch_model = CouchDbRepository.adapt_to_couch(model)
 		couch_model._id = @id_adaptor(model) if @id_adaptor?
@@ -176,6 +180,31 @@ class CouchDbRepository
 				error_callback(error)
 			else
 				callback(error, body) if callback? 
+		
+	# CouchDB does not have Full Text search, so this is the CouchDB Lucene
+	# extension for CouchDB.  This function does not use Nano, since nano does not
+	# actually include this functionality.
+	# 
+	# qstring = lucene query string (use any valid lucene query you want)
+	# callback = called on success (receive an array of your model)
+	# error_callback = called on failure
+	search: (qstring, options, callback, error_callback = (error) -> null) ->
+		unless options?.design_doc? then throw "Must provide the design document name: 'options.design_doc'"
+		unless options?.index? then throw "Must provide index name: 'options.index'"
+		model_adaptor = @model_adaptor
+		request_url = "#{@couchdb_url}_fti/local/#{@database_name}/_design/#{options.design_doc}/#{options.index}?q=#{qstring}"
+		result_handler = (result) ->
+			result = JSON.parse result
+			matches = {}
+			for row in result.rows
+				user_raw = JSON.parse(row.fields.user)
+				user = model_adaptor(user_raw)
+				matches[row.fields.name] = user
+			callback matches
+			
+		error_wrapper = (error) ->
+			error_callback error
+		(restler.get request_url).on("complete", result_handler).on("error", error_wrapper)
 
 
 class CouchDbUserRepository extends CouchDbRepository
@@ -207,9 +236,10 @@ class CouchDbUserRepository extends CouchDbRepository
 		key = key ? "user"
 		options.view_doc = "users"
 		options.view = "by_roles"
-		console.dir options
-		console.log key
 		@view callback, key, options
+
+	get_by_name: (callback, query) ->
+		@search "name:#{query}*", { design_doc: "users", index: "by_first_and_last_name" }, callback
 
 	@adapt_to_user: (body) ->
 		user = new User(body)

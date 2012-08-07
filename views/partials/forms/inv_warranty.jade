@@ -6,7 +6,6 @@ div.description
 		| make a call on the Warranty in the description box.
 div.control-group
 	!=partial("partials/controls/textarea", { id: "inv[war_description]", label: "Description:", value: item.warranty.description, help: "Description of the level of support this warranty provides." })
-	!=partial("partials/controls/textbox", { elem_id: "war_start_date", id: "inv[war_start_date]", label: "Start Date:", value: item.warranty.start_date, help: "Date the Warranty becomes effective." })
-	!=partial("partials/controls/textbox", { elem_id: "war_start_date", id: "inv[war_end_date]", label: "End Date:", value: item.warranty.end_date, help: "Date the Warranty expires." })
+	!=partial("partials/controls/textbox", { elem_id: "war_end_date", id: "inv[war_end_date]", label: "End Date:", value: item.warranty.end_date, help: "Date the Warranty expires." })
 script(type="text/javascript")
-	$("#war_start_date, #war_end_date").daterangepicker({ dateFormat: "yy-mm-dd" }); 
+	$("#war_end_date").datepicker({ dateFormat: "yy-mm-dd", defaultDate: "#{item.warranty.end_date}" }); 

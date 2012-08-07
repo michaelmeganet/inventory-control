@@ -3,6 +3,11 @@ div.control-group
 	!=partial("partials/controls/textbox", { id: "inv[date_received]", elem_id: "date_received", label: "Date Received:", value: item.date_received })
 	!=partial("partials/controls/textbox", { id: "inv[date_added]", label: "Date Added:", value: item.date_added, disabled: true, help: "Date Added to the Berico Inventory application." })
 	!=partial("partials/controls/textbox", { id: "inv[owner]", label: "Owner:", value: item.owner, help: "The entity or person that legally owns the item." })
-	!=partial("partials/controls/textbox", { id: "inv[disposition]", label: "Disposition:", value: item.disposition, disabled: true, help: "Current status of the inventory item.  If you are assigning the inventory item immediately after adding it to the system, user the Assign inventory workflow on the bottom of the Inventory item's page." })
+	!=partial("partials/controls/hidden", { elem_id: "inv_disposition", id: "inv[disposition]", value: item.disposition })
+	!=partial("partials/controls/textbox", { elem_id: "inv_disposition_vis", id: "inv[disposition]", label: "Disposition:", value: item.disposition, disabled: true, help: "Current status of the inventory item.  If you are assigning the inventory item immediately after adding it to the system, user the Assign inventory workflow on the bottom of the Inventory item's page." })
+	!=partial("partials/controls/radiogroup", { id: "inv[checkout_type]", label: "", options: [ { label: "Loan.", value: "borrowed", selected: (item.checkout_type == "borrowed") }, { label: "Issue.", value: "issued", selected: (item.checkout_type == "issued") } ] })
+	!=partial("partials/controls/hidden", { elem_id: "inv_checked_out_to_selected" })
+	!=partial("partials/controls/autocomplete", { elem_id: "inv_checked_out_to", id: "inv[checked_out_to]", label: "Checked-Out To:", value: item.checked_out_to, source: "users", data_load: "continuous", sync_with: "#inv_checked_out_to_selected", help: "*Hint: Just start typing and a list of matching names will appear." })
 script(type="text/javascript")
 	$("#date_received").datepicker({ defaultDate: "#{item.date_received}", dateFormat: "yy-mm-dd" });
+	$("#inv_disposition_vis").change(function(){ $("#inv_disposition").attr("value", $(this).val()); });

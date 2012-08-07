@@ -1,5 +1,5 @@
 (function() {
-  var CouchDbInventoryRepository, CouchDbLogRepository, CouchDbRepository, CouchDbUserRepository, ErrorTranslater, InventoryItem, ItemLog, LogEntry, User, UserInfoProvider, dir, nano, _,
+  var CouchDbInventoryRepository, CouchDbLogRepository, CouchDbRepository, CouchDbUserRepository, ErrorTranslater, InventoryItem, ItemLog, LogEntry, User, UserInfoProvider, dir, nano, restler, _,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -16,6 +16,8 @@
 
   InventoryItem = (require("../model/inventory_item.js")).InventoryItem;
 
+  restler = require("restler");
+
   ErrorTranslater = (function() {
 
     function ErrorTranslater() {}
@@ -26,11 +28,11 @@
           if (error.error === "not_found") {
             return "No document was found for " + context;
           } else {
-            return "Couch says " + error.error + " was the reason for failure for " + context;
+            return "Couch says '" + error.error + "' was the reason for failure for '" + context + "'";
           }
           break;
         default:
-          return "Couch says " + error.error + " was the reason for failure for " + context;
+          return "Couch says '" + error.error + "' was the reason for failure for '" + context + "'";
       }
     };
 
@@ -55,6 +57,8 @@
       if ((options != null ? options.database : void 0) == null) {
         throw "Must provide database name: 'options.database'";
       }
+      this.couchdb_url = options.couchdb_url;
+      this.database_name = options.database;
       this.connection = nano(options.couchdb_url);
       this.db = this.connection.db.use(options.database);
       this.model_adaptor = (_ref = options.model_adaptor) != null ? _ref : function(body) {
@@ -162,6 +166,7 @@
           return null;
         };
       }
+      console.dir(model);
       ERRLOG = this.error_translater;
       couch_model = CouchDbRepository.adapt_to_couch(model);
       if (this.id_adaptor != null) couch_model._id = this.id_adaptor(model);
@@ -202,6 +207,40 @@
           if (callback != null) return callback(error, body);
         }
       });
+    };
+
+    CouchDbRepository.prototype.search = function(qstring, options, callback, error_callback) {
+      var error_wrapper, model_adaptor, request_url, result_handler;
+      if (error_callback == null) {
+        error_callback = function(error) {
+          return null;
+        };
+      }
+      if ((options != null ? options.design_doc : void 0) == null) {
+        throw "Must provide the design document name: 'options.design_doc'";
+      }
+      if ((options != null ? options.index : void 0) == null) {
+        throw "Must provide index name: 'options.index'";
+      }
+      model_adaptor = this.model_adaptor;
+      request_url = "" + this.couchdb_url + "_fti/local/" + this.database_name + "/_design/" + options.design_doc + "/" + options.index + "?q=" + qstring;
+      result_handler = function(result) {
+        var matches, row, user, user_raw, _i, _len, _ref;
+        result = JSON.parse(result);
+        matches = {};
+        _ref = result.rows;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          row = _ref[_i];
+          user_raw = JSON.parse(row.fields.user);
+          user = model_adaptor(user_raw);
+          matches[row.fields.name] = user;
+        }
+        return callback(matches);
+      };
+      error_wrapper = function(error) {
+        return error_callback(error);
+      };
+      return (restler.get(request_url)).on("complete", result_handler).on("error", error_wrapper);
     };
 
     return CouchDbRepository;
@@ -249,9 +288,14 @@
       key = key != null ? key : "user";
       options.view_doc = "users";
       options.view = "by_roles";
-      console.dir(options);
-      console.log(key);
       return this.view(callback, key, options);
+    };
+
+    CouchDbUserRepository.prototype.get_by_name = function(callback, query) {
+      return this.search("name:" + query + "*", {
+        design_doc: "users",
+        index: "by_first_and_last_name"
+      }, callback);
     };
 
     CouchDbUserRepository.adapt_to_user = function(body) {

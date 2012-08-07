@@ -6,6 +6,8 @@ action = "/user/new"
 form.form-horizontal(action="#{action}", method="POST")
     - if (typeof(target_user._rev) != "undefined")
       !=partial("partials/controls/hidden", { id: "user[_rev]", value: target_user._rev })
+    - if (is_edit)
+      !=partial("partials/controls/hidden", { id: "user[logon_name]", value: target_user.logon_name })
     legend Information
     div.control-group
       !=partial("partials/controls/textbox", { label: "First Name:", id: "user[first_name]", value: target_user.first_name })
