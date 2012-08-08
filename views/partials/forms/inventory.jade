@@ -24,13 +24,14 @@ form.form-horizontal(action="#{action}", method="POST")
 		case is_edit
 			when true
 				!=partial("partials/controls/button_submit", { label: "Update Item" })
-				!=partial("partials/controls/button_goto", { label: "Remove Item", url: '//inv/item/' + item.serial_no + '/remove' })
+				!=partial("partials/controls/button_goto", { label: "Remove Item", url: '/inv/item/' + item.serial_no + '/remove' })
 			default
 				!=partial("partials/controls/button_submit", { label: "Add Item" })
 		!=partial("partials/controls/button_back")
 
 script(type="text/javascript")
 
+	var check_in_admin_id = "#{user.email}";
 	var optional_forms = [ "warranty", "software", "accessories" ];
 
 	function sync_visible_elements(show_forms){
@@ -67,14 +68,36 @@ script(type="text/javascript")
 
 		function sync_disposition(){
 			if($.trim($("#inv_checked_out_to").val()) != ""){
-				update_disposition("Issued");
+				update_disposition($("#issue_method").attr("value"));
 			}
 			else {
 				update_disposition("Available");
 			}
 		}
+
+		function sync_issuability(){
+			var issuability = $("#issuability").val();
+			if(issuability != "no-issue"){
+				$("#loan_or_issue").slideDown();
+			}
+			else {
+				$("#loan_or_issue").slideUp();
+			}
+		}
 		
 		$("#inv_checked_out_to").blur(sync_disposition);
+		$("#issuability").change(sync_issuability);
 
+		sync_issuability();
+		
+		$("#sel_issue, #sel_borrow").click(function(){
+			if ($(this).attr("id") == "sel_issue"){
+				$("#issue_method").attr("value", "Issued");
+			}
+			else {
+				$("#issue_method").attr("value", "Borrowed");
+			}
+			sync_disposition();
+		});
 	});
 

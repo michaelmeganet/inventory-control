@@ -164,7 +164,7 @@
       inv_repo.remove(item);
       return res.redirect("/inv/items");
     });
-    return app.get('/inv/item/:id/remove', function(req, res) {
+    app.get('/inv/item/:id/remove', function(req, res) {
       return inv_repo.get(req.params.id, function(item) {
         var state;
         state = build_state(req, "Remove Inventory Item?", "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no);
@@ -172,6 +172,42 @@
         return res.render("inventory_remove", state);
       });
     });
+    app.get('/inv/item/:id/checkin', function(req, res) {
+      return inv_repo.get(req.params.id, function(item) {
+        var state;
+        state = build_state(req, "Check-in Inventory Item", "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no);
+        state.item = item;
+        return res.render("inventory_checkin", state);
+      });
+    });
+    app.post('/inv/item/:id/checkin', function(req, res) {});
+    app.get('/inv/item/:id/return', function(req, res) {
+      return inv_repo.get(req.params.id, function(item) {
+        var state;
+        state = build_state(req, "Return Inventory Item", "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no);
+        state.item = item;
+        return res.render("inventory_return", state);
+      });
+    });
+    app.post('/inv/item/:id/return', function(req, res) {});
+    app.get('/inv/item/:id/extend', function(req, res) {
+      return inv_repo.get(req.params.id, function(item) {
+        var state;
+        state = build_state(req, "Extend Borrow Time", "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no);
+        state.item = item;
+        return res.render("inventory_extend", state);
+      });
+    });
+    app.post('/inv/item/:id/extend', function(req, res) {});
+    app.get('/inv/item/:id/verify', function(req, res) {
+      return inv_repo.get(req.params.id, function(item) {
+        var state;
+        state = build_state(req, "Verify Check-in", "" + item.serial_no + " - " + item.make + " " + item.model + " " + item.model_no);
+        state.item = item;
+        return res.render("inventory_verify", state);
+      });
+    });
+    return app.post('/inv/item/:id/verify', function(req, res) {});
   };
 
 }).call(this);

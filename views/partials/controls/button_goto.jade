@@ -1,1 +1,6 @@
-button.btn.btn-danger.mr10(type="button", onclick="window.location='#{url}';") #{label}
+- var cssclass = "";
+-if (typeof(active) != "undefined" && active == true)
+	- cssclass += " active";
+-if (typeof(addClass) != "undefined")
+	- cssclass += " " + addClass
+button.mr10(type="button", onclick="window.location='#{url}';", class="btn#{cssclass}") #{label}

@@ -153,3 +153,38 @@ module.exports = (app) ->
 			state = build_state req, "Remove Inventory Item?", "#{item.serial_no} - #{item.make} #{item.model} #{item.model_no}"	
 			state.item = item
 			res.render "inventory_remove", state
+
+	app.get '/inv/item/:id/checkin', (req, res) ->
+		inv_repo.get req.params.id, (item) ->
+			state = build_state req, "Check-in Inventory Item", "#{item.serial_no} - #{item.make} #{item.model} #{item.model_no}"	
+			state.item = item
+			res.render "inventory_checkin", state
+	
+	app.post '/inv/item/:id/checkin', (req, res) ->
+		
+		
+	app.get '/inv/item/:id/return', (req, res) ->
+		inv_repo.get req.params.id, (item) ->
+			state = build_state req, "Return Inventory Item", "#{item.serial_no} - #{item.make} #{item.model} #{item.model_no}"	
+			state.item = item
+			res.render "inventory_return", state
+	
+	app.post '/inv/item/:id/return', (req, res) ->
+		
+		
+	app.get '/inv/item/:id/extend', (req, res) ->
+		inv_repo.get req.params.id, (item) ->
+			state = build_state req, "Extend Borrow Time", "#{item.serial_no} - #{item.make} #{item.model} #{item.model_no}"	
+			state.item = item
+			res.render "inventory_extend", state
+	
+	app.post '/inv/item/:id/extend', (req, res) ->	
+		
+		
+	app.get '/inv/item/:id/verify', (req, res) ->
+		inv_repo.get req.params.id, (item) ->
+			state = build_state req, "Verify Check-in", "#{item.serial_no} - #{item.make} #{item.model} #{item.model_no}"	
+			state.item = item
+			res.render "inventory_verify", state
+	
+	app.post '/inv/item/:id/verify', (req, res) ->	

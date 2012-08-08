@@ -1,0 +1,15 @@
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+label.control-label #{label}
+div.controls
+	div.btn-group(id="#{elem_id}", data-toggle="buttons-radio")
+		- for option in options
+			- var cssclass = "";
+			-if (typeof(active) != "undefined" && active == true)
+				- cssclass += " active";
+			-if (typeof(addClass) != "undefined")
+				- cssclass += " " + addClass
+			button(type="button", id="#{option.id}", class="btn#{cssclass}") #{option.label}
+	- if (typeof(help) != "undefined")
+		p.help-block.form-comment.w420px #{help}
+br

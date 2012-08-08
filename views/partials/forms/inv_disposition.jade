@@ -4,10 +4,44 @@ div.control-group
 	!=partial("partials/controls/textbox", { id: "inv[date_added]", label: "Date Added:", value: item.date_added, disabled: true, help: "Date Added to the Berico Inventory application." })
 	!=partial("partials/controls/textbox", { id: "inv[owner]", label: "Owner:", value: item.owner, help: "The entity or person that legally owns the item." })
 	!=partial("partials/controls/hidden", { elem_id: "inv_disposition", id: "inv[disposition]", value: item.disposition })
-	!=partial("partials/controls/textbox", { elem_id: "inv_disposition_vis", id: "inv[disposition]", label: "Disposition:", value: item.disposition, disabled: true, help: "Current status of the inventory item.  If you are assigning the inventory item immediately after adding it to the system, user the Assign inventory workflow on the bottom of the Inventory item's page." })
-	!=partial("partials/controls/radiogroup", { id: "inv[checkout_type]", label: "", options: [ { label: "Loan.", value: "borrowed", selected: (item.checkout_type == "borrowed") }, { label: "Issue.", value: "issued", selected: (item.checkout_type == "issued") } ] })
-	!=partial("partials/controls/hidden", { elem_id: "inv_checked_out_to_selected" })
-	!=partial("partials/controls/autocomplete", { elem_id: "inv_checked_out_to", id: "inv[checked_out_to]", label: "Checked-Out To:", value: item.checked_out_to, source: "users", data_load: "continuous", sync_with: "#inv_checked_out_to_selected", help: "*Hint: Just start typing and a list of matching names will appear." })
+	!=partial("partials/controls/textbox", { elem_id: "inv_disposition_vis", id: "inv[disposition_sel]", label: "Disposition:", value: item.disposition, disabled: true, help: "Current status of the inventory item.  If you are assigning the inventory item immediately after adding it to the system, user the Assign inventory workflow on the bottom of the Inventory item's page." })
+	- if (user.is_in_role("assign_inventory") && item.disposition == "Available")
+		div#loan_or_issue.alert.alert-warning(style="width: 560px")
+			h3 Loan or Issue
+				small.ml10 Issue this item to an employee.
+			br
+			!=partial("partials/controls/hidden", { elem_id: "issue_method", value: "Issued" })
+			!=partial("partials/controls/buttongroup", { elem_id: "b_or_i", label: "Method:", options: [ { label: "Loan", id: "sel_borrow", cssclass: "btn-primary", active: (item.disposition == "Borrowed") }, { label: "Issue", id: "sel_issue", active: (item.disposition == "Issued") } ] })
+			!=partial("partials/controls/hidden", { elem_id: "inv_checked_out_to_selected" })
+			!=partial("partials/controls/autocomplete", { elem_id: "inv_checked_out_to", id: "inv[checked_out_to]", label: "Employee:", value: item.checked_out_to, source: "users", data_load: "continuous", sync_with: "#inv_checked_out_to_selected", help: "*Hint: Just start typing and a list of matching names will appear." })
+
+	- else
+		!=partial("partials/controls/textbox", { id: "inv[checked_out_to]", label: "Checked-Out To:", value: item.checked_out_to, disabled: true, help: "The item is currently checked out this this user." })
+
+			label.control-label &nbsp;   
+			div.controls
+				- if (user.is_in_role("check_in_inventory") && item.disposition == "Issued")
+					!=partial("partials/controls/button_goto", { label: "Check Item In", url: "/inv/item/" + item.id + "/checkin", addClass: "btn-warning"})
+				- if (user.is_in_role("assign_inventory") && item.disposition == "Borrowed")
+					!=partial("partials/controls/button_goto", { label: "Check Item In", url: "/inv/item/" + item.id + "/checkin", addClass: "btn-warning"})
+					!=partial("partials/controls/button_goto", { label: "Extend Borrow Time", url: "/inv/item/" + item.id + "/extend", addClass: "btn-primary" })
+				- if (user.is_in_role("check_in_inventory") && item.disposition == "Needs Verification" && item.checked_in_by != user.email)
+					!=partial("partials/controls/button_goto", { label: "Verify Check-In", url: "/inv/item/" + item.id + "/verify", addClass: "btn-success"})
+				- if (user.is_in_role("check_in_inventory") && item.disposition == "Needs Verification" && item.checked_in_by == user.email)
+					p.help-block.form-comment.w420px Item needs verification, but you can't verify it because you checked the item in.
+
+
 script(type="text/javascript")
-	$("#date_received").datepicker({ defaultDate: "#{item.date_received}", dateFormat: "yy-mm-dd" });
-	$("#inv_disposition_vis").change(function(){ $("#inv_disposition").attr("value", $(this).val()); });
+	$(function(){
+		$("#date_received").datepicker({ defaultDate: "#{item.date_received}", dateFormat: "yy-mm-dd" });
+		
+		$("#sel_issue, #sel_borrow").click(function(){
+			if ($(this).attr("id") == "sel_issue"){
+				$("#issue_method").attr("value", "Issued");
+			}
+			else {
+				$("#issue_method").attr("value", "Borrowed");
+			}
+		});
+	});
+	
