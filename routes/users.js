@@ -142,7 +142,7 @@
       if (req.params.prev_key != null) state.prev_key = req.params.prev_key;
       if (req.params.startkey != null) state.startkey = req.params.startkey;
       handler = function(users) {
-        state.models = users;
+        state.models = users.models;
         return res.render("users_by_role", state);
       };
       return user_repo.get_by_role(handler, role);

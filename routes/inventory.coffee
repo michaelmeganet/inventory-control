@@ -92,6 +92,24 @@ normalize_post_values = (item) ->
 	new_item
 
 
+handle_inventory_list = (req, res, filter, template) ->
+	handler = new ListHandler(req, res, "Inventory Items", "", template)
+	if req.params.startkey?
+		inv_repo["list_#{filter}"](handler.handle_results, req.params.startkey)
+	else if req.params.key?
+		inv_repo["get_#{filter}"](handler.handle_results, req.params.key)
+	else
+		inv_repo["list_#{filter}"](handler.handle_results)
+
+register_list_handlers = (app, filter, is_default = false) ->
+	handler = (req, res) -> handle_inventory_list req, res, "by_#{filter}", "inventory_by_#{filter}"
+	app.get "/inv/items", handler if is_default
+	app.get "/inv/items/by/#{filter}", handler
+	app.get "/inv/items/by/#{filter}/:key", handler
+	app.get "/inv/items/by/#{filter}/s/:startkey", handler
+	app.get "/inv/items/by/#{filter}/s/:startkey/p/:prev_key", handler
+
+
 # ROUTE DEFINITIONS AND HANDLERS
 module.exports = (app) ->
 	
@@ -107,20 +125,18 @@ module.exports = (app) ->
 		state = build_state req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System"
 		res.render("inventory_create", state)
 	
-	handle_inventory_list = (req, res, view, template) ->
-		handler = new ListHandler(req, res, "Inventory Items", "", template)
-		if req.params.startkey?
-			inv_repo[view] handler.handle_results, req.params.startkey
-		else
-			inv_repo[view] handler.handle_results
+	# This is a non-standard route for a list handler, so we define it here
+	register_list_handlers app, "serial_no", true
+	register_list_handlers app, "disposition"
+	register_list_handlers app, "location"
+	register_list_handlers app, "type"
+	register_list_handlers app, "date_received"
+	register_list_handlers app, "make_model_no"
+	register_list_handlers app, "user"
 	
-	app.get '/inv/items', (req, res) -> handle_inventory_list req, res, "by_serial_no", "inventory_by_serial_no"
-	app.get '/inv/items/by/serial_no', (req, res) -> handle_inventory_list req, res, "by_serial_no", "inventory_by_serial_no"
-	app.get '/inv/items/by/disposition', (req, res) -> handle_inventory_list req, res, "by_disposition", "inventory_by_disposition"
-	app.get '/inv/items/by/location', (req, res) -> handle_inventory_list req, res, "by_location", "inventory_by_location"
-	app.get '/inv/items/by/type', (req, res) -> handle_inventory_list req, res, "by_type", "inventory_by_type"
-	app.get '/inv/items/by/date_received', (req, res) -> handle_inventory_list req, res, "by_date_received", "inventory_by_date_received"
-	app.get '/inv/items/by/make_model_no', (req, res) -> handle_inventory_list req, res, "by_make_model_no", "inventory_by_make_model_no"
+	register_list_handlers app, "available"
+	register_list_handlers app, "verification"
+	
 	
 	app.get '/inv/item/:id', (req, res) ->
 		unless req.params.id is null

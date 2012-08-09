@@ -1,5 +1,5 @@
 (function() {
-  var InventoryLocation, ListHandler, ResultsHandler, WarrantyInfo, build_state, comma_sep_categories_to_array, config, expand_location, expand_warranty_info, helpers, inv_models, inv_repo, normalize_post_values, prune_prefixed_fields, repos, _;
+  var InventoryLocation, ListHandler, ResultsHandler, WarrantyInfo, build_state, comma_sep_categories_to_array, config, expand_location, expand_warranty_info, handle_inventory_list, helpers, inv_models, inv_repo, normalize_post_values, prune_prefixed_fields, register_list_handlers, repos, _;
 
   _ = (require("underscore"))._;
 
@@ -99,8 +99,32 @@
     return new_item;
   };
 
+  handle_inventory_list = function(req, res, filter, template) {
+    var handler;
+    handler = new ListHandler(req, res, "Inventory Items", "", template);
+    if (req.params.startkey != null) {
+      return inv_repo["list_" + filter](handler.handle_results, req.params.startkey);
+    } else if (req.params.key != null) {
+      return inv_repo["get_" + filter](handler.handle_results, req.params.key);
+    } else {
+      return inv_repo["list_" + filter](handler.handle_results);
+    }
+  };
+
+  register_list_handlers = function(app, filter, is_default) {
+    var handler;
+    if (is_default == null) is_default = false;
+    handler = function(req, res) {
+      return handle_inventory_list(req, res, "by_" + filter, "inventory_by_" + filter);
+    };
+    if (is_default) app.get("/inv/items", handler);
+    app.get("/inv/items/by/" + filter, handler);
+    app.get("/inv/items/by/" + filter + "/:key", handler);
+    app.get("/inv/items/by/" + filter + "/s/:startkey", handler);
+    return app.get("/inv/items/by/" + filter + "/s/:startkey/p/:prev_key", handler);
+  };
+
   module.exports = function(app) {
-    var handle_inventory_list;
     app.post('/inv/new', function(req, res) {
       var item, results_handler;
       item = normalize_post_values(req.body.inv);
@@ -116,36 +140,15 @@
       state = build_state(req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System");
       return res.render("inventory_create", state);
     });
-    handle_inventory_list = function(req, res, view, template) {
-      var handler;
-      handler = new ListHandler(req, res, "Inventory Items", "", template);
-      if (req.params.startkey != null) {
-        return inv_repo[view](handler.handle_results, req.params.startkey);
-      } else {
-        return inv_repo[view](handler.handle_results);
-      }
-    };
-    app.get('/inv/items', function(req, res) {
-      return handle_inventory_list(req, res, "by_serial_no", "inventory_by_serial_no");
-    });
-    app.get('/inv/items/by/serial_no', function(req, res) {
-      return handle_inventory_list(req, res, "by_serial_no", "inventory_by_serial_no");
-    });
-    app.get('/inv/items/by/disposition', function(req, res) {
-      return handle_inventory_list(req, res, "by_disposition", "inventory_by_disposition");
-    });
-    app.get('/inv/items/by/location', function(req, res) {
-      return handle_inventory_list(req, res, "by_location", "inventory_by_location");
-    });
-    app.get('/inv/items/by/type', function(req, res) {
-      return handle_inventory_list(req, res, "by_type", "inventory_by_type");
-    });
-    app.get('/inv/items/by/date_received', function(req, res) {
-      return handle_inventory_list(req, res, "by_date_received", "inventory_by_date_received");
-    });
-    app.get('/inv/items/by/make_model_no', function(req, res) {
-      return handle_inventory_list(req, res, "by_make_model_no", "inventory_by_make_model_no");
-    });
+    register_list_handlers(app, "serial_no", true);
+    register_list_handlers(app, "disposition");
+    register_list_handlers(app, "location");
+    register_list_handlers(app, "type");
+    register_list_handlers(app, "date_received");
+    register_list_handlers(app, "make_model_no");
+    register_list_handlers(app, "user");
+    register_list_handlers(app, "available");
+    register_list_handlers(app, "verification");
     app.get('/inv/item/:id', function(req, res) {
       if (req.params.id !== null) {
         return inv_repo.get(req.params.id, function(target_item) {

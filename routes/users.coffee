@@ -119,7 +119,7 @@ module.exports = (app) ->
 		state.prev_key = req.params.prev_key if req.params.prev_key?
 		state.startkey = req.params.startkey if req.params.startkey?
 		handler = (users) ->
-			state.models = users
+			state.models = users.models
 			res.render("users_by_role", state)
 		user_repo.get_by_role handler, role
 	

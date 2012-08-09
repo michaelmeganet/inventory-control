@@ -1,0 +1,6 @@
+- if(typeof(key) != "undefined")
+	h2 Inventory Items for #{key}
+- else
+	h2 Inventory Items by User
+!=partial("partials/menus/inventory_list_menu", { active: "/inv/items/by/user" })
+!=partial("partials/tables/inventory", { base_url: "/inv/items/by/user" })

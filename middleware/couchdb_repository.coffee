@@ -123,8 +123,9 @@ class CouchDbRepository
 		params.limit = options.limit if options?.limit?	
 		@db.view options.view_doc, options.view, params, (error, body) ->
 			ERRLOG.log(error, "[view:#{key},#{options.view_name}]") if error
-			models = options.array_of_model_adaptor(body)
-			callback.apply(@, [models])
+			results = {}
+			results.models = options.array_of_model_adaptor(body)
+			callback.apply(@, [results])
 	
 	# Simple function to adapt a model to CouchDB's "_id" constraint
 	@adapt_to_couch: (model) ->
@@ -309,7 +310,23 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		options.array_of_model_adaptor = CouchDbInventoryRepository.adapt_to_inventory_item_array
 		super options
 	
-	call_inventory_view: (callback, view, startkey) ->
+	get_selected_inventory: (callback, view, key) ->
+		options = {}
+		options.view_doc = "inventory"
+		options.view = view
+		options.key_factory = (item) -> item.serial_no
+		options.limit = 25
+		@view callback, key, options
+	
+	get_by_serial_no: (callback, key) -> @get_selected_inventory callback, "all", key
+	get_by_disposition: (callback, key) -> @get_selected_inventory callback, "by_disposition", key
+	get_by_location: (callback, key) -> @get_selected_inventory callback, "by_location", key
+	get_by_type: (callback, startkey) -> @get_selected_inventory callback, "by_type", key
+	get_by_date_received: (callback, key) -> @get_selected_inventory callback, "by_date_received", key
+	get_by_make_model_no: (callback, key) -> @get_selected_inventory callback, "by_make_model_no", key
+	get_by_user: (callback, key) -> @get_selected_inventory callback, "by_user", key
+	
+	list_inventory: (callback, view, startkey) ->
 		options = {}
 		options.view_doc = "inventory"
 		options.view = view
@@ -317,13 +334,14 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		options.limit = 25
 		@paging_view callback, startkey, options
 	
-	list: (callback, startkey) -> @call_inventory_view callback, "all", startkey
-	by_serial_no: (callback, startkey) -> @call_inventory_view callback, "all", startkey
-	by_disposition: (callback, startkey) -> @call_inventory_view callback, "by_disposition", startkey
-	by_location: (callback, startkey) -> @call_inventory_view callback, "by_location", startkey
-	by_type: (callback, startkey) -> @call_inventory_view callback, "by_type", startkey
-	by_date_received: (callback, startkey) -> @call_inventory_view callback, "by_date_received", startkey
-	by_make_model_no: (callback, startkey) -> @call_inventory_view callback, "by_make_model_no", startkey	
+	list: (callback, startkey) -> @list_inventory callback, "all", startkey
+	list_by_serial_no: (callback, startkey) -> @list_inventory callback, "all", startkey
+	list_by_disposition: (callback, startkey) -> @list_inventory callback, "by_disposition", startkey
+	list_by_location: (callback, startkey) -> @list_inventory callback, "by_location", startkey
+	list_by_type: (callback, startkey) -> @list_inventory callback, "by_type", startkey
+	list_by_date_received: (callback, startkey) -> @list_inventory callback, "by_date_received", startkey
+	list_by_make_model_no: (callback, startkey) -> @list_inventory callback, "by_make_model_no", startkey
+	list_by_user: (callback, startkey) -> @list_inventory callback, "by_user", startkey	
 	
 		
 	update_core: (model, callback) ->

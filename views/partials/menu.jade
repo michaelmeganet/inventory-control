@@ -10,7 +10,7 @@ ul.nav.nav-tabs.nav-stacked
 		li.nav-header Reports
 		!=partial("menu_item", { link: "#", title: "Report 1", icon: "icon-align-left"})
 	li.nav-header Inventory
-	!=partial("menu_item", { link: "/inv/by_user/" + user.email, title: "Issued to " + user.first_name, icon: "icon-list-alt"})
+	!=partial("menu_item", { link: "/inv/items/by/user/" + user.email, title: "Issued to " + user.first_name, icon: "icon-list-alt"})
 	- if (user.is_in_role("view_inventory"))
 		!=partial("menu_item", { link: "/inv/items", title: "View Inventory", icon: "icon-eye-open"})
 	- if (user.is_in_role("add_inventory"))	

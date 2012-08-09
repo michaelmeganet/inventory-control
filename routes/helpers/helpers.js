@@ -18,6 +18,7 @@
       if (this.req.params.startkey != null) {
         this.state.startkey = this.req.params.startkey;
       }
+      if (this.req.params.key != null) this.state.key = this.req.params.key;
       this.state.title = this.title;
       this.state.description = this.desc;
       this.state.user = this.req.user;
@@ -28,7 +29,8 @@
       if (results.next_startkey != null) {
         this.state.next_key = results.next_startkey;
       }
-      this.state.cur_key = results.startkey;
+      if (results.startkey != null) this.state.cur_key = results.startkey;
+      if (results.key != null) this.state.key = results.key;
       return this.res.render(this.template, this.state);
     };
 

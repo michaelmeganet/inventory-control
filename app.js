@@ -1,3 +1,5 @@
+require("coffee-script")
+
 var express = require('express')
   , httpProxy = require('http-proxy')
   , proxy_conf = require('./conf/proxy_config.js')

@@ -106,12 +106,13 @@
         params.limit = options.limit;
       }
       return this.db.view(options.view_doc, options.view, params, function(error, body) {
-        var models;
+        var results;
         if (error) {
           ERRLOG.log(error, "[view:" + key + "," + options.view_name + "]");
         }
-        models = options.array_of_model_adaptor(body);
-        return callback.apply(this, [models]);
+        results = {};
+        results.models = options.array_of_model_adaptor(body);
+        return callback.apply(this, [results]);
       });
     };
 
@@ -405,7 +406,47 @@
       CouchDbInventoryRepository.__super__.constructor.call(this, options);
     }
 
-    CouchDbInventoryRepository.prototype.call_inventory_view = function(callback, view, startkey) {
+    CouchDbInventoryRepository.prototype.get_selected_inventory = function(callback, view, key) {
+      var options;
+      options = {};
+      options.view_doc = "inventory";
+      options.view = view;
+      options.key_factory = function(item) {
+        return item.serial_no;
+      };
+      options.limit = 25;
+      return this.view(callback, key, options);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_serial_no = function(callback, key) {
+      return this.get_selected_inventory(callback, "all", key);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_disposition = function(callback, key) {
+      return this.get_selected_inventory(callback, "by_disposition", key);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_location = function(callback, key) {
+      return this.get_selected_inventory(callback, "by_location", key);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_type = function(callback, startkey) {
+      return this.get_selected_inventory(callback, "by_type", key);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_date_received = function(callback, key) {
+      return this.get_selected_inventory(callback, "by_date_received", key);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_make_model_no = function(callback, key) {
+      return this.get_selected_inventory(callback, "by_make_model_no", key);
+    };
+
+    CouchDbInventoryRepository.prototype.get_by_user = function(callback, key) {
+      return this.get_selected_inventory(callback, "by_user", key);
+    };
+
+    CouchDbInventoryRepository.prototype.list_inventory = function(callback, view, startkey) {
       var options;
       options = {};
       options.view_doc = "inventory";
@@ -418,31 +459,35 @@
     };
 
     CouchDbInventoryRepository.prototype.list = function(callback, startkey) {
-      return this.call_inventory_view(callback, "all", startkey);
+      return this.list_inventory(callback, "all", startkey);
     };
 
-    CouchDbInventoryRepository.prototype.by_serial_no = function(callback, startkey) {
-      return this.call_inventory_view(callback, "all", startkey);
+    CouchDbInventoryRepository.prototype.list_by_serial_no = function(callback, startkey) {
+      return this.list_inventory(callback, "all", startkey);
     };
 
-    CouchDbInventoryRepository.prototype.by_disposition = function(callback, startkey) {
-      return this.call_inventory_view(callback, "by_disposition", startkey);
+    CouchDbInventoryRepository.prototype.list_by_disposition = function(callback, startkey) {
+      return this.list_inventory(callback, "by_disposition", startkey);
     };
 
-    CouchDbInventoryRepository.prototype.by_location = function(callback, startkey) {
-      return this.call_inventory_view(callback, "by_location", startkey);
+    CouchDbInventoryRepository.prototype.list_by_location = function(callback, startkey) {
+      return this.list_inventory(callback, "by_location", startkey);
     };
 
-    CouchDbInventoryRepository.prototype.by_type = function(callback, startkey) {
-      return this.call_inventory_view(callback, "by_type", startkey);
+    CouchDbInventoryRepository.prototype.list_by_type = function(callback, startkey) {
+      return this.list_inventory(callback, "by_type", startkey);
     };
 
-    CouchDbInventoryRepository.prototype.by_date_received = function(callback, startkey) {
-      return this.call_inventory_view(callback, "by_date_received", startkey);
+    CouchDbInventoryRepository.prototype.list_by_date_received = function(callback, startkey) {
+      return this.list_inventory(callback, "by_date_received", startkey);
     };
 
-    CouchDbInventoryRepository.prototype.by_make_model_no = function(callback, startkey) {
-      return this.call_inventory_view(callback, "by_make_model_no", startkey);
+    CouchDbInventoryRepository.prototype.list_by_make_model_no = function(callback, startkey) {
+      return this.list_inventory(callback, "by_make_model_no", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.list_by_user = function(callback, startkey) {
+      return this.list_inventory(callback, "by_user", startkey);
     };
 
     CouchDbInventoryRepository.prototype.update_core = function(model, callback) {
