@@ -5,10 +5,10 @@ var express = require('express')
   , proxy_conf = require('./conf/proxy_config.js')
   , server_conf = require('./conf/server_config.js')
   , auth_conf = require('./conf/auth_config.js')
-  , proxy_router = require('./middleware/proxy_router.js')
-  , unauthorized_user_handler = require('./middleware/unauthorized_user_handler.js')
-  , authentication_bridge = require('./middleware/authentication_bridge.js')
-  , route_authorization_handler = require('./middleware/route_authorization_handler.js')
+  , proxy_router = require('./middleware/proxy_router.coffee')
+  , unauthorized_user_handler = require('./middleware/unauthorized_user_handler.coffee')
+  , authentication_bridge = require('./middleware/authentication_bridge.coffee')
+  , route_authorization_handler = require('./middleware/route_authorization_handler.coffee')
   
 var app = module.exports = express.createServer(server_conf);
 
@@ -43,10 +43,10 @@ app.configure('production', function(){
 });
 
 // Routes
-require("./routes/index.js")(app);
-require("./routes/inventory.js")(app);
-require("./routes/users.js")(app);
-require("./routes/log.js")(app);
+require("./routes/index.coffee")(app);
+require("./routes/inventory.coffee")(app);
+require("./routes/users.coffee")(app);
+require("./routes/log.coffee")(app);
 
 server_port = 8443
 

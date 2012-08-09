@@ -1,4 +1,4 @@
-User = (require "../user.js").User
+User = (require "../user.coffee").User
 
 buster.spec.expose()
 

@@ -1,6 +1,6 @@
-route_auth_module = require "../route_authorization_handler.js"
+route_auth_module = require "../route_authorization_handler.coffee"
 AccessControl = route_auth_module.AccessControl
-User = (require "../../model/user.js").User
+User = (require "../../model/user.coffee").User
 
 buster.spec.expose()
 

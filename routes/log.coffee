@@ -1,7 +1,7 @@
 _ = (require "underscore")._
 config = require ("../conf/app_config.js")
-helpers = (require "./helpers/helpers.js")
-repos = (require "../middleware/couchdb_repository.js")
+helpers = (require "./helpers/helpers.coffee")
+repos = (require "../middleware/couchdb_repository.coffee")
 
 log_repo = new repos.CouchDbLogRepository({ couchdb_url: config.couch_base_url })
 

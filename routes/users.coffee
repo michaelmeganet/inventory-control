@@ -2,11 +2,11 @@ _ = (require "underscore")._
 
 config = require "../conf/app_config.js"
 
-CouchDbUserRepository = (require "../middleware/couchdb_repository.js").CouchDbUserRepository
+CouchDbUserRepository = (require "../middleware/couchdb_repository.coffee").CouchDbUserRepository
 
 user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" })
 
-helpers = require "./helpers/helpers.js"
+helpers = require "./helpers/helpers.coffee"
 ListHandler = helpers.ListHandler
 ResultsHandler = helpers.ResultsHandler
 

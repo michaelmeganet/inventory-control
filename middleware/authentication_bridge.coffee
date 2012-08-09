@@ -1,4 +1,4 @@
-User = (require "../model/user.js").User
+User = (require "../model/user.coffee").User
 moment = (require "moment")
 
 class CertificateUserInfoProvider

@@ -1,9 +1,9 @@
 nano = require "nano"
 _ = (require "underscore")._
-User = (require "../model/user.js").User
-LogEntry = (require "../model/logentry.js").LogEntry
-ItemLog = (require "../model/logentry.js").ItemLog
-InventoryItem = (require "../model/inventory_item.js").InventoryItem
+User = (require "../model/user.coffee").User
+LogEntry = (require "../model/logentry.coffee").LogEntry
+ItemLog = (require "../model/logentry.coffee").ItemLog
+InventoryItem = (require "../model/inventory_item.coffee").InventoryItem
 restler = (require "restler")
 
 class ErrorTranslater
@@ -325,6 +325,8 @@ class CouchDbInventoryRepository extends CouchDbRepository
 	get_by_date_received: (callback, key) -> @get_selected_inventory callback, "by_date_received", key
 	get_by_make_model_no: (callback, key) -> @get_selected_inventory callback, "by_make_model_no", key
 	get_by_user: (callback, key) -> @get_selected_inventory callback, "by_user", key
+	get_by_availability: (callback, key) -> @get_selected_inventory callback, "by_availability", key
+	get_by_needs_verification: (callback, key) -> @get_selected_inventory callback, "by_needs_verification", key
 	
 	list_inventory: (callback, view, startkey) ->
 		options = {}
@@ -342,6 +344,8 @@ class CouchDbInventoryRepository extends CouchDbRepository
 	list_by_date_received: (callback, startkey) -> @list_inventory callback, "by_date_received", startkey
 	list_by_make_model_no: (callback, startkey) -> @list_inventory callback, "by_make_model_no", startkey
 	list_by_user: (callback, startkey) -> @list_inventory callback, "by_user", startkey	
+	list_by_availability: (callback, startkey) -> @list_inventory callback, "by_availability", startkey	
+	list_by_needs_verification: (callback, startkey) -> @list_inventory callback, "by_needs_verification", startkey	
 	
 		
 	update_core: (model, callback) ->

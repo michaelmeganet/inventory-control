@@ -1,8 +1,8 @@
 _ = (require "underscore")._
 config = require ("../conf/app_config.js")
-helpers = (require "./helpers/helpers.js")
-inv_models = (require "../model/inventory_item.js")
-repos = (require "../middleware/couchdb_repository.js")
+helpers = (require "./helpers/helpers.coffee")
+inv_models = (require "../model/inventory_item.coffee")
+repos = (require "../middleware/couchdb_repository.coffee")
 
 ListHandler = helpers.ListHandler
 ResultsHandler = helpers.ResultsHandler
@@ -134,8 +134,8 @@ module.exports = (app) ->
 	register_list_handlers app, "make_model_no"
 	register_list_handlers app, "user"
 	
-	register_list_handlers app, "available"
-	register_list_handlers app, "verification"
+	register_list_handlers app, "availability"
+	register_list_handlers app, "needs_verification"
 	
 	
 	app.get '/inv/item/:id', (req, res) ->

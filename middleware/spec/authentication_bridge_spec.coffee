@@ -1,5 +1,5 @@
-auth_provider_module = require "../authentication_bridge.js"
-User = (require "../../model/user.js").User
+auth_provider_module = require "../authentication_bridge.coffee"
+User = (require "../../model/user.coffee").User
 
 buster.spec.expose()
 
