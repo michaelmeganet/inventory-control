@@ -107,12 +107,20 @@ module.exports = (app) ->
 		state = build_state req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System"
 		res.render("inventory_create", state)
 	
-	app.get '/inv/items', (req, res) ->
-		handler = new ListHandler(req, res, "Inventory Items", "", "inventory_by_serial_no")
+	handle_inventory_list = (req, res, view, template) ->
+		handler = new ListHandler(req, res, "Inventory Items", "", template)
 		if req.params.startkey?
-			inv_repo.list handler.handle_results, req.params.startkey
+			inv_repo[view] handler.handle_results, req.params.startkey
 		else
-			inv_repo.list handler.handle_results
+			inv_repo[view] handler.handle_results
+	
+	app.get '/inv/items', (req, res) -> handle_inventory_list req, res, "by_serial_no", "inventory_by_serial_no"
+	app.get '/inv/items/by/serial_no', (req, res) -> handle_inventory_list req, res, "by_serial_no", "inventory_by_serial_no"
+	app.get '/inv/items/by/disposition', (req, res) -> handle_inventory_list req, res, "by_disposition", "inventory_by_disposition"
+	app.get '/inv/items/by/location', (req, res) -> handle_inventory_list req, res, "by_location", "inventory_by_location"
+	app.get '/inv/items/by/type', (req, res) -> handle_inventory_list req, res, "by_type", "inventory_by_type"
+	app.get '/inv/items/by/date_received', (req, res) -> handle_inventory_list req, res, "by_date_received", "inventory_by_date_received"
+	app.get '/inv/items/by/make_model_no', (req, res) -> handle_inventory_list req, res, "by_make_model_no", "inventory_by_make_model_no"
 	
 	app.get '/inv/item/:id', (req, res) ->
 		unless req.params.id is null

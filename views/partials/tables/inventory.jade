@@ -1,0 +1,55 @@
+- if (typeof(fields) == "undefined")
+	- var fields = [ { l: "Serial No.", f: "serial_no", a: true, pre_url: "/inv/item/", post_url: "" }, { l: "Type", f: "type"}, {l: "Make/Model/No.", f: "make_model_no" }, { l: "Disposition", f: "disposition" }, { l: "Checked Out To", f: "checked_out_to", a: true, pre_url: "/inv/by_user/", post_url: "" }, { l: "City", f: "location.city" }, { l: "Room", f: "location.room" }, { l: "Acquired", f: "date_received" } ]
+table.table.table-striped
+	thead
+		tr
+			- each field in fields
+				th #{field.l}
+			th &nbsp;
+			th &nbsp;
+	tbody
+		each item in models
+			- if (typeof(row_style) == "undefined")
+				- var css_row_style = "";
+			- else
+				- var css_row_style = "inv_style_" + item[row_style]
+			tr(class="#{css_row_style}")
+				- each field in fields
+					td
+						- var field_value = item[field.f]
+						- var style = "inv_style_" + field.f
+						- if (field.f.indexOf(".") > 0)
+							- var sf = field.f.split(".")
+							- field_value = item[sf[0]][sf[1]]
+							- style = "inv_style_" + sf[0] + "_" + sf[1]
+						- if (typeof(field.a) != "undefined" && field.a == true)
+							span(class="#{style}")
+								a(href="#{field.pre_url}#{field_value}#{field.post_url}") #{field_value}
+						- else
+							span(class="#{style}") #{field_value}
+						- if (field.f == "make_model_no")
+							span.make-model-no #{item.make} #{item.model} #{item.model_no}
+				td 
+					a(onclick="window.location='/inv/item/#{item.serial_no}/update';") 
+						i.over.icon-pencil
+				td 
+					a(onclick="window.location='/inv/item/#{item.serial_no}/remove';")
+						i.over.icon-trash
+script(type="text/javascript")
+	$(".over").hover(
+		function(){	$(this).addClass("icon-white"); },
+		function(){	$(this).removeClass("icon-white"); });
+div.pagination(style="float: right")
+	ul
+		- if (typeof(prev_key) == "undefined")
+			li.active
+				a(href="#") &laquo;
+		- else
+			li
+				a(href="#{base_url}/s/#{prev_key}") &laquo;
+		- if (typeof(next_key) == "undefined")
+			li.active
+				a(href="#") &raquo;
+		- else
+			li
+				a(href="#{base_url}/s/#{next_key}/p/#{cur_key}") &raquo;

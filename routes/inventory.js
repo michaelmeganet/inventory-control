@@ -100,6 +100,7 @@
   };
 
   module.exports = function(app) {
+    var handle_inventory_list;
     app.post('/inv/new', function(req, res) {
       var item, results_handler;
       item = normalize_post_values(req.body.inv);
@@ -115,14 +116,35 @@
       state = build_state(req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System");
       return res.render("inventory_create", state);
     });
-    app.get('/inv/items', function(req, res) {
+    handle_inventory_list = function(req, res, view, template) {
       var handler;
-      handler = new ListHandler(req, res, "Inventory Items", "", "inventory_by_serial_no");
+      handler = new ListHandler(req, res, "Inventory Items", "", template);
       if (req.params.startkey != null) {
-        return inv_repo.list(handler.handle_results, req.params.startkey);
+        return inv_repo[view](handler.handle_results, req.params.startkey);
       } else {
-        return inv_repo.list(handler.handle_results);
+        return inv_repo[view](handler.handle_results);
       }
+    };
+    app.get('/inv/items', function(req, res) {
+      return handle_inventory_list(req, res, "by_serial_no", "inventory_by_serial_no");
+    });
+    app.get('/inv/items/by/serial_no', function(req, res) {
+      return handle_inventory_list(req, res, "by_serial_no", "inventory_by_serial_no");
+    });
+    app.get('/inv/items/by/disposition', function(req, res) {
+      return handle_inventory_list(req, res, "by_disposition", "inventory_by_disposition");
+    });
+    app.get('/inv/items/by/location', function(req, res) {
+      return handle_inventory_list(req, res, "by_location", "inventory_by_location");
+    });
+    app.get('/inv/items/by/type', function(req, res) {
+      return handle_inventory_list(req, res, "by_type", "inventory_by_type");
+    });
+    app.get('/inv/items/by/date_received', function(req, res) {
+      return handle_inventory_list(req, res, "by_date_received", "inventory_by_date_received");
+    });
+    app.get('/inv/items/by/make_model_no', function(req, res) {
+      return handle_inventory_list(req, res, "by_make_model_no", "inventory_by_make_model_no");
     });
     app.get('/inv/item/:id', function(req, res) {
       if (req.params.id !== null) {

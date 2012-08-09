@@ -1,0 +1,12 @@
+- if (typeof(active) == "undefined")
+	- var active = "/inv/items"
+- var items = [ { u: "/inv/items", l: "By Serial Number" }, { u: "/inv/items/by/type", l: "By Item Type" }, { u: "/inv/items/by/disposition", l: "By Disposition" }, { u: "/inv/items/by/make_model_no", l: "By Make, Model, No." }, { u: "/inv/items/by/location", l: "By Location" }, { u: "/inv/items/by/date_received", l: "By Date Received" } ]
+div.pagination
+	ul
+		each item in items
+			- if (active == item.u)
+				li(class="active")
+					a(href="#{item.u}") #{item.l}
+			- else
+				li
+					a(href="#{item.u}") #{item.l}

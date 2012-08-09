@@ -309,13 +309,22 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		options.array_of_model_adaptor = CouchDbInventoryRepository.adapt_to_inventory_item_array
 		super options
 	
-	list: (callback, startkey) ->
+	call_inventory_view: (callback, view, startkey) ->
 		options = {}
 		options.view_doc = "inventory"
-		options.view = "all"
+		options.view = view
 		options.key_factory = (item) -> item.serial_no
 		options.limit = 25
 		@paging_view callback, startkey, options
+	
+	list: (callback, startkey) -> @call_inventory_view callback, "all", startkey
+	by_serial_no: (callback, startkey) -> @call_inventory_view callback, "all", startkey
+	by_disposition: (callback, startkey) -> @call_inventory_view callback, "by_disposition", startkey
+	by_location: (callback, startkey) -> @call_inventory_view callback, "by_location", startkey
+	by_type: (callback, startkey) -> @call_inventory_view callback, "by_type", startkey
+	by_date_received: (callback, startkey) -> @call_inventory_view callback, "by_date_received", startkey
+	by_make_model_no: (callback, startkey) -> @call_inventory_view callback, "by_make_model_no", startkey	
+	
 		
 	update_core: (model, callback) ->
 		id = model.id ? model._id ? model.serial_no

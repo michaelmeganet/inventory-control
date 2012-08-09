@@ -136,11 +136,10 @@ script(type="text/javascript")
 		var $history = $("#history");
 		var content = log_templates[logentry.category](logentry);
 		$history.prepend(content);
-		console.log("Log entry added.");
 	}
 
 	function update_aggregates(){
-		console.log("Updating aggregates.");
+
 	}
 
 	function clear_comments_status(){
@@ -159,7 +158,6 @@ script(type="text/javascript")
 			contentType: "application/json", 
 			type : 'POST',
 			success : function(itemlog) {
-				console.log("Syncing after insert.");
 				clear_comments_status();
 				sync_records(itemlog);
 				clear_textarea();
@@ -171,7 +169,6 @@ script(type="text/javascript")
 		$.getJSON(itemlog_url)
 			.success(
 				function(itemlog){
-					console.log("Sync'd with server.");
 					clear_comments_status();
 					sync_records(itemlog);
 				}).error(
@@ -218,7 +215,6 @@ script(type="text/javascript")
 				logentry.user.last_name = lname;
 				logentry.datetime = new Date().toISOString();
 				logentry.category = $("#history-con").attr("value");
-				console.log("Making call!")
 				push_new_logentry_to_server(logentry);
 			}
 			else {

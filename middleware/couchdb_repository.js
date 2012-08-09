@@ -405,16 +405,44 @@
       CouchDbInventoryRepository.__super__.constructor.call(this, options);
     }
 
-    CouchDbInventoryRepository.prototype.list = function(callback, startkey) {
+    CouchDbInventoryRepository.prototype.call_inventory_view = function(callback, view, startkey) {
       var options;
       options = {};
       options.view_doc = "inventory";
-      options.view = "all";
+      options.view = view;
       options.key_factory = function(item) {
         return item.serial_no;
       };
       options.limit = 25;
       return this.paging_view(callback, startkey, options);
+    };
+
+    CouchDbInventoryRepository.prototype.list = function(callback, startkey) {
+      return this.call_inventory_view(callback, "all", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.by_serial_no = function(callback, startkey) {
+      return this.call_inventory_view(callback, "all", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.by_disposition = function(callback, startkey) {
+      return this.call_inventory_view(callback, "by_disposition", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.by_location = function(callback, startkey) {
+      return this.call_inventory_view(callback, "by_location", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.by_type = function(callback, startkey) {
+      return this.call_inventory_view(callback, "by_type", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.by_date_received = function(callback, startkey) {
+      return this.call_inventory_view(callback, "by_date_received", startkey);
+    };
+
+    CouchDbInventoryRepository.prototype.by_make_model_no = function(callback, startkey) {
+      return this.call_inventory_view(callback, "by_make_model_no", startkey);
     };
 
     CouchDbInventoryRepository.prototype.update_core = function(model, callback) {

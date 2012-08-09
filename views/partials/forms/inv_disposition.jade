@@ -34,14 +34,5 @@ div.control-group
 script(type="text/javascript")
 	$(function(){
 		$("#date_received").datepicker({ defaultDate: "#{item.date_received}", dateFormat: "yy-mm-dd" });
-		
-		$("#sel_issue, #sel_borrow").click(function(){
-			if ($(this).attr("id") == "sel_issue"){
-				$("#issue_method").attr("value", "Issued");
-			}
-			else {
-				$("#issue_method").attr("value", "Borrowed");
-			}
-		});
 	});
 	
