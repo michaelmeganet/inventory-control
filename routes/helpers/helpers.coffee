@@ -19,6 +19,20 @@ class ListHandler
 		
 module.exports.ListHandler = ListHandler
 
+class SearchHandler
+	
+	constructor: (@repo, @query_fn) ->
+
+	handle_query: (req, res) =>
+		if req.params.query?
+			json_response = (data) ->
+				res.json data
+			@repo[@query_fn] json_response, req.params.query
+		else
+			res.status(400).json({success: false, reason: "No query term in url." })
+
+module.exports.SearchHandler = SearchHandler
+
 class ResultsHandler
 	
 	constructor: (@res, @success_url, @fail_url) ->

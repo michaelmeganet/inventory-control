@@ -41,3 +41,15 @@ function(doc, req){
 	doc[comment.datetime + "~" + comment.user.logon_name] = comment;
 	return [doc, "Comment added to item: " + doc._id];
 }
+
+// model_make_no
+function(doc){ 
+	log.info('Indexing: ' + doc._id); 
+	var ret = new Document(); 
+	ret.add(doc.make + ' ' + doc.model + ' ' + doc.model_no, { 'field': 'name', 'store': 'yes' }); 
+	ret.add(JSON.stringify(doc), { 'store': 'yes', 'index': 'not_analyzed', 'field': 'user' }); 
+	return ret; 
+}
+
+
+

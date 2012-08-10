@@ -189,22 +189,27 @@ class CouchDbRepository
 	# qstring = lucene query string (use any valid lucene query you want)
 	# callback = called on success (receive an array of your model)
 	# error_callback = called on failure
-	search: (qstring, options, callback, error_callback = (error) -> null) ->
+	search: (qstring, options, callback, error_callback = (error) -> console.log) ->
 		unless options?.design_doc? then throw "Must provide the design document name: 'options.design_doc'"
 		unless options?.index? then throw "Must provide index name: 'options.index'"
 		model_adaptor = @model_adaptor
-		request_url = "#{@couchdb_url}_fti/local/#{@database_name}/_design/#{options.design_doc}/#{options.index}?q=#{qstring}"
+		request_url = "#{@couchdb_url}/_fti/local/#{@database_name}/_design/#{options.design_doc}/#{options.index}?q=#{qstring}"
+		
+		console.log request_url
+		
 		result_handler = (result) ->
+			
 			result = JSON.parse result
 			matches = {}
 			for row in result.rows
-				user_raw = JSON.parse(row.fields.user)
-				user = model_adaptor(user_raw)
-				matches[row.fields.name] = user
+				value_raw = JSON.parse(row.fields.value)
+				value = model_adaptor(value_raw)
+				matches[row.fields.key] = value
 			callback matches
 			
 		error_wrapper = (error) ->
 			error_callback error
+			
 		(restler.get request_url).on("complete", result_handler).on("error", error_wrapper)
 
 
@@ -239,8 +244,8 @@ class CouchDbUserRepository extends CouchDbRepository
 		options.view = "by_roles"
 		@view callback, key, options
 
-	get_by_name: (callback, query) ->
-		@search "name:#{query}*", { design_doc: "users", index: "by_first_and_last_name" }, callback
+	find_name: (callback, query) ->
+		@search "key:#{query}*", { design_doc: "users", index: "by_first_and_last_name" }, callback
 
 	@adapt_to_user: (body) ->
 		user = new User(body)
@@ -347,6 +352,8 @@ class CouchDbInventoryRepository extends CouchDbRepository
 	list_by_availability: (callback, startkey) -> @list_inventory callback, "by_availability", startkey	
 	list_by_needs_verification: (callback, startkey) -> @list_inventory callback, "by_needs_verification", startkey	
 	
+	find_make_model_no: (callback, query) ->
+		@search "key:#{query}*", { design_doc: "inventory", index: "by_make_model_no" }, callback
 		
 	update_core: (model, callback) ->
 		id = model.id ? model._id ? model.serial_no

@@ -6,6 +6,7 @@ repos = (require "../middleware/couchdb_repository.coffee")
 
 ListHandler = helpers.ListHandler
 ResultsHandler = helpers.ResultsHandler
+SearchHandler = helpers.SearchHandler
 InventoryLocation = inv_models.InventoryLocation
 WarrantyInfo = inv_models.WarrantyInfo
 
@@ -133,10 +134,10 @@ module.exports = (app) ->
 	register_list_handlers app, "date_received"
 	register_list_handlers app, "make_model_no"
 	register_list_handlers app, "user"
-	
 	register_list_handlers app, "availability"
 	register_list_handlers app, "needs_verification"
 	
+	app.get '/search/make_model_no/:query', new SearchHandler(inv_repo, "find_make_model_no").handle_query
 	
 	app.get '/inv/item/:id', (req, res) ->
 		unless req.params.id is null

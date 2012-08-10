@@ -4,11 +4,12 @@ config = require "../conf/app_config.js"
 
 CouchDbUserRepository = (require "../middleware/couchdb_repository.coffee").CouchDbUserRepository
 
-user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984/" })
+user_repo = new CouchDbUserRepository({ couchdb_url: "http://192.168.192.143:5984" })
 
 helpers = require "./helpers/helpers.coffee"
 ListHandler = helpers.ListHandler
 ResultsHandler = helpers.ResultsHandler
+SearchHandler = helpers.SearchHandler
 
 
 normalize_post_values = (user, roles) ->
@@ -132,15 +133,7 @@ module.exports = (app) ->
 	app.get '/users/by_last_name/:last_name', (req, res) ->
 		res.redirect("/users/")
 	
-	app.get '/search/users/:query', (req, res) ->
-		if req.params.query?
-			console.log "Query: #{req.params.query}"
-			json_response = (data) ->
-				console.log "Done!"
-				res.json data
-			user_repo.get_by_name json_response, req.params.query
-		else
-			res.status(400).json({success: false, reason: "No query term in url." })
+	app.get '/search/users/:query', new SearchHandler(user_repo, "find_name").handle_query
 	
 	app.get '/users/refresh_info', (req, res) ->
 		# Kill the user variable in the session,
