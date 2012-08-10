@@ -1,13 +1,33 @@
+- if (typeof(button_hook) == "undefined")
+	- var button_hook = null;
+
+- if (typeof(suppress_controls) == "undefined")
+	- var suppress_controls = false;
+
+- if (typeof(elem_id) == "undefined")
+	- var elem_id = "";
+
+- if (typeof(key) == "undefined")
+	- var key = "";
+
+- if (typeof(suppress_filter) == "undefined")
+	- var suppress_filter = false;
+
 - if (typeof(fields) == "undefined")
 	- var fields = [ { l: "Serial No.", f: "serial_no", a: true, pre_url: "/inv/item/", post_url: "" }, { l: "Type", f: "type"}, {l: "Make/Model/No.", f: "make_model_no" }, { l: "Disposition", f: "disposition" }, { l: "Checked Out To", f: "checked_out_to", a: true, pre_url: "/inv/by_user/", post_url: "" }, { l: "City", f: "location.city" }, { l: "Room", f: "location.room" }, { l: "Acquired", f: "date_received" } ]
+
 - if (typeof(models) != "undefined" && models.length > 0)
-	table.table.table-striped
+	table.table.table-striped(id="#{elem_id}")
 		thead
 			tr
 				- each field in fields
 					th #{field.l}
-				th &nbsp;
-				th &nbsp;
+				- if (user.is_in_role("add_inventory"))
+					th &nbsp;
+				- if (user.is_in_role("remove_inventory"))
+					th &nbsp;
+				- if (button_hook)
+					th &nbsp;
 		tbody
 			each item in models
 				- if (typeof(row_style) == "undefined")
@@ -30,12 +50,18 @@
 								span(class="#{style}") #{field_value}
 							- if (field.f == "make_model_no")
 								span.make-model-no #{item.make} #{item.model} #{item.model_no}
-					td 
-						a(onclick="window.location='/inv/item/#{item.serial_no}/update';") 
-							i.over.icon-pencil
-					td 
-						a(onclick="window.location='/inv/item/#{item.serial_no}/remove';")
-							i.over.icon-trash
+					- if (suppress_controls == false)
+						- if (user.is_in_role("add_inventory"))
+							td 
+								a(onclick="window.location='/inv/item/#{item.serial_no}/update';") 
+									i.over.icon-pencil
+						- if (user.is_in_role("remove_inventory"))
+							td 
+								a(onclick="window.location='/inv/item/#{item.serial_no}/remove';")
+									i.over.icon-trash
+					- if (button_hook)
+						td
+							button.btn.btn-small.btn-success(type="button", key="#{item.serial_no}") #{button_hook}
 	script(type="text/javascript")
 		$(".over").hover(
 			function(){	$(this).addClass("icon-white"); },
@@ -55,17 +81,22 @@
 				li
 					a(href="#{base_url}/s/#{next_key}/p/#{cur_key}") &raquo;
 - else
-	div.lead.alert.alert-danger.span9(style="padding: 40px") 
-		span(style="font-size: 24px;") Sorry, no items were found for "#{key}".
-		br
-		br
-		form.form.form-search Perhaps you should revise your query:
-			input#query.ml10(type="text", value="#{key}")
-			button#make-query.btn.btn-danger.ml10(type="button") Make it so...
-	script(type="text/javascript")
-		var base_url = "#{base_url}";
-		$(function(){
-			$("#make-query").click(function(){
-				window.location = base_url + "/" + $("#query").val();
-			});
-		});
+		- if (key != "" && suppress_filter != true)
+			div.lead.alert.alert-danger.span9(style="padding: 40px")
+				span(style="font-size: 24px;") Sorry, no items were found for "#{key}".
+				br
+				br
+				form.form.form-search Perhaps you should revise your query:
+					input#query.ml10(type="text", value="#{key}")
+					button#make-query.btn.btn-danger.ml10(type="button") Make it so...
+				script(type="text/javascript")
+					var base_url = "#{base_url}";
+					$(function(){
+						$("#make-query").click(function(){
+							window.location = base_url + "/" + $("#query").val();
+						});
+					});
+		- else
+			div.lead.span9(style="padding: 40px")
+				span(style="font-size: 24px;") No items meeting criteria.
+			

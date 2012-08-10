@@ -1,6 +1,6 @@
 ul.nav.nav-tabs.nav-stacked
 	!=partial("menu_item", { link: "/", title: "Home", icon: "icon-home"})
-	!=partial("menu_item", { link: "/home/" + user.email, title: user.first_name + "'s Dashboard", icon: "icon-flag"})
+	!=partial("menu_item", { link: "/home/" + user.email, title: user.first_name + "'s Dashboard", icon: "icon-star"})
 	!=partial("menu_item", { link: "/users/refresh_info", title: "Refresh Session", icon: "icon-refresh" })
 	- if (user.is_in_role("admin"))
 		li.nav-header Administration
@@ -16,6 +16,8 @@ ul.nav.nav-tabs.nav-stacked
 	- if (user.is_in_role("add_inventory"))	
 		!=partial("menu_item", { link: "/inv/new", title: "Add Inventory", icon: "icon-plus-sign"})
 	- if (user.is_in_role("assign_inventory"))
-		!=partial("menu_item", { link: "/inv/assign", title: "Assign Inventory", icon: "icon-share"})
+		!=partial("menu_item", { link: "/inv/items/by/availability", title: "Assign Inventory", icon: "icon-share"})
 	- if (user.is_in_role("check_in_inventory"))	
-		!=partial("menu_item", { link: "/inv/checkin", title: "Check-In Inventory", icon: "icon-check"})
+		!=partial("menu_item", { link: "/inv/items/by/needs_verification", title: "Verify Inventory", icon: "icon-flag"})
+	- if (user.is_in_role("check_in_inventory"))	
+		!=partial("menu_item", { link: "/inv/items/by/checked_out", title: "Check-In Inventory", icon: "icon-check"})

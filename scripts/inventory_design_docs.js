@@ -52,4 +52,24 @@ function(doc){
 }
 
 
+function(doc) {
+	function isset(obj){ return typeof(obj) != "undefined" && obj != null && obj != ""; }
+	if(doc.disposition == 'Available'){
+		var key = doc.make;
+		if (isset(doc.model)){ 
+			key += " " + doc.model;
+		}
+		if (isset(doc.model_no)){ 
+			key += " " + doc.model_no;
+		}
+		emit(key, doc);
+	}
+}
+
+
+
+
+
+
+
 

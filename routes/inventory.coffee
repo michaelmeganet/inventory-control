@@ -136,6 +136,7 @@ module.exports = (app) ->
 	register_list_handlers app, "user"
 	register_list_handlers app, "availability"
 	register_list_handlers app, "needs_verification"
+	register_list_handlers app, "checked_out"
 	
 	app.get '/search/make_model_no/:query', new SearchHandler(inv_repo, "find_make_model_no").handle_query
 	

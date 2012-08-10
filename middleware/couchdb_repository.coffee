@@ -319,7 +319,7 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		options = {}
 		options.view_doc = "inventory"
 		options.view = view
-		options.key_factory = (item) -> item.serial_no
+		options.key_factory = (item) -> item?.serial_no?
 		options.limit = 25
 		@view callback, key, options
 	
@@ -337,7 +337,7 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		options = {}
 		options.view_doc = "inventory"
 		options.view = view
-		options.key_factory = (item) -> item.serial_no
+		options.key_factory = (item) -> item?.serial_no?
 		options.limit = 25
 		@paging_view callback, startkey, options
 	
