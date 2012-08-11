@@ -44,3 +44,57 @@ class ResultsHandler
 			@res.redirect(@fail_url)
 
 module.exports.ResultsHandler = ResultsHandler
+
+###
+inv_repo.get req.params.id, (item) ->
+	state = build_state req, "Remove Inventory Item?", "#{item.serial_no} - #{item.make} #{item.model} #{item.model_no}"	
+	state.item = item
+	res.render "inventory_remove", state
+###
+
+class GetModelThenView
+	
+	constructor: (options) ->
+		@repo = options.repo
+		@method = options.method ? "get"
+		@get_model_id = options.get_model_id ? (req) -> req.params.id
+		@title = options.title
+		@description = options.description
+		@template = options.template
+		@config = options.config
+		
+	handle_request: (req, res) =>
+		model_id = @get_model_id req
+		that = @
+		
+		build_state = (req, title, desc, model) =>
+			state = {}
+			state.title = title
+			state.description = desc
+			state.user = req.user
+			state.item = model
+			state.config = that.config
+			state
+		
+		on_model_returned = (model) ->
+			title = if (typeof(that.title) is "function") then that.title(model) else that.title
+			description = if (typeof(that.description) is "function") then that.description(model) else that.description
+			state = build_state req, title, description, model
+			res.render that.template, state
+	
+		on_retrieval_error = (error) ->
+			res.redirect "/500.html"
+	
+		if model_id is null
+			res.redirect "/500.html"
+		else
+			@repo[@method] model_id, on_model_returned, on_retrieval_error
+
+
+module.exports.GetModelThenView = GetModelThenView
+
+
+
+
+
+

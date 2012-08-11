@@ -332,6 +332,7 @@ class CouchDbInventoryRepository extends CouchDbRepository
 	get_by_user: (callback, key) -> @get_selected_inventory callback, "by_user", key
 	get_by_availability: (callback, key) -> @get_selected_inventory callback, "by_availability", key
 	get_by_needs_verification: (callback, key) -> @get_selected_inventory callback, "by_needs_verification", key
+	get_by_checked_out: (callback, key) -> @get_selected_inventory callback, "by_checked_out", key
 	
 	list_inventory: (callback, view, startkey) ->
 		options = {}
@@ -351,6 +352,7 @@ class CouchDbInventoryRepository extends CouchDbRepository
 	list_by_user: (callback, startkey) -> @list_inventory callback, "by_user", startkey	
 	list_by_availability: (callback, startkey) -> @list_inventory callback, "by_availability", startkey	
 	list_by_needs_verification: (callback, startkey) -> @list_inventory callback, "by_needs_verification", startkey	
+	list_by_checked_out: (callback, startkey) -> @list_inventory callback, "by_checked_out", startkey	
 	
 	find_make_model_no: (callback, query) ->
 		@search "key:#{query}*", { design_doc: "inventory", index: "by_make_model_no" }, callback

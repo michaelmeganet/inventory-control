@@ -9,20 +9,20 @@ blockquote
 		button#do_search.btn.ml10(type="button") Filter
 		- if (key != "")
 			br
-			a.mt10(href="/inv/items/by/availability/", style="margin-left: 66px; font-size: 10px;") (x) Clear Current Filter
+			a.mt10(href="/inv/items/by/checked_out/", style="margin-left: 66px; font-size: 10px;") (x) Clear Current Filter
 br
 - var fields = [ { l: "Serial No.", f: "serial_no", a: true, pre_url: "/inv/item/", post_url: "" }, {l: "Make/Model/No.", f: "make_model_no" }, { l: "Type", f: "type"}, { l: "City", f: "location.city" }, { l: "Room", f: "location.room" }, { l: "Acquired", f: "date_received" } ]
-!=partial("partials/tables/inventory", { base_url: "/inv/items/by/date_received", elem_id: "available_inventory", fields: fields, suppress_controls: true, button_hook: "Issue" })
+!=partial("partials/tables/inventory", { base_url: "/inv/items/by/date_received", elem_id: "available_inventory", fields: fields, suppress_controls: true, button_hook: "Check In", button_hook_class: "btn-warning" })
 script(type="text/javascript")
 	$(function(){
 		$("#do_search").click(function(){
 			var item = $("#item_search").val();
-			window.location = "/inv/items/by/availability/" + item;
+			window.location = "/inv/items/by/checked_out/" + item;
 		});
 
 		$("#available_inventory button").click(function(){
 			var key = $(this).attr("key");
-			window.location = "/inv/item/" + key + "/check_out";
+			window.location = "/inv/item/" + key + "/checkin";
 		});
 	});
 

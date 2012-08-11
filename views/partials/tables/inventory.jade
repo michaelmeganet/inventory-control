@@ -1,6 +1,9 @@
 - if (typeof(button_hook) == "undefined")
 	- var button_hook = null;
 
+- if (typeof(button_hook_class) == "undefined")
+	- var button_hook_class = "";
+
 - if (typeof(suppress_controls) == "undefined")
 	- var suppress_controls = false;
 
@@ -14,7 +17,7 @@
 	- var suppress_filter = false;
 
 - if (typeof(fields) == "undefined")
-	- var fields = [ { l: "Serial No.", f: "serial_no", a: true, pre_url: "/inv/item/", post_url: "" }, { l: "Type", f: "type"}, {l: "Make/Model/No.", f: "make_model_no" }, { l: "Disposition", f: "disposition" }, { l: "Checked Out To", f: "checked_out_to", a: true, pre_url: "/inv/by_user/", post_url: "" }, { l: "City", f: "location.city" }, { l: "Room", f: "location.room" }, { l: "Acquired", f: "date_received" } ]
+	- var fields = [ { l: "Serial No.", f: "serial_no", a: true, pre_url: "/inv/item/", post_url: "" }, { l: "Type", f: "type"}, {l: "Make/Model/No.", f: "make_model_no" }, { l: "Disposition", f: "disposition" }, { l: "Checked Out To", f: "checked_out_to", a: true, pre_url: "/inv/items/by/user/", post_url: "" }, { l: "City", f: "location.city" }, { l: "Room", f: "location.room" }, { l: "Acquired", f: "date_received" } ]
 
 - if (typeof(models) != "undefined" && models.length > 0)
 	table.table.table-striped(id="#{elem_id}")
@@ -61,7 +64,7 @@
 									i.over.icon-trash
 					- if (button_hook)
 						td
-							button.btn.btn-small.btn-success(type="button", key="#{item.serial_no}") #{button_hook}
+							button(type="button", key="#{item.serial_no}", class="btn #{button_hook_class}") #{button_hook}
 	script(type="text/javascript")
 		$(".over").hover(
 			function(){	$(this).addClass("icon-white"); },

@@ -1,0 +1,244 @@
+h1 #{item.make} #{item.model}, [#{item.serial_no}]
+br
+div.row(style="margin-left: 10px;")
+	div.span9
+		ul.nav.nav-tabs
+			li.active
+				a(href="#gen-info",data-toggle="tab") General Information
+			li
+				a(href="#disposition",data-toggle="tab") Disposition
+			li
+				a(href="#location",data-toggle="tab") Location
+			- if (typeof(item.accessories) != "undefined")
+				li
+					a(href="#accessories",data-toggle="tab") Accessories
+			- if (typeof(item.software) != "undefined")
+				li
+					a(href="#software",data-toggle="tab") Software
+			- if (typeof(item.warranty) != "undefined")
+				li
+					a(href="#warranty",data-toggle="tab") Warranty
+			li
+				a(href="#actions",data-toggle="tab") Actions
+		div.tab-content
+			div#gen-info.tab-pane.active
+				!=partial("partials/tables/gen-info", { inv_item: item, border: true, condensed: true })
+			div#disposition.tab-pane
+				!=partial("partials/tables/disposition", { inv_item: item, border: true, condensed: true })
+			div#location.tab-pane
+				!=partial("partials/tables/location", { inv_item: item, border: true, condensed: true })	
+			div#accessories.tab-pane
+				!=partial("partials/tables/accessories", { edit: false, accessories: item.accessories, condensed: true, border: true })
+			div#software.tab-pane
+				!=partial("partials/tables/software", { edit: false, software: item.software, condensed: true, border: true })
+			div#warranty.tab-pane
+				!=partial("partials/tables/warranty", { warranty: item.warranty, border: true, condensed: true })
+			div#actions.tab-pane
+				!=partial("partials/tables/actions", { inv_item: item, border: true, condensed: true })	
+		br
+		legend Item History
+		div#history-status.lead Loading log entries, please wait a second...
+		div#history
+			
+		div#history-no-content.modal.hide.fade
+			div.modal-header
+				button.close(type="button", data-dismiss="modal") x
+				h3 Whatcha talkin bout Willis?
+			div.modal-body(style="text-align: center")
+				p.alert.alert-error 
+					img(src="/images/willis.jpg", alt="", style="height: 250px;")
+					br
+					br
+					| You actually have to write a comment before 
+					br
+					| you attempt to post it to the boards...
+			div.modal-footer
+				a.btn(data-dismiss="modal") Close
+		form.form-horizontal
+			div.form-actions(style="margin-left: 10px;")
+				div.row
+					div.span12
+						!=partial("partials/controls/hidden", { elem_id: "history-con", value: "comment"})
+						div#history-con-selectors.btn-group(data-toggle="buttons-radio")
+							button.btn.btn-small.active(type="button", value="comment", bstyle="") Comment
+							button.btn.btn-small.btn-info(type="button", value="lifecycle", bstyle="btn-info") Life Cycle Event
+							button.btn.btn-small.btn-primary(type="button", value="administrative", bstyle="btn-primary") Administrative
+							button.btn.btn-small.btn-success(type="button", value="resolution", bstyle="btn-success") Resolution
+							button.btn.btn-small.btn-warning(type="button", value="problem", bstyle="btn-warning") Problem
+							button.btn.btn-small.btn-danger(type="button", value="warranty", bstyle="btn-danger") Warranty
+							button.btn.btn-small.btn-inverse(type="button", value="catastrophic", bstyle="btn-inverse") Loss or Removal
+				div.row.mt10.ml10
+					div.span8 
+						span.ml10(style="font-size: 10px;") Leave a comment related to this item.
+						br
+						textarea#history-text(style="width: 100%; height: 80px;") 
+					div.span3
+						button#history-post.btn.mt30(type="button", style="width: 60px;") Post
+						br
+						button#history-clear.btn.mt4(type="button", style="width: 60px;") Clear
+	div.span3
+		img( src="https://chart.googleapis.com/chart?cht=qr&choe=UTF-8&chs=177x177&chl=#{config.base_url}/inv/item#{item.id}")
+		div.actions
+			span 
+				i.icon-tasks.mr10
+				span Available Actions
+			- if (item.disposition == "Available" && (user.is_in_role('assign_inventory') || item.allow_self_issue))
+				button.btn.btn-success.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/issue';") Issue Item
+			- if (item.disposition == "Needs Verification" && user.is_in_role("check_in_inventory") && item.checked_in_by != user.email)
+				!=partial("partials/controls/button_goto", { label: "Verify Check-In", url: "/inv/item/" + item.id + "/verify", addClass: "btn-success"})
+			- if (item.disposition == "Issued" && user.is_in_role('check_in_inventory'))
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/checkin';") Check In Item
+			- if (item.disposition == "Borrowed" && user.is_in_role('check_in_inventory'))
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/return';") Return Item
+				button.btn.btn-warning.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/extend';") Extend Borrow Time
+			- if (user.is_in_role('admin'))
+				button.btn.btn-info.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/update';") Update Information
+			- if (user.is_in_role('admin'))
+				button.btn.btn-danger.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/remove';") Remove Item
+			button.btn.btn-inverse(type="button", onclick="window.history.back();") Go Back
+include hbtemplates/logentry-administrative-view.html
+include hbtemplates/logentry-catastrophic-view.html
+include hbtemplates/logentry-comment-view.html
+include hbtemplates/logentry-lifecycle-view.html
+include hbtemplates/logentry-problem-view.html
+include hbtemplates/logentry-resolution-view.html
+include hbtemplates/logentry-warranty-view.html
+
+script(type="text/javascript")
+	var item_id = "#{item.id}";
+	var email = "#{user.email}";
+	var fname = "#{user.first_name}";
+	var lname = "#{user.last_name}";
+	var last_style = "btn-info";
+	var itemlog_url = "/log/" + item_id;
+	var hdb = TAFFY();
+	var known_keys = [];
+
+	function get_template(id){
+		return Handlebars.compile($(id).html());
+	}
+
+	var log_templates = {
+		"administrative": get_template("#administrative-template"),
+		"catastrophic": get_template("#catastrophic-template"),
+		"comment": get_template("#comment-template"),
+		"lifecycle": get_template("#lifecycle-template"),
+		"problem": get_template("#problem-template"),
+		"resolution": get_template("#resolution-template"),
+		"warranty": get_template("#warranty-template")
+	};
+
+	function simple_time(date){
+		return date.toString("dddd, MMMM dd, yyyy @ hh:mm tt");
+	}
+
+	function add_logentry(logentry){
+		var $history = $("#history");
+		var content = log_templates[logentry.category](logentry);
+		$history.prepend(content);
+	}
+
+	function update_aggregates(){
+
+	}
+
+	function clear_comments_status(){
+		$("#history-status").html("");
+	}
+
+	function clear_textarea(){
+		$("#history-text").val("");
+	}
+
+	function push_new_logentry_to_server(logentry){
+		$.ajax({
+			url : itemlog_url,
+			dataType : "json",
+			data : JSON.stringify(logentry),
+			contentType: "application/json", 
+			type : 'POST',
+			success : function(itemlog) {
+				clear_comments_status();
+				sync_records(itemlog);
+				clear_textarea();
+			}
+		});
+	}
+
+	function sync_with_server(){
+		$.getJSON(itemlog_url)
+			.success(
+				function(itemlog){
+					clear_comments_status();
+					sync_records(itemlog);
+				}).error(
+			function(err){
+				var err_context = JSON.parse(err.responseText);
+				$("#history-status").html(err_context.reason);
+		});
+	}
+
+	function sync_records(itemlog){
+		var is_dirty_state = false;
+		for(var i in itemlog){
+			if(i.indexOf("_") != 0){
+				// If the record is not in the DB
+				if(!_.include(known_keys, i)){
+					known_keys.push(i);
+					var dtg = new Date();
+					dtg.setISO8601(itemlog[i].datetime);
+					itemlog[i].date = dtg;
+					itemlog[i].datesimple = simple_time(dtg);
+					itemlog[i].dtg = dtg.getTime();
+					hdb.insert(itemlog[i]);
+					add_logentry(itemlog[i]);
+					is_dirty_state = true;
+				}
+			}
+		}
+		if(is_dirty_state){
+			update_aggregates();
+		}
+	}
+
+	$(function(){
+
+		$("#history-post").click(function(){
+			var logentry = {};
+			var text = $.trim($("#history-text").val());
+			if (text != null && text != ""){
+				logentry.item_id = item_id;
+				logentry.text = text;
+				logentry.user = {};
+				logentry.user.email = email;
+				logentry.user.first_name = fname;
+				logentry.user.last_name = lname;
+				logentry.datetime = new Date().toISOString();
+				logentry.category = $("#history-con").attr("value");
+
+				push_new_logentry_to_server(logentry);
+			}
+			else {
+				$("#history-no-content").modal();
+			}
+		});
+
+		$("#history-clear").click(function(){
+			clear_textarea();
+		});
+
+		$("#history-con-selectors button").each(function(){
+			$(this).click(function(){
+				var con = $(this).attr("value");
+				$("#history-con").attr("value", con);
+				$("#history-post").removeClass(last_style);
+				last_style = $(this).attr("bstyle");
+				$("#history-post").addClass(last_style);
+			})
+		});
+
+		sync_with_server();
+		setInterval(sync_with_server, 10000);
+
+	});
+	
