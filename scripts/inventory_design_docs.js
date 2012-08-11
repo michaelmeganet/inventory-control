@@ -66,7 +66,31 @@ function(doc) {
 	}
 }
 
-
+function(doc, req){ 
+	var context = JSON.parse(req.body); 
+	if (doc.issuability == "borrow" || doc.issuability == "issue"){
+		if (doc.issuability == "borrow" && context.method == "issue"){
+			throw "Item may only be borrowed, not issued.";
+		}
+		if(context.methdod == "issue"){
+			doc.disposition = "Issued";
+			doc.checked_out_by = context.checked_out_by;
+			doc.checked_out_to = context.checked_out_to;
+		} else {
+			if (context.checked_out_by == context.checked_out_to && !doc.allow_self_issue){
+				throw context.checked_out_by + " cannot self-issue this item";
+			}
+			doc.disposition = "Borrowed";
+			doc.checked_out_by = context.checked_out_by;
+			doc.checked_out_to = context.checked_out_to;
+			doc.borrow_time = context.borrow_time || doc.borrow_time;
+		}
+	}
+	else {
+		throw "Item may not be borrowed or issued.";
+	}
+	return [doc, "Issued or borrowed successfully."]; 
+}
 
 
 

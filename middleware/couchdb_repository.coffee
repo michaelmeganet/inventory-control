@@ -364,6 +364,9 @@ class CouchDbInventoryRepository extends CouchDbRepository
 		delete model._rev
 		@partial_update id, model, "inventory", "merge", callback
 	
+	checkout: (context, callback) ->
+		@partial_update context.id, context, "inventory", "issue_or_borrow", callback
+	
 	@adapt_to_inventory_item: (body) ->
 		item = new InventoryItem(body)
 		item.id = item._id if item._id?

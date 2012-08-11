@@ -91,6 +91,9 @@ normalize_post_values = (item) ->
 	new_item.id = item.serial_no
 	new_item.estimated_value = parseFloat(item.estimated_value)
 	new_item.allow_self_issue = Boolean(item.allow_self_issue)
+	if new_item.checked_out_to is ""
+		delete new_item.checked_out_to
+		delete new_item.checked_out_by
 	new_item
 
 # ------------------------------------------------------------------------------------------	
@@ -98,10 +101,8 @@ normalize_post_values = (item) ->
 # ------------------------------------------------------------------------------------------
 module.exports = (app) ->
 	
-	
-	
 	app.get '/inv/new', (req, res) ->
-		state = build_state req, "Add to Inventory", "Add a new or existing item to the Berico Inventory Control System"
+		state = build_state req, "Add to Inventory", "Add a new or existing item to the Inventory Control System"
 		res.render("inventory_create", state)
 	
 	# ------------------------------------------------------------------------------------------	
@@ -203,6 +204,15 @@ module.exports = (app) ->
 		inv_repo.get req.params.id, (item) ->
 			inv_repo.remove item
 			res.redirect("/inv/items")
+
+	app.post '/inv/item/:id/assign', (req, res) ->
+		context = 
+			id: req.params.id
+			method: "issue"
+			checked_out_by: req.user.email
+			checked_out_to: req.body.ctx.user
+		inv_repo.checkout context, () ->
+			res.redirect("/inv/item/#{req.params.id}")
 
 	app.post '/inv/item/:id/checkin', (req, res) ->
 	

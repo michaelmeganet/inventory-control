@@ -12,6 +12,7 @@ div.control-group
 			br
 			!=partial("partials/controls/hidden", { elem_id: "issue_method", value: "Issued" })
 			!=partial("partials/controls/buttongroup", { elem_id: "b_or_i", label: "Method:", options: [ { label: "Loan", id: "sel_borrow", cssclass: "btn-primary", active: (item.disposition == "Borrowed") }, { label: "Issue", id: "sel_issue", active: (item.disposition == "Issued") } ] })
+			!=partial("partials/controls/hidden", { id: "inv[checked_out_by]", value: "#{user.email}"})
 			!=partial("partials/controls/hidden", { elem_id: "inv_checked_out_to_selected" })
 			!=partial("partials/controls/autocomplete", { elem_id: "inv_checked_out_to", id: "inv[checked_out_to]", label: "Employee:", value: item.checked_out_to, source: "users", data_load: "continuous", sync_with: "#inv_checked_out_to_selected", help: "*Hint: Just start typing and a list of matching names will appear." })
 

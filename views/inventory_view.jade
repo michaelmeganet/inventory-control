@@ -83,7 +83,7 @@ div.row(style="margin-left: 10px;")
 				i.icon-tasks.mr10
 				span Available Actions
 			- if (item.disposition == "Available" && (user.is_in_role('assign_inventory') || item.allow_self_issue))
-				button.btn.btn-success.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/issue';") Issue Item
+				button.btn.btn-success.mr10(type="button", onclick="window.location = '/inv/item/#{item.id}/assign';") Issue Item
 			- if (item.disposition == "Needs Verification" && user.is_in_role("check_in_inventory") && item.checked_in_by != user.email)
 				!=partial("partials/controls/button_goto", { label: "Verify Check-In", url: "/inv/item/" + item.id + "/verify", addClass: "btn-success"})
 			- if (item.disposition == "Issued" && user.is_in_role('check_in_inventory'))

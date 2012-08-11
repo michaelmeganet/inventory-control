@@ -1,0 +1,4 @@
+h1 Assign #{item.make} #{item.model} #{item.model_no}
+form.form.form-search(action="/inv/item/#{item.serial_no}/assign", method="POST")
+	input(type="text", name="ctx[user]", autocomplete, source="users", data-load="continuous")
+	button.btn.btn-danger.ml10(type="submit") Assign
