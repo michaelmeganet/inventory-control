@@ -136,6 +136,8 @@ module.exports = (app) ->
 	get_model_then_view '/inv/item/:id/update', "inventory_update", "Update Inventory Item"
 	get_model_then_view '/inv/item/:id/remove', "inventory_remove", "Remove Inventory Item?"
 	get_model_then_view '/inv/item/:id/assign', "inventory_assign", "Assign Inventory Item"
+	get_model_then_view '/inv/item/:id/borrow', "inventory_borrow", "Borrow Inventory Item"
+	get_model_then_view '/inv/item/:id/loan', "inventory_loan", "Loan Inventory Item"
 	get_model_then_view '/inv/item/:id/checkin', "inventory_checkin", "Check-in Inventory Item"
 	get_model_then_view '/inv/item/:id/return', "inventory_return", "Return Inventory Item"
 	get_model_then_view '/inv/item/:id/extend', "inventory_extend", "Extend Borrow Time"
@@ -170,7 +172,7 @@ module.exports = (app) ->
 	inventory_list_categories = [ 
 		[ "serial_no", true ], "disposition", "location", "type", 
 		"date_received", "make_model_no", "user", "availability", 
-		"needs_verification", "checked_out"
+		"needs_verification", "checked_out", "borrowability"
 	]
 	
 	# Instead of calling the method 800 times for each list, this loop will iterate over the
@@ -214,8 +216,6 @@ module.exports = (app) ->
 		inv_repo.checkout context, () ->
 			res.redirect("/inv/item/#{req.params.id}")
 
-	app.post '/inv/item/:id/checkin', (req, res) ->
-	
 	app.post '/inv/item/:id/checkin', (req, res) ->
 		
 	app.post '/inv/item/:id/return', (req, res) ->

@@ -1,0 +1,27 @@
+- if (typeof(key) == "undefined")
+	- var key = ""
+h2 Borrowable Inventory Items
+br
+blockquote
+	span Find by Make, Model, and Model No.:
+	form.form.form-search.mt10
+		input.ml10(id="item_search", type="text", value="#{key}", autocomplete, data-load="continuous", source="make_model_no")
+		button#do_search.btn.ml10(type="button") Filter
+		- if (key != "")
+			br
+			a.mt10(href="/inv/items/by/borrowability/", style="margin-left: 66px; font-size: 10px;") (x) Clear Current Filter
+br
+- var fields = [ { l: "Serial No.", f: "serial_no", a: true, pre_url: "/inv/item/", post_url: "" }, {l: "Make/Model/No.", f: "make_model_no" }, { l: "Type", f: "type"}, { l: "City", f: "location.city" }, { l: "Room", f: "location.room" }, { l: "Acquired", f: "date_received" } ]
+!=partial("partials/tables/inventory", { base_url: "/inv/items/by/date_received", elem_id: "available_inventory", fields: fields, suppress_controls: true, button_hook: "Loan", button_hook_class: "btn-primary" })
+script(type="text/javascript")
+	$(function(){
+		$("#do_search").click(function(){
+			var item = $("#item_search").val();
+			window.location = "/inv/items/by/borrowability/" + item;
+		});
+
+		$("#available_inventory button").click(function(){
+			var key = $(this).attr("key");
+			window.location = "/inv/item/" + key + "/loan";
+		});
+	});

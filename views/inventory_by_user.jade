@@ -2,5 +2,9 @@
 	h2 Inventory Items for #{key}
 - else
 	h2 Inventory Items by User
-!=partial("partials/menus/inventory_list_menu", { active: "/inv/items/by/user" })
+- if (user.is_in_role("view_inventory"))
+	!=partial("partials/menus/inventory_list_menu", { active: "/inv/items/by/user" })
+- else
+	br
+	br
 !=partial("partials/tables/inventory", { base_url: "/inv/items/by/user" })

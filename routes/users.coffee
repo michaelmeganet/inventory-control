@@ -51,7 +51,7 @@ build_state = (req, title, desc) ->
 	state.config = config
 	state
 
-module.exports = (app) ->
+module.exports = (app, user_cache) ->
 	
 	# HANDLE NEW USER
 	app.post '/user/new', (req, res) ->
@@ -68,8 +68,8 @@ module.exports = (app) ->
 	app.post '/user/:id', 	(req, res) ->
 		user = normalize_post_values req.body.user, req.body.roles
 		unless user is null
+			delete user_cache[user.email]
 			user_repo.update user
-			req.session.user = user if user.id is req.session.user.id	
 		res.redirect("/users/")
 	
 	# GET USER VIEW
@@ -91,6 +91,7 @@ module.exports = (app) ->
 	# HANDLE REMOVE USER
 	app.post '/user/:id/remove', (req, res) ->	
 		user_repo.get req.params.id, (user) ->
+			delete user_cache[user.email]
 			user_repo.remove user
 			res.redirect("/users/")
 			
@@ -134,11 +135,4 @@ module.exports = (app) ->
 		res.redirect("/users/")
 	
 	app.get '/search/users/:query', new SearchHandler(user_repo, "find_name").handle_query
-	
-	app.get '/users/refresh_info', (req, res) ->
-		# Kill the user variable in the session,
-		# on next authentication we will force a 
-		# new user lookup
-		delete req.session.user
-		res.redirect(req.header('Referer'))
 

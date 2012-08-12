@@ -45,7 +45,7 @@ app.configure('production', function(){
 // Routes
 require("./routes/index.coffee")(app);
 require("./routes/inventory.coffee")(app);
-require("./routes/users.coffee")(app);
+require("./routes/users.coffee")(app, auth_conf.user_cache);
 require("./routes/log.coffee")(app);
 
 server_port = 8443

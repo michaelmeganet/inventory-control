@@ -6,10 +6,12 @@ div.lead(style="max-width: 660px;") The inventory item is currently listed as be
 	a(href="/inv/item/#{item.serial_no}") info page
 	| .
 br
-form.form.form-search.ml30(action="/inv/item/#{item.serial_no}/assign", method="POST")
-	span User to Assign Item:
+form.form.form-search.ml30(action="/inv/item/#{item.serial_no}/loan", method="POST")
+	span User to Loan Item:
 	input.ml10(type="text", name="ctx[user]", autocomplete, source="users", data-load="continuous")
-	button.btn.btn-danger.ml10(type="submit") Assign
+	span.ml10 For:
+	input.ml10(type="text", style="width: 100px", name="ctx[borrow_time]", value="#{item.borrow_time}")
+	button.btn.btn-danger.ml10(type="submit") Loan
 br
 blockquote(style="max-width: 620px;") Assignments last until the user leaves the company, refreshes the equipment, 
 	| or turns it back in for some other reason.  If you want to issue this item 

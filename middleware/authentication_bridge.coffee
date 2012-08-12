@@ -23,6 +23,7 @@ class CertificateUserInfoProvider
 authentication_bridge = (options) ->
 	options = options ? {}
 	options.user_info_provider = options.user_info_provider ? new CertificateUserInfoProvider()
+	options.user_cache = options.user_cache ? []
 	(req, res, next)->
 		handle_user = (user) ->
 				# It's possible that the client has a valid certificate but the
@@ -31,17 +32,20 @@ authentication_bridge = (options) ->
 					subject = req.connection.getPeerCertificate().subject
 					res.redirect("403", { title: "Not Authorized", subject: subject })
 				# This is a double variable set (pretty cool, huh?)
-				req.user = req.session.user = user
+				req.user = user
+				options.user_cache[user.email] = user
 				console.log("AUTH:    #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +
 						"#{req.method} url:#{req.url} user:#{req.user.logon_name}")
 				# Next middleware
 				next()
 		
 		if req.client.authorized
+			# We need a reference to the email address.
+			email = req.connection.getPeerCertificate().subject.emailAddress
 			# Go to the session cache instead of making a call
 			# to the user_info_provider (if in cache)
-			if req.session.user?
-				req.user = new User(req.session.user)
+			if options.user_cache[email]?
+				req.user = new User(options.user_cache[email])
 				console.log("AUTH:    #{moment().format('YY-MM-DDTHH:mm:ss.SSS')} " +
 							"#{req.method} url:#{req.url} user:#{req.user.logon_name}")
 							# Next middleware

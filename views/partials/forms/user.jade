@@ -1,7 +1,7 @@
 action = "/user/new"
 
 - if (is_edit)
-  action = "/user/" + user.email
+  action = "/user/" + target_user.email
   
 form.form-horizontal(action="#{action}", method="POST")
     - if (typeof(target_user._rev) != "undefined")
